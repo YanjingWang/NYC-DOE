@@ -236,10 +236,10 @@ def RelatedServices():
     # # copy 275 chater files
     copyallfiles(int_charterpdf,shareCharter)
     copyallfiles(int_charterpdf,Charter_Archive)
-    # print('copy pdf charter files compelte')
-    # print('Close Access file')
-    # time.sleep(60)
-    # rmonefile('C:\Template\Mandate_Distribution_SY23-24.accdb')
+    print('copy pdf charter files compelte')
+    print('Close Access file')
+    time.sleep(60)
+    rmonefile('C:\Template\Mandate_Distribution_SY23-24.accdb')
 
 def R_Process():
     #Process 2 : Create XLS Files for Charter and CSD schools
@@ -259,37 +259,37 @@ def R_Process():
     src_CSD ='\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\SY 23-24\MandatedServices_{0}'.format(date.today().strftime("%Y%m%d"))
     src_Charter = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\SY 23-24 Charter\MandatedServicesCharter_{0}'.format(date.today().strftime("%Y%m%d"))
 
-    file1 = os.path.join(MDSY23_24,'RS_Reports_2023_2024.R')
-    copyonefile(file1,mylocalXLSfolder)  
-    file2 = os.path.join(MDSY23_24,'RS_Reports_2023_2024_Charter.R')
-    copyonefile(file2,mylocalXLSfolder)
-    newfile2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
-    file3 = os.path.join(MDSY23_24,'RS_Template_new.xlsx')
-    copyonefile(file3,mylocalXLSfolder)
-    newfile3 = os.path.join(mylocalXLSfolder,'RS_Template_new.xlsx')
-    file4 = os.path.join(MDSY23_24,'RS_Compliance_new.xlsx')
-    copyonefile(file4,mylocalXLSfolder)
-    newfile4 = os.path.join(mylocalXLSfolder,'RS_Compliance_new.xlsx')
+    # file1 = os.path.join(MDSY23_24,'RS_Reports_2023_2024.R')
+    # copyonefile(file1,mylocalXLSfolder)  
+    # file2 = os.path.join(MDSY23_24,'RS_Reports_2023_2024_Charter.R')
+    # copyonefile(file2,mylocalXLSfolder)
+    # newfile2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
+    # file3 = os.path.join(MDSY23_24,'RS_Template_new.xlsx')
+    # copyonefile(file3,mylocalXLSfolder)
+    # newfile3 = os.path.join(mylocalXLSfolder,'RS_Template_new.xlsx')
+    # file4 = os.path.join(MDSY23_24,'RS_Compliance_new.xlsx')
+    # copyonefile(file4,mylocalXLSfolder)
+    # newfile4 = os.path.join(mylocalXLSfolder,'RS_Compliance_new.xlsx')
 
 
 
-    file1 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024.R')
-    os.startfile(file1)
-    print('Click Run and it takes 35 mins')
-    time.sleep(50*60)
+    # file1 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024.R')
+    # os.startfile(file1)
+    # print('Click Run and it takes 35 mins')
+    # time.sleep(50*60)
 
-    copyallfiles(src_CSD,dst_CSD_XLS)
-    copyallfiles(dst_CSD_XLS,int_xlspath)  # copy PA_Distribution_XLS to archive?
-    copyallfiles(dst_CSD_XLS,CSD_Archive)
-    # # copyallfiles(RSCompliance,RSDashboardSharepoint)
+    # copyallfiles(src_CSD,dst_CSD_XLS)
+    # copyallfiles(dst_CSD_XLS,int_xlspath)  # copy PA_Distribution_XLS to archive?
+    # copyallfiles(dst_CSD_XLS,CSD_Archive)
+    # # # copyallfiles(RSCompliance,RSDashboardSharepoint)
 
-    file2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
-    os.startfile(file2)
-    print('Click Run and it takes 5 mins')
-    time.sleep(10*60)
-    createdir(src_Charter)
-    createdir(Charter_Archive)  # really created?
-    createdir(shareCharter)  # really created?
+    # file2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
+    # os.startfile(file2)
+    # print('Click Run and it takes 5 mins')
+    # time.sleep(10*60)
+    # createdir(src_Charter)
+    # createdir(Charter_Archive)  # really created?
+    # createdir(shareCharter)  # really created?
     copyallfiles(src_Charter,shareCharter)
     copyallfiles(src_Charter,Charter_Archive)
 
@@ -534,12 +534,12 @@ def archive_rs_borough():
 if __name__ == '__main__':
     # RelatedServices()
     # R_Process()
-    # rerun_R()
-    # rs_charter_send_outlook_email()
+    # rerun_R() 
+    rs_charter_send_outlook_email()
     # MandatedServices()
-    # ms_send_outlook_email()
+    ms_send_outlook_email()
     # upload_to_sharepoint(RSCompliance, RSDashboardSharepoint, USERNAME, PASSWORD)
-    # rs_compliace_send_outlook_email() 
+    rs_compliace_send_outlook_email() 
     # openfiles('R:\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard')
     archive_rs_borough()
 

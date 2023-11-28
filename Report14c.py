@@ -40,7 +40,7 @@ class Solution:
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
         # wb = openpyxl.Workbook()
         # ws = wb.active
-        # ws.title = "Report 14 = BIP School"
+        # ws.title = "Report 14 = BIP District"
         wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
         ws = wb.create_sheet("Report 14 = BIP School")
 
@@ -128,16 +128,15 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_StudentRegisterR814_061523')
-        cursor.execute("[DEV].[USPCCAnnaulReport14c] @tableNameCCStudentRegisterR814=?", params)
+        cursor.execute("[DEV].[USPCCAnnaulReport14b] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_tab14(self,cursor):
         query_bytab14 = '''
-        Select ReportingDistrict as 'School District' ,Case when PrimaryProgramType = 'No Active Program Services' then 'Related Services or Assistive Technology Only' else PrimaryProgramType end as PrimaryProgramType ,Case when BIP <> 0 and BIP <=5 then '<=5' when BIP >5 and NoBip <> 0 and NoBIP <= 5 then '>5' else BIP end as BIP ,PercentBIP ,
-        Case when NoBIP <> 0 and NoBIP <=5 then '<=5' when NoBIP >5 and Bip <> 0 and BIP <= 5 then '>5' else NoBIP end as NoBIP ,PercentNoBIP from  (select distinct ReportingDistrict, PrimaryProgramType  ,cast(Sum(BIP) as varchar) as BIP , CONCAT(CAST(AVG(BIP * 100.00 ) as numeric(7,0)), '%') as 'PercentBIP'  ,cast(sum(NoBIP)as varchar) as NoBIP , CONCAT(CAST(AVG(NoBIP * 100.00 ) as numeric(7,0)), '%') as 'PercentNoBIP'  
-        from(Select a.studentid  ,ReportingDistrict   ,PrimaryProgramType   ,case when BIPFlagCC = 'Y' then 1   else 0   end as 'BIP'   ,case when BIPFlagCC= 'N' then 1   else 0    end as 'NoBIP'   FROM SEO_MART.snap.CC_StudentRegisterR814_061523 as a) as a    
-        group by  ReportingDistrict, PrimaryProgramType  ) as a union all  select * from (  select  'Total' as district, Null as  PrimaryProgramType  ,FORMAT(Sum(BIP) , '#,##0') as c1  , CONCAT(CAST(AVG(BIP * 100.00 ) as numeric(7,0)), '%')  as c2  ,FORMAT(sum(NoBIP), '#,##0') as c3  , CONCAT(CAST(AVG(NoBIP * 100.00 ) as numeric(7,0)), '%') as c4 
-        from(Select a.studentid  ,PrimaryProgramType  ,case when BIPFlagCC = 'Y' then 1   else 0  end as 'BIP' ,case when BIPFlagCC= 'N' then 1   else 0   end as 'NoBIP' 
+        Select EnrolledDBN as 'School' ,Case when PrimaryProgramType = 'No Active Program Services' then 'Related Services or Assistive Technology Only' else PrimaryProgramType end as PrimaryProgramType ,Case when BIP <> 0 and BIP <=5 then '<=5' when BIP >5 and NoBip <> 0 and NoBIP <= 5 then '>5' else BIP end as BIP ,PercentBIP ,Case when NoBIP <> 0 and NoBIP <=5 then '<=5' when NoBIP >5 and Bip <> 0 and BIP <= 5 then '>5' else NoBIP end as NoBIP ,PercentNoBIP 
+        from  (select distinct EnrolledDBN, PrimaryProgramType  ,cast(Sum(BIP) as varchar) as BIP , CONCAT(CAST(AVG(BIP * 100.00 ) as numeric(7,0)), '%') as 'PercentBIP'  ,cast(sum(NoBIP)as varchar) as NoBIP , CONCAT(CAST(AVG(NoBIP * 100.00 ) as numeric(7,0)), '%') as 'PercentNoBIP'  from(Select a.studentid  ,EnrolledDBN   ,PrimaryProgramType   ,case when BIPFlagCC = 'Y' then 1   else 0   end as 'BIP'   ,case when BIPFlagCC= 'N' then 1   else 0    end as 'NoBIP'   
+        FROM SEO_MART.snap.CC_StudentRegisterR814_061523 as a) as a    
+        group by  EnrolledDBN, PrimaryProgramType  ) as a union all  select * from (  select  'Total' as district, Null as  PrimaryProgramType  ,FORMAT(Sum(BIP) , '#,##0') as c1  , CONCAT(CAST(AVG(BIP * 100.00 ) as numeric(7,0)), '%') as c2 ,FORMAT(sum(NoBIP), '#,##0') as c3  , CONCAT(CAST(AVG(NoBIP * 100.00 ) as numeric(7,0)), '%') as c4 from(Select a.studentid  ,PrimaryProgramType  ,case when BIPFlagCC = 'Y' then 1   else 0  end as 'BIP' ,case when BIPFlagCC= 'N' then 1   else 0   end as 'NoBIP' 
         FROM SEO_MART.snap.CC_StudentRegisterR814_061523 as a) as a   )  as total  order by 1,2 
         '''  # the bytab12 SQL query goes here
         cursor.execute(query_bytab14)
@@ -168,31 +167,27 @@ class Solution:
             for row_num in range(start_row, start_row + len(data)):
                 ws[col + str(row_num)].border = black_border_no_bottom
 
-        # Update alignment for range C6:N38
+
         for row in ws['C4':'G6000']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center')
 
+        for row in ws['B1': 'G1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
 
-        
+        for row in ws['B5539':'G5539'] :
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
 
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
 
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
     def Report_14_BIP_School(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 14 Number and Percentage of Students with a Behavioral Intervention Plan by School", "merge_cells": "B1:G1"},
+            {"cell": "B1", "value": "Report 14 Number and Percentage of Students with a Behavioral Intervention Plan by School District", "merge_cells": "B1:G1"},
             
 
         ]
@@ -239,9 +234,6 @@ class Solution:
         book.save(save_path)
 
 if __name__ == "__main__":
-        Tab14c = Solution()
-        Tab14c.Report_14_BIP_School() 
-
-
-
-                                                                        
+        Tab14b = Solution()
+        Tab14b.Report_14_BIP_School()   
+ 

@@ -169,22 +169,21 @@ class Solution:
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center')
 
+        for row in ws['B1': 'D1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
 
-        
+        for row in ws['B8':'D8'] :
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
 
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
-
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
-    def Report_14_Program_Services(self):
+        for row in ws['B3':'D3'] :
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
+    def Report_14_Inclusion(self):
         title_cells = [
             {"cell": "B1", "value": "Report 14 Inclusion", "merge_cells": "B1:D1"},
             
@@ -234,5 +233,5 @@ class Solution:
 
 if __name__ == "__main__":
         Tab14 = Solution()
-        Tab14.Report_14_Program_Services()  
+        Tab14.Report_14_Inclusion()  
  

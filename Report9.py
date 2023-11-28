@@ -13,7 +13,7 @@ class Solution:
         ws[header_start_cell] = header_title
         ws[header_start_cell].font = font_style
         ws[header_start_cell].border = border_style
-        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center')  
+        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)  
         ws[header_start_cell].fill = PatternFill(start_color=header_fill_color, end_color=header_fill_color, fill_type="solid")
         ws.row_dimensions[int(header_start_cell[1:])].height = row_height
         
@@ -303,18 +303,21 @@ class Solution:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center')
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B1': 'D1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
 
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B38':'D38'] + ws['B47':'D47'] + ws['B53':'D53'] + ws['B60':'D60'] + ws['B66':'D66'] + ws['B74':'D74'] + ws['B91':'D91'] + ws['B98':'D98'] + ws['B105':'D105']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B4':'D4'] + ws['B40':'D40'] + ws['B49':'D49'] + ws['B55':'D55'] + ws['B62':'D62'] + ws['B68':'D68'] + ws['B76':'D76'] + ws['B94':'D94'] + ws['B101':'D101']:
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
+
     def main_Report_9_Placement(self):
         title_cells = [
             {"cell": "B1", "value": "Report 9 Average Number of School Days from Initial IEP Meeting to Placement Notice Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:D1"},

@@ -118,9 +118,9 @@ class Solution:
         self.format_header(ws, 'B58', 'Gender', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
         self.format_header(ws, 'B66', 'ELL Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
         self.format_header(ws, 'B73', 'Language of Instruction', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B84', 'Grade Level', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B103', 'Temporary Housing Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B111', 'Foster Care Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        self.format_header(ws, 'B82', 'Grade Level', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        self.format_header(ws, 'B101', 'Temporary Housing Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        self.format_header(ws, 'B109', 'Foster Care Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
 
         
         # Deleting the default created sheet
@@ -554,35 +554,43 @@ class Solution:
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C86':'N99']:
+        for row in ws['C84':'N97']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C105':'N107']:
+        for row in ws['C103':'N105']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C113':'N115']:
+        for row in ws['C111':'N113']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
 
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B1': 'N1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B38':'N38'] + ws['B48':'N48'] + ws['B55':'N55'] + ws['B63':'N63'] + ws['B70':'N70'] + ws['B79':'N79'] + ws['B97':'N97'] + ws['B105':'N105'] + ws['B113':'N113']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B3':'N3'] + ws['B40':'N40'] + ws['B50':'N50'] + ws['B57':'N57'] + ws['B65':'N65'] + ws['B72':'N72'] + ws['B81':'N81'] + ws['B100':'N100'] + ws['B108':'N108']:
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B4': 'B5'] + ws['C4':'D4'] + ws['E4':'F4'] + ws['G4':'H4'] + ws['I4':'J4'] + ws['K4':'L4'] + ws['M4':'N4'] + ws['C5':'C5'] + ws['D5':'D5'] + ws['E5':'E5'] + ws['F5':'F5'] + ws['G5':'G5'] + ws['H5':'H5'] + ws['I5':'I5'] + ws['J5':'J5'] + ws['K5':'K5'] + ws['L5':'L5'] + ws['M5':'M5'] + ws['N5':'N5'] + ws ['B41':'B42'] + ws['C41':'D41'] + ws['E41':'F41'] + ws['G41':'H41'] + ws['I41':'J41'] + ws['K41':'L41'] + ws['M41':'N41'] + ws['C42': 'C42'] + ws['D42':'D42'] + ws['E42':'E42'] + ws['F42':'F42'] + ws['G42':'G42'] + ws['H42':'H42'] + ws['I42':'I42'] + ws['J42':'J42'] + ws['K42':'K42'] + ws['L42':'L42'] + ws['M42':'M42'] + ws['N42':'N42'] + ws['B51':'B52'] + ws['C51':'D51'] + ws['E51':'F51'] + ws['G51':'H51'] + ws['I51':'J51'] + ws['K51':'L51'] + ws['M51':'N51'] + ws['C52':'C52'] + ws['D52':'D52'] + ws['E52':'E52'] + ws['F52':'F52'] + ws['G52':'G52'] + ws['H52':'H52'] + ws['I52':'I52'] + ws['J52':'J52'] + ws['K52':'K52'] + ws['L52':'L52'] + ws['M52':'M52'] + ws['N52':'N52'] + ws['B58':'B59'] + ws['C58':'D58'] + ws['E58':'F58'] + ws['G58':'H58'] + ws['I58':'J58'] + ws['K58':'L58'] + ws['M58':'N58'] + ws['C59':'C59'] + ws['D59':'D59'] + ws['E59':'E59'] + ws['F59':'F59'] + ws['G59':'G59'] + ws['H59':'H59'] + ws['I59':'I59'] + ws['J59':'J59'] + ws['K59':'K59'] + ws['L59':'L59'] + ws['M59':'M59'] + ws['N59':'N59'] + ws['B66':'B67'] + ws['C66':'D66'] + ws['E66':'F66'] + ws['G66':'H66'] + ws['I66':'J66'] + ws['K66':'L66'] + ws['M66':'N66'] + ws['C67':'C67'] + ws['D67':'D67'] + ws['E67':'E67'] + ws['F67':'F67'] + ws['G67':'G67'] + ws['H67':'H67'] + ws['I67':'I67'] + ws['J67':'J67'] + ws['K67':'K67'] + ws['L67':'L67'] + ws['M67':'M67'] + ws['N67':'N67'] + ws['B73':'B74'] + ws['C73':'D73'] + ws['E73':'F73'] + ws['G73':'H73'] + ws['I73':'J73'] + ws['K73':'L73'] + ws['M73':'N73'] + ws['C74':'C74'] + ws['D74':'D74'] + ws['E74':'E74'] + ws['F74':'F74'] + ws['G74':'G74'] + ws['H74':'H74'] + ws['I74':'I74'] + ws['J74':'J74'] + ws['K74':'K74'] + ws['L74':'L74'] + ws['M74':'M74'] + ws['N74':'N74'] + ws['B82':'B83'] + ws['C82':'D82'] + ws['E82':'F82'] + ws['G82':'H82'] + ws['I82':'J82'] + ws['K82':'L82'] + ws['M82':'N82'] + ws['C83':'C83'] + ws['D83':'D83'] + ws['E83':'E83'] + ws['F83':'F83'] + ws['G83':'G83'] + ws['H83':'H83'] + ws['I83':'I83'] + ws['J83':'J83'] + ws['K83':'K83'] + ws['L83':'L83'] + ws['M83':'M83'] + ws['N83':'N83'] + ws['B101':'B102'] + ws['C101':'D101'] + ws['E101':'F101'] + ws['G101':'H101'] + ws['I101':'J101'] + ws['K101':'L101'] + ws['M101':'N101'] + ws['C102':'C102'] + ws['D102':'D102'] + ws['E102':'E102'] + ws['F102':'F102'] + ws['G102':'G102'] + ws['H102':'H102'] + ws['I102':'I102'] + ws['J102':'J102'] + ws['K102':'K102'] + ws['L102':'L102'] + ws['M102':'M102'] + ws['N102':'N102'] + ws['B109':'B110'] + ws['C109':'D109'] + ws['E109':'F109'] + ws['G109':'H109'] + ws['I109':'J109'] + ws['K109':'L109'] + ws['M109':'N109'] + ws['C110':'C110'] + ws['D110':'D110'] + ws['E110':'E110'] + ws['F110':'F110'] + ws['G110':'G110'] + ws['H110':'H110'] + ws['I110':'I110'] + ws['J110':'J110'] + ws['K110':'K110'] + ws['L110':'L110'] + ws['M110':'M110'] + ws['N110':'N110'] :
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
     def main_report8b(self):
         title_cells = [
             {"cell": "B1", "value": "Report 8b IEP Service Recommendations Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:L1"},
@@ -597,9 +605,9 @@ class Solution:
             {"cell": "B57", "value": "SY 2022-23 Students with IEP Recommended Services by Gender", "merge_cells": "B57:N57"},
             {"cell": "B65", "value": "SY 2022-23 Students with IEP Recommended Services by ELL Status", "merge_cells": "B65:N65"},
             {"cell": "B72", "value": "SY 2022-23 Students with IEP Recommended Services  by Recommended Language of Instruction", "merge_cells": "B72:N72"},
-            {"cell": "B83", "value": "SY 2022-23 Students with IEP Recommended Services  by Grade Level", "merge_cells": "B83:N83"},
-            {"cell": "B102", "value": "SY 2022-23 Students with IEP Recommended Services  by Temporary Housing", "merge_cells": "B102:N102"},
-            {"cell": "B110", "value": "SY 2022-23 Students with IEP Recommended Services  by Foster Care Status", "merge_cells": "B110:N110"},
+            {"cell": "B81", "value": "SY 2022-23 Students with IEP Recommended Services  by Grade Level", "merge_cells": "B81:N81"},
+            {"cell": "B100", "value": "SY 2022-23 Students with IEP Recommended Services  by Temporary Housing", "merge_cells": "B100:N100"},
+            {"cell": "B108", "value": "SY 2022-23 Students with IEP Recommended Services  by Foster Care Status", "merge_cells": "B108:N108"},
             
 
         ]
@@ -637,15 +645,15 @@ class Solution:
 
         # Step 9: Fetch and write data for "Report 8b = IEP Service Recs by Grade Level"
         results_byGradeLevel = self.fetch_data_by_gradelevel(cursor)
-        self.write_data_to_excel(ws, results_byGradeLevel, start_row=86)
+        self.write_data_to_excel(ws, results_byGradeLevel, start_row=84)
 
         # Step 10: Fetch and write data for "Report 8b = IEP Service Recs by Temporary Housing"
         results_byTempResFlag = self.fetch_data_by_tempResFlag(cursor)
-        self.write_data_to_excel(ws, results_byTempResFlag, start_row=105)
+        self.write_data_to_excel(ws, results_byTempResFlag, start_row=103)
 
         # Step 11: Fetch and write data for "Report 8b = IEP Service Recs by Foster Care Status"
         results_byFosterCareStatus = self.fetch_data_by_fosterCareStatus(cursor)
-        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=113)
+        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=111)
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
         wb.save(save_path)

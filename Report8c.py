@@ -18,7 +18,7 @@ results = cursor.fetchall()
 # ws = wb.active
 # ws.title = "Report 8 Count of Student with Disabilities by School"
 wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-ws = wb.create_sheet("Report 8 Count of Student with Disabilities by School")
+ws = wb.create_sheet("Report 8c = SWDs by School")
 header_font = Font(bold=True)
 black_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
 # Set fill color for cells from A1 to Zn to white
@@ -37,6 +37,7 @@ ws.column_dimensions['C'].width = 25
 black_border_side = Side(style='thin', color='000000')
 black_border = Border(top=black_border_side, left=black_border_side, right=black_border_side, bottom=black_border_side)
 black_border_no_bottom = Border(left=black_border_side, right=black_border_side)
+black_border_with_bottom = Border(left=black_border_side, right=black_border_side,bottom=black_border_side)
 # Add and format headers
 ws.merge_cells('B1:C1')
 ws['B1'] = "Report 8 Count of Student with Disabilities by School"
@@ -67,6 +68,9 @@ for idx, row in enumerate(results, start=4):  # Start from row 4 (1-based index)
     ws[f'B{idx}'].border = black_border_no_bottom
     ws[f'C{idx}'].border = black_border_no_bottom
 
+# Apply black borders to the last row
+ws[f'B{idx}'].border = black_border_with_bottom
+ws[f'C{idx}'].border = black_border_with_bottom
 
 # Save the report to the specified path
 save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'

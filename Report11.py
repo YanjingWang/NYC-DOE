@@ -295,21 +295,23 @@ class Solution:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B1': 'E1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
 
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B38':'E38'] + ws['B47':'E47'] + ws['B53':'E53'] + ws['B60':'E60'] + ws['B66':'E66'] + ws['B74':'E74'] + ws['B91':'E91'] + ws['B98':'E98'] + ws['B105':'E105']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B4':'E4'] + ws['B40':'E40'] + ws['B49':'E49'] + ws['B55':'E55'] + ws['B62':'E62'] + ws['B68':'E68'] + ws['B76':'E76'] + ws['B94':'E94'] + ws['B101':'E101']:
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
     def Report_11_3Yr_Reevaluations(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 11 Three-Year Reevaluations Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:D1"},
+            {"cell": "B1", "value": "Report 11 Three-Year Reevaluations Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:E1"},
             
 
         ]

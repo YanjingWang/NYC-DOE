@@ -94,7 +94,7 @@ class Solution:
         black_border_no_bottom = Border(left=black_border_mediumside, right=black_border_mediumside)
         black_boarder_all_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
         header_fill_color = "B8CCE4"
-        column_fill_color = "E0F0F8"
+        column_fill_color = "B8CCE4"
         self.format_header(ws, 'B4', 'District', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B40', 'Race/Ethnicity', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B49', 'Meal Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
@@ -329,21 +329,35 @@ class Solution:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
-        # # Update alignment for range B6:B38, B43:B48, B53:B55, B60:B63, B68:B70, B75:B80, B86:B99, B105:B107, B113:B115
-        # for row in ws['B6':'B38']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
 
-        # for row in ws['B43':'B48']:
-        #     for cell in row:
-        #         if cell.value is not None:  # Ensure there is a value in the cell
-        #             cell.value = ' ' + str(cell.value)  # Append space to the value
-        #         cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+        for row in ws['B1': 'M1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B37':'M37'] + ws['B46':'M46'] + ws['B52':'M52'] + ws['B59':'M59'] + ws['B65':'M65'] + ws['B74':'M74'] + ws['B92':'M92'] + ws['B101':'M101'] + ws['B109':'M109']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B3':'M3'] + ws['B39':'M39'] + ws['B48':'M48'] + ws['B54':'M54'] + ws['B61':'M61'] + ws['B67':'M67'] + ws['B77':'M77'] + ws['B97':'M97'] + ws['B105':'M105']:
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['G4':'G37'] + ws['G40':'G46'] + ws['G49':'G52'] + ws['G55':'G59'] + ws['G62':'G65'] + ws['G68':'G74'] + ws['G78':'G92'] + ws['G98':'G101'] + ws['G106':'G109']:
+            for cell in row:
+                cell.fill = PatternFill(start_color='DDDDDD', end_color='DDDDDD', fill_type='solid')
+        for row in ws['J4':'J37'] + ws['J40':'J46'] + ws['J49':'J52'] + ws['J55':'J59'] + ws['J62':'J65'] + ws['J68':'J74'] + ws['J78':'J92'] + ws['J98':'J101'] + ws['J106':'J109']:
+            for cell in row:
+                cell.fill = PatternFill(start_color='DDDDDD', end_color='DDDDDD', fill_type='solid')
+        for row in ws['E4':'F4'] + ws['H4':'I4'] + ws['E40':'F40'] + ws['H40':'I40'] + ws['E49':'F49'] + ws['H49':'I49'] + ws['E55':'F55'] + ws['H55':'I55'] + ws['E62':'F62'] + ws['H62':'I62'] + ws['E68':'F68'] + ws['H68':'I68'] + ws['E78':'F78'] + ws['H78':'I78'] + ws['E98':'F98'] + ws['H98':'I98'] + ws['E106':'F106'] + ws['H106':'I106']:
+            for cell in row:
+                # cell.fill = PatternFill(start_color='#DCE6F1', end_color='#DCE6F1', fill_type='solid')
+                cell.fill = PatternFill(start_color='E0F0F8', end_color='E0F0F8', fill_type='solid')
     def main_Reports_1_4_Initials(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 8b IEP Service Recommendations Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:M1"},
+            {"cell": "B1", "value": "Reports 1-4 Initial Referrals Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:M1"},
             
 
         ]
