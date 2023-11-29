@@ -99,9 +99,8 @@ class Solution:
         self.format_header(ws, 'B40', 'Race/Ethnicity', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B49', 'Meal Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B55', 'Gender', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B62', 'ELL Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B68', 'Language of Instruction', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B79', 'Grade Level', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B62', 'Grade Level', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B79', 'Disability Classification', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B96', 'Temporary Housing Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
         self.format_header(ws, 'B103', 'Foster Care Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
 
@@ -137,7 +136,7 @@ class Solution:
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):
         query_byRace = '''
-        select EthnicityGroupCC, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   Ethnicity_sort as sort , EthnicityGroupCC ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by EthnicityGroupCC, Ethnicity_sort ) a  ) a order by sort order by Ethnicity_sort  
+        select EthnicityGroupCC, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   Ethnicity_sort as sort , EthnicityGroupCC ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by EthnicityGroupCC, Ethnicity_sort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''  # the byRace SQL query goes here
         cursor.execute(query_byRace)
         results_byRace = cursor.fetchall()
@@ -146,7 +145,7 @@ class Solution:
     # Fetch data for "Report 8b = IEP Service Recs by District"
     def fetch_data_by_district(self,cursor):
         query_byDistrict = '''
-        select * from  (  Select    ReportingDistrict as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by ReportingDistrict  ) a  order by sort 
+        select * from  (  Select    ReportingDistrict as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by ReportingDistrict  ) a  union all  select * from ##TotalRow  order by sort 
         '''  # the byDistrict SQL query goes here
         cursor.execute(query_byDistrict)
         results_byDistrict = cursor.fetchall()
@@ -154,7 +153,7 @@ class Solution:
 
     def fetch_data_by_mealstatus(self,cursor):
         query_byMealStatus = '''
-        select * from  (  Select    MealStatusGrouping as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by MealStatusGrouping  ) a  order by sort 
+        select * from  (  Select    MealStatusGrouping as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by MealStatusGrouping  ) a  union all  select * from ##TotalRow  order by sort 
         '''  # the byMealStatus SQL query goes here
         cursor.execute(query_byMealStatus)
         results_byMealStatus = cursor.fetchall()
@@ -162,7 +161,7 @@ class Solution:
     
     def fetch_data_by_gender(self,cursor):
         query_byGender = '''
-        select * from  (  Select    Gender as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by Gender  ) a  order by sort 
+        select * from  (  Select    Gender as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by Gender  ) a  union all  select * from ##TotalRow  order by sort 
         '''  # the byGender SQL query goes here
         cursor.execute(query_byGender)
         results_byGender = cursor.fetchall()
@@ -178,7 +177,7 @@ class Solution:
     
     def fetch_data_by_classification(self,cursor):
         query_byClassification = '''
-        select * from  (  Select    Classification as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by Classification  ) a  order by sort 
+        select * from  (  Select    Classification as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by Classification  ) a  union all  select * from ##TotalRow  order by sort 
         '''  # the byLanguage SQL query goes here
         cursor.execute(query_byClassification)
         results_byClassification = cursor.fetchall()
@@ -186,7 +185,7 @@ class Solution:
     
     def fetch_data_by_gradelevel(self,cursor):
         query_byGradeLevel = '''
-        select GradeLevel, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   Grade_Sort as sort , GradeLevel ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by GradeLevel, Grade_Sort ) a  ) a order by sort 
+        select GradeLevel, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   Grade_Sort as sort , GradeLevel ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by GradeLevel, Grade_Sort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''
         cursor.execute(query_byGradeLevel)
         results_byGradeLevel = cursor.fetchall()
@@ -194,7 +193,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select * from  (  Select    TempResFlag as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by TempResFlag  ) a  order by sort 
+        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8 where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -202,7 +201,7 @@ class Solution:
     
     def fetch_data_by_fosterCareStatus(self,cursor):
         query_byFosterCareStatus = '''
-        select * from  (  Select    FostercareFlag as sort  ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8 where TempResFlag in ('Y', 'N')  group by FostercareFlag  ) a  
+        select FostercareFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   FosterCareFlagSort as sort , FostercareFlag ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8  group by FostercareFlag, FosterCareFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''
         cursor.execute(query_byFosterCareStatus)
         results_byFosterCareStatus = cursor.fetchall()
@@ -280,6 +279,33 @@ class Solution:
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
+        for row in ws['B1': 'M1']:
+            for cell in row:
+                cell.border = black_border
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['B37':'M37'] + ws['B46':'M46'] + ws['B52':'M52'] + ws['B59':'M59'] + ws['B76':'M76'] + ws['B93':'M93'] + ws['B99':'M99'] + ws['B106':'M106']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+                cell.fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
+
+        for row in ws['B3':'M3'] + ws['B39':'M39'] + ws['B48':'M48'] + ws['B54':'M54'] + ws['B61':'M61'] +  ws['B78':'M78'] + ws['B95':'M95'] + ws['B102':'M102']:
+            for cell in row:
+                cell.border = black_border_thick
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['G5':'G37'] + ws['G41':'G46'] + ws['G50':'G52'] + ws['G56':'G59'] +  ws['G63':'G76'] + ws['G80':'G93'] + ws['G97':'G99'] + ws['G104':'G106']:
+            for cell in row:
+                cell.fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
+        for row in ws['L5':'L37'] + ws['L41':'L46'] + ws['L50':'L52'] + ws['L56':'L59'] +  ws['L63':'L76'] + ws['L80':'L93'] + ws['L97':'L99'] + ws['L104':'L106']:
+            for cell in row:
+                cell.fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
+        for row in ws['G4':'G4'] + ws['L4':'L4'] + ws['G40':'G40'] + ws['L40':'L40'] + ws['G49':'G49'] + ws['L49':'L49'] + ws['G55':'G55'] + ws['L55':'L55'] + ws['G62':'G62'] + ws['L62':'L62'] + ws['G79':'G79'] + ws['L79':'L79'] + ws['G96':'G96'] + ws['L96':'L96'] + ws['G103':'G103'] + ws['L103':'L103'] + ws['M5':'M37'] + ws['M41':'M46'] + ws['M50':'M52'] + ws['M56':'M59'] +  ws['M63':'M76'] + ws['M80':'M93'] + ws['M97':'M99'] + ws['M104':'M106']:
+            for cell in row:
+                # cell.fill = PatternFill(start_color='#DCE6F1', end_color='#DCE6F1', fill_type='solid')
+                cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type='solid')
+
     def main_Report_8_Registers(self):
         title_cells = [
             {"cell": "B1", "value": "Report 8 Register Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level; and Disability.", "merge_cells": "B1:M1"},
@@ -323,25 +349,25 @@ class Solution:
         results_byMealStatus = self.fetch_data_by_gender(cursor)
         self.write_data_to_excel(ws, results_byMealStatus, start_row=56)
 
-        # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
-        results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
-        self.write_data_to_excel(ws, results_byELLStatus, start_row=63)
+        # # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
+        # results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
+        # self.write_data_to_excel(ws, results_byELLStatus, start_row=63)
         
         # Step 8: Fetch and write data for "Report 8b = IEP Service Recs by Language"
         results_byClassification = self.fetch_data_by_classification(cursor)
-        self.write_data_to_excel(ws, results_byClassification, start_row=69)
+        self.write_data_to_excel(ws, results_byClassification, start_row=80)
 
         # Step 9: Fetch and write data for "Report 8b = IEP Service Recs by Grade Level"
         results_byGradeLevel = self.fetch_data_by_gradelevel(cursor)
-        self.write_data_to_excel(ws, results_byGradeLevel, start_row=79)
+        self.write_data_to_excel(ws, results_byGradeLevel, start_row=63)
 
         # Step 10: Fetch and write data for "Report 8b = IEP Service Recs by Temporary Housing"
         results_byTempResFlag = self.fetch_data_by_tempResFlag(cursor)
-        self.write_data_to_excel(ws, results_byTempResFlag, start_row=99)
+        self.write_data_to_excel(ws, results_byTempResFlag, start_row=97)
 
         # Step 11: Fetch and write data for "Report 8b = IEP Service Recs by Foster Care Status"
         results_byFosterCareStatus = self.fetch_data_by_fosterCareStatus(cursor)
-        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=107)
+        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=104)
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
         wb.save(save_path)

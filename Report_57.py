@@ -350,15 +350,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with IEP Recommended Services by District", "merge_cells": "B3:M3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with IEP Recommended Services by Ethnicity", "merge_cells": "B39:M39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with IEP Recommended Services by Meal Status", "merge_cells": "B48:M48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with IEP Recommended Services by Gender", "merge_cells": "B54:M54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with IEP Recommended Services by ELL Status", "merge_cells": "B61:M61"},
-            {"cell": "B67", "value": "SY 2022-23 Students with IEP Recommended Services  by Recommended Language of Instruction", "merge_cells": "B67:M67"},
-            {"cell": "B75", "value": "SY 2022-23 Students with IEP Recommended Services  by Grade Level", "merge_cells": "B75:M75"},
-            {"cell": "B93", "value": "SY 2022-23 Students with IEP Recommended Services  by Temporary Housing", "merge_cells": "B93:M93"},
-            {"cell": "B100", "value": "SY 2022-23 Students with IEP Recommended Services  by Foster Care Status", "merge_cells": "B100:M100"},
+            {"cell": "B3", "value": "SY 2022-23 Students with IEP Recommended Services by District", "merge_cells": "B3:L3"},
+            {"cell": "B39", "value": "SY 2022-23 Students with IEP Recommended Services by Ethnicity", "merge_cells": "B39:L39"},
+            {"cell": "B48", "value": "SY 2022-23 Students with IEP Recommended Services by Meal Status", "merge_cells": "B48:L48"},
+            {"cell": "B54", "value": "SY 2022-23 Students with IEP Recommended Services by Gender", "merge_cells": "B54:L54"},
+            {"cell": "B61", "value": "SY 2022-23 Students with IEP Recommended Services by ELL Status", "merge_cells": "B61:L61"},
+            {"cell": "B67", "value": "SY 2022-23 Students with IEP Recommended Services  by Recommended Language of Instruction", "merge_cells": "B67:L67"},
+            {"cell": "B75", "value": "SY 2022-23 Students with IEP Recommended Services  by Grade Level", "merge_cells": "B75:L75"},
+            {"cell": "B93", "value": "SY 2022-23 Students with IEP Recommended Services  by Temporary Housing", "merge_cells": "B93:L93"},
+            {"cell": "B100", "value": "SY 2022-23 Students with IEP Recommended Services  by Foster Care Status", "merge_cells": "B100:L100"},
             
 
         ]
