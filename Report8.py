@@ -339,6 +339,16 @@ class Solution:
         
         # Step 4: Fetch and write data for "Report 8b = IEP Service Recs by District"
         results_byDistrict = self.fetch_data_by_district(cursor)
+        # replace 01 as 1, 02 as 2, etc.
+        results_byDistrict = [(x[0].replace('01', '1'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('02', '2'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('03', '3'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('04', '4'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('05', '5'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('06', '6'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
         self.write_data_to_excel(ws, results_byDistrict, start_row=5)
 
         # Step 5: Fetch and write data for "Report 8b = IEP Service Recs by Meal Status"
@@ -359,7 +369,22 @@ class Solution:
 
         # Step 9: Fetch and write data for "Report 8b = IEP Service Recs by Grade Level"
         results_byGradeLevel = self.fetch_data_by_gradelevel(cursor)
-        self.write_data_to_excel(ws, results_byGradeLevel, start_row=63)
+        # replace 01 as 1, 02 as 2, etc.
+        results_byGradeLevel = [(x[0].replace('0K', 'KG'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('01', '1'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('02', '2'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('03', '3'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('04', '4'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('05', '5'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('06', '6'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('07', '7'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('08', '8'), *x[1:]) for x in results_byGradeLevel]
+        results_byGradeLevel = [(x[0].replace('09', '9'), *x[1:]) for x in results_byGradeLevel]   
+        # Define a dictionary for sorting order
+        sort_order= {'KG': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6, '6': 7, '7': 8, '8': 9, '9': 10, '10': 11, '11': 12, '12': 13, 'Total': 14}
+        # Sort the list using a lambda function that references the sort_order dictionary KG,01,02...12
+        sort_results_byGradeLevel = sorted(results_byGradeLevel, key=lambda x: sort_order[x[0]])
+        self.write_data_to_excel(ws, sort_results_byGradeLevel, start_row=63)
 
         # Step 10: Fetch and write data for "Report 8b = IEP Service Recs by Temporary Housing"
         results_byTempResFlag = self.fetch_data_by_tempResFlag(cursor)
