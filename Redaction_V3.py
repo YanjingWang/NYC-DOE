@@ -16,6 +16,14 @@ import openpyxl
 from redaction_config import REPORTS_CONFIG
 from redaction_config_SY23 import REPORTS_CONFIG_SY23
 class Solution:
+    # def is_percentage(self, val):
+    #     return isinstance(val, str) and val.endswith('%')
+    def is_percentage(self, cell):
+        if isinstance(cell.value, float) and '0%' in cell.number_format:
+            return True
+        return False
+
+    
     def mask_value_initial(self,val):
         if isinstance(val, (int, float)) and 0 < val <= 5:
             return '<=5'
@@ -37,7 +45,8 @@ class Solution:
         # Step 1: Initial Masking
         for row in ws.iter_rows(min_row=start_row, max_row=end_row, min_col=start_col, max_col=end_col):
             for cell in row:
-                cell.value = self.mask_value_initial(cell.value)
+                if not self.is_percentage(cell):
+                    cell.value = self.mask_value_initial(cell.value)
         
         # Mask smallest if only one '<=5' in column
         for col in ws.iter_cols(min_row=start_row, max_row=end_row, min_col=start_col, max_col=end_col):
@@ -56,7 +65,8 @@ class Solution:
             for row_num in range(start_row, end_row + 1):
                 masked_vals = [col for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
                 if len(masked_vals) == 1:  # If only one value in the group is masked
-                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float))]
+                    # numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float))]
+                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
                     if numeric_vals:  # Ensure there are numeric values
                         min_val = min(numeric_vals)
                         for col in group:
@@ -77,7 +87,8 @@ class Solution:
             for row_num in range(start_row, end_row + 1):
                 masked_vals = [col for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
                 if len(masked_vals) == 1:  # If only one value in the group is masked, need to mask the smallest of the unmasked values
-                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float))]
+                    # numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float))]
+                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
                     if numeric_vals:  # Ensure there are numeric values
                         min_val = min(numeric_vals)
                         for col in group:
@@ -89,6 +100,22 @@ class Solution:
                                 break
                 elif len(masked_vals) >= 2:  # Two or more values are already masked, so no action needed
                     continue
+
+    def highlight_overredaction(self, ws, total_col_indexes, start_row, end_row):
+        for row_num in range(start_row, end_row + 1):
+            overredacted_cells = []
+            for col_index in total_col_indexes:
+                cell = ws.cell(row=row_num, column=col_index)
+                masked_count = sum(ws.cell(row=row_num, column=col_index).value in ['<=5', '>5'] for col_index in total_col_indexes)
+                if masked_count > 2:
+                    overredacted_cells.append(cell.coordinate)
+            
+            if overredacted_cells:
+                for col_index in total_col_indexes:
+                    cell = ws.cell(row=row_num, column=col_index)
+                    if cell.coordinate in overredacted_cells or cell.value in ['<=5', '>5']:
+                        cell.fill = openpyxl.styles.PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
+
 
 
     def mask_excel_file(self,filename,tab_name,configurations):
@@ -110,6 +137,14 @@ class Solution:
         # Conditionally invoke third masking if present in configurations
         if 'third_mask' in configurations and 'third_mask_kwargs' in configurations:
             self.third_mask(ws, *configurations['third_mask'], **configurations['third_mask_kwargs'])
+        
+        # Highlight overredaction
+        # if 'total_col_indexes' in configurations:
+        #     self.highlight_overredaction(ws, configurations['total_col_indexes'], *configurations['secondary_mask'],**configurations['third_mask_kwargs'])
+            # After all masking is done, check for overredaction
+        if 'total_col_indexes' in configurations:
+            start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
+            self.highlight_overredaction(ws, configurations['total_col_indexes'], start_row, end_row)
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
 
@@ -126,11 +161,7 @@ if __name__ == "__main__":
         for report, config in REPORTS_CONFIG.items():
             processor.mask_excel_file(fname, report, config)
             
-    filenames = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    for fname in filenames:
-        for report, config in REPORTS_CONFIG_SY23.items():
-            processor.mask_excel_file(fname, report, config)
-
-
-
-
+    # filenames = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    # for fname in filenames:
+    #     for report, config in REPORTS_CONFIG_SY23.items():
+    #         processor.mask_excel_file(fname, report, config)
