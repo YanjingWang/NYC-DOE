@@ -105,32 +105,40 @@ class Solution:
     #     for group in groups:
     #         for row_num in range(start_row, end_row + 1):
     #             gt5_cells = []
+    #             lte5_exists = False
+    #             # Check each cell in the group for the current row
     #             for col_index in group:
     #                 cell = ws.cell(row=row_num, column=col_index)
     #                 if cell.value == '>5':
     #                     gt5_cells.append(cell)
-    #             if len(gt5_cells) > 2:
-    #                 self.green_cell(gt5_cells[0])  # Highlight the first '>5' cell in green
-    #                 print(ws.title, f"Highlighting cell {gt5_cells[0].coordinate} in green")
+    #                 elif cell.value == '<=5':
+    #                     lte5_exists = True
+    #             # Determine if overredaction rules are met
+    #             if len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists):
+    #                 # Highlight the first '>5' cell in green
+    #                 self.green_cell(gt5_cells[0])
+    #                 # Optionally, here you could unmask the green cell if needed
+    #                 # gt5_cells[0].value = 'Unmasked Value'
+    #                 print(ws.title, f"Overredaction: Highlighting cell {gt5_cells[0].coordinate} in green")
     def highlight_overredaction(self, ws, start_row, end_row, groups):
         for group in groups:
             for row_num in range(start_row, end_row + 1):
                 gt5_cells = []
                 lte5_exists = False
-                # Check each cell in the group for the current row
                 for col_index in group:
                     cell = ws.cell(row=row_num, column=col_index)
                     if cell.value == '>5':
                         gt5_cells.append(cell)
                     elif cell.value == '<=5':
                         lte5_exists = True
-                # Determine if overredaction rules are met
-                if len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists):
-                    # Highlight the first '>5' cell in green
-                    self.green_cell(gt5_cells[0])
-                    # Optionally, here you could unmask the green cell if needed
-                    # gt5_cells[0].value = 'Unmasked Value'
-                    print(ws.title, f"Overredaction: Highlighting cell {gt5_cells[0].coordinate} in green")
+
+                # Check if the first '>5' is not the only one in its column within the range
+                if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
+                    first_gt5_cell = gt5_cells[0]
+                    col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
+                    if col_values.count('>5') > 1:
+                        self.green_cell(first_gt5_cell)
+                        print(ws.title, f"Overredaction: Highlighting cell {first_gt5_cell.coordinate} in green")
 
 
     def highlight_underredaction(self, ws, start_row, end_row, groups):
