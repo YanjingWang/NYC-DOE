@@ -100,52 +100,39 @@ class Solution:
                 elif len(masked_vals) >= 2:  # Two or more values are already masked, so no action needed
                     continue
 
-    # def highlight_overredaction(self, ws, total_col_indexes, start_row, end_row, groups):
+
+    # def highlight_overredaction(self, ws, start_row, end_row, groups):
     #     for group in groups:
     #         for row_num in range(start_row, end_row + 1):
-    #             gt5_count = 0
-    #             first_gt5_col = None
-    #             for col_index in group[2:]:
+    #             gt5_cells = []
+    #             for col_index in group:
     #                 cell = ws.cell(row=row_num, column=col_index)
     #                 if cell.value == '>5':
-    #                     gt5_count += 1
-    #                     if first_gt5_col is None:
-    #                         first_gt5_col = col_index
-    #             if gt5_count > 2 and first_gt5_col:
-    #                 first_gt5_cell = ws.cell(row=row_num, column=first_gt5_col)
-    #                 self.green_cell(first_gt5_cell)
-    # ... other methods ...
-
+    #                     gt5_cells.append(cell)
+    #             if len(gt5_cells) > 2:
+    #                 self.green_cell(gt5_cells[0])  # Highlight the first '>5' cell in green
+    #                 print(ws.title, f"Highlighting cell {gt5_cells[0].coordinate} in green")
     def highlight_overredaction(self, ws, start_row, end_row, groups):
         for group in groups:
             for row_num in range(start_row, end_row + 1):
                 gt5_cells = []
+                lte5_exists = False
+                # Check each cell in the group for the current row
                 for col_index in group:
                     cell = ws.cell(row=row_num, column=col_index)
                     if cell.value == '>5':
                         gt5_cells.append(cell)
-                if len(gt5_cells) >= 2:
-                    self.green_cell(gt5_cells[0])  # Highlight the first '>5' cell in green
-                    print(ws.title, f"Highlighting cell {gt5_cells[0].coordinate} in green")
+                    elif cell.value == '<=5':
+                        lte5_exists = True
+                # Determine if overredaction rules are met
+                if len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists):
+                    # Highlight the first '>5' cell in green
+                    self.green_cell(gt5_cells[0])
+                    # Optionally, here you could unmask the green cell if needed
+                    # gt5_cells[0].value = 'Unmasked Value'
+                    print(ws.title, f"Overredaction: Highlighting cell {gt5_cells[0].coordinate} in green")
 
 
-    # def highlight_underredaction(self, ws, start_row, end_row, groups):
-    #     for group in groups:
-    #         for row_num in range(start_row, end_row + 1):
-    #             masked_vals = [col for col in group[2:] if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
-    #             if len(masked_vals) == 1:
-    #                 # Find the unmasked values and their columns
-    #                 unmasked_vals = [(ws.cell(row=row_num, column=col).value, col) for col in group[2:] if ws.cell(row=row_num, column=col).value not in ['<=5', '>5']]
-    #                 if unmasked_vals:
-    #                     # Find the smallest unmasked value and its column
-    #                     min_val, min_col = min(unmasked_vals, key=lambda x: x[0])
-    #                     # Mask the smallest value based on its value, if <=5, mask as <=5, otherwise mask as >5
-    #                     if min_val == 0:
-    #                         ws.cell(row=row_num, column=min_col).value = self.mask_value_zero(min_val)
-    #                     else:
-    #                         ws.cell(row=row_num, column=min_col).value = self.mask_value_secondary(min_val)
-    #                     # Highlight this cell
-    #                     self.yellow_cell(ws.cell(row=row_num, column=min_col))
     def highlight_underredaction(self, ws, start_row, end_row, groups):
         for group in groups:
             for row_num in range(start_row, end_row + 1):
