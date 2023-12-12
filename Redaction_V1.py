@@ -120,26 +120,27 @@ class Solution:
     #                 # Optionally, here you could unmask the green cell if needed
     #                 # gt5_cells[0].value = 'Unmasked Value'
     #                 print(ws.title, f"Overredaction: Highlighting cell {gt5_cells[0].coordinate} in green")
-    def highlight_overredaction(self, ws, start_row, end_row, groups):
+    def highlight_overredaction(self, ws, groups, ranges):
         for group in groups:
-            for row_num in range(start_row, end_row + 1):
-                gt5_cells = []
-                lte5_exists = False
-                for col_index in group:
-                    cell = ws.cell(row=row_num, column=col_index)
-                    if cell.value == '>5':
-                        gt5_cells.append(cell)
-                    elif cell.value == '<=5':
-                        lte5_exists = True
+            for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
+                for row_num in range(start_row, end_row + 1):
+                    gt5_cells = []
+                    lte5_exists = False
+                    for col_index in group:
+                        cell = ws.cell(row=row_num, column=col_index)
+                        if cell.value == '>5':
+                            gt5_cells.append(cell)
+                        elif cell.value == '<=5':
+                            lte5_exists = True
 
-                # Check if the first '>5' is not the only one in its column within the range
-                if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
-                    first_gt5_cell = gt5_cells[0]
-                    col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
-                    if col_values.count('>5') > 1:
-                        self.green_cell(first_gt5_cell)
-                        print(ws.title, f"Overredaction: Highlighting cell {first_gt5_cell.coordinate} in green")
-
+                    # Check if the first '>5' is not the only one in its column within the range
+                    if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
+                        first_gt5_cell = gt5_cells[0]
+                        col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
+                        print(col_values)
+                        if col_values.count('>5') > 1:
+                            self.green_cell(first_gt5_cell)
+                            print(ws.title, f"Overredaction: Highlighting cell {first_gt5_cell.coordinate} in green")
 
     def highlight_underredaction(self, ws, start_row, end_row, groups):
         for group in groups:
@@ -187,9 +188,10 @@ class Solution:
         #     start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
         #     self.highlight_overredaction(ws, configurations['total_col_indexes'], start_row, end_row, configurations['groups'])
         #     self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
-        if 'total_col_indexes' in configurations and 'groups' in configurations:
+        if 'total_col_indexes' in configurations and 'groups' in configurations and 'ranges' in configurations:
             start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
-            self.highlight_overredaction(ws, start_row, end_row, configurations['groups'])
+            # self.highlight_overredaction(ws, start_row, end_row, configurations['groups'], configurations['ranges'])
+            self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'])
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
 
