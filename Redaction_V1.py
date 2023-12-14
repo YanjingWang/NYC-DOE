@@ -13,11 +13,20 @@ D63+D64 = D65, C69+C72 = C73, D69+D72 = D73, C77+C89=D90, D77+D89=D90
 Report 10 = LRE-MRE: C6+...C37=C38,D6+...D37=D38,E6+...E37=E38,F6+...F37=F38, C42+...C46=C47,D42+...D46=D47,E42+...E46=E47,F42+...F46=F47,C51+C52=C53,D51+D52=D53,E51+E52=E53,F51+F52=F53,E57+E58=E59,F57+F58=F59,C63+C64=C65,D63+D64=D65,E63+E64=E65,F63+F64=F65,C69+C72=C73,D69+D72=D73,E69+E72=E73,F69+F72=F73,C77+...+C89=C90,D77+...+D89=D90,E77+...+E89=E90,F77+...+F89=F90
 """
 import openpyxl
+import os, shutil
 from redaction_config import REPORTS_CONFIG
 from redaction_config_SY23 import REPORTS_CONFIG_SY23
 class Solution:
-    # def is_percentage(self, val):
-    #     return isinstance(val, str) and val.endswith('%')
+    def copyonefile(src,dst):
+        shutil.copy(src,dst)
+        print('copying one file from {0} to {1} is compelte'.format(src,dst)) 
+    mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx', mylocalCCfolder)
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx', mylocalCCfolder)
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx', mylocalCCfolder)
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     def is_percentage(self, cell):
         if isinstance(cell.value, float) and '0%' in cell.number_format:
             return True
@@ -120,7 +129,28 @@ class Solution:
     #                 # Optionally, here you could unmask the green cell if needed
     #                 # gt5_cells[0].value = 'Unmasked Value'
     #                 print(ws.title, f"Overredaction: Highlighting cell {gt5_cells[0].coordinate} in green")
-    def highlight_overredaction(self, ws, groups, ranges):
+    # def highlight_overredaction(self, ws, groups, ranges):
+    #     for group in groups:
+    #         for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
+    #             for row_num in range(start_row, end_row + 1):
+    #                 gt5_cells = []
+    #                 lte5_exists = False
+    #                 for col_index in group:
+    #                     cell = ws.cell(row=row_num, column=col_index)
+    #                     if cell.value == '>5':
+    #                         gt5_cells.append(cell)
+    #                     elif cell.value == '<=5':
+    #                         lte5_exists = True
+
+    #                 # Check if the first '>5' is not the only one in its column within the range
+    #                 if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
+    #                     first_gt5_cell = gt5_cells[0]
+    #                     col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
+    #                     print(col_values)
+    #                     if col_values.count('>5') > 1:
+    #                         self.green_cell(first_gt5_cell)
+    #                         print(ws.title, f"Overredaction: Highlighting cell {first_gt5_cell.coordinate} in green")
+    def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
         for group in groups:
             for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
                 for row_num in range(start_row, end_row + 1):
@@ -137,10 +167,13 @@ class Solution:
                     if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
                         first_gt5_cell = gt5_cells[0]
                         col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
-                        print(col_values)
                         if col_values.count('>5') > 1:
-                            self.green_cell(first_gt5_cell)
-                            print(ws.title, f"Overredaction: Highlighting cell {first_gt5_cell.coordinate} in green")
+                            # self.green_cell(first_gt5_cell) # Highligh the overredaction cell in green
+                            # Get the original value from the unredacted worksheet
+                            original_value = unredacted_ws.cell(row=first_gt5_cell.row, column=first_gt5_cell.column).value
+                            # Unmask the cell by setting its value to the original value
+                            first_gt5_cell.value = original_value
+                            print(ws.title, f"Unmasking overredacted cell {first_gt5_cell.coordinate} with original value")
 
     def highlight_underredaction(self, ws, start_row, end_row, groups):
         for group in groups:
@@ -157,7 +190,7 @@ class Solution:
                         else:
                             smallest_cell[0].value = self.mask_value_secondary(smallest_cell[1])
                         # self.yellow_cell(smallest_cell[0])  # Highlight this cell
-                        print(ws.title, f"Highlighting cell {smallest_cell[0].coordinate} in yellow")
+                        print(ws.title, f"Underredaction: Highlighting cell {smallest_cell[0].coordinate} in yellow")
 
     def green_cell(self, cell):
         cell.fill = openpyxl.styles.PatternFill(start_color='00ff15', end_color='00ff15', fill_type='solid')
@@ -191,12 +224,41 @@ class Solution:
         if 'total_col_indexes' in configurations and 'groups' in configurations and 'ranges' in configurations:
             start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
             # self.highlight_overredaction(ws, start_row, end_row, configurations['groups'], configurations['ranges'])
-            self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'])
+            # self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'])
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
 
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
+        wb.close()
+    def unmask_green_cells(self, redacted_filename, unredacted_filename, tab_name):
+        # Load both workbooks
+        redacted_wb = openpyxl.load_workbook(redacted_filename, data_only=True)
+        unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
+
+        # Access the specific tab in both workbooks
+        redacted_ws = redacted_wb[tab_name]
+        unredacted_ws = unredacted_wb[tab_name]
+        print(f"Unmasking green cells in {tab_name}...")
+        # Iterate through the worksheet and find green cells
+        for row in redacted_ws.iter_rows():
+            for cell in row:
+                if cell.fill.start_color.index == '00ff15':  # Check if the cell is highlighted in green
+                    # Get the corresponding cell from the unredacted worksheet
+                    original_cell = unredacted_ws[cell.coordinate]
+                    print(f"Found green cell {cell.coordinate} with value {cell.value}")
+                    # Replace the value in the redacted worksheet with the original value
+                    cell.value = original_cell.value
+                    print(f"Unmasking cell {cell.coordinate} with value {cell.value}")
+                    # Remove the green fill
+                    cell.fill = openpyxl.styles.PatternFill(fill_type=None)
+                else:
+                    print("No green cells found in this worksheet")
+                    continue
+
+        # Save the modified redacted workbook
+        redacted_wb.save(redacted_filename)
+
 
 
 # Call the function with your filename
@@ -211,7 +273,37 @@ if __name__ == "__main__":
         for report, config in REPORTS_CONFIG.items():
             processor.mask_excel_file(fname, report, config)
             
-    # filenames = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    # for fname in filenames:
-    #     for report, config in REPORTS_CONFIG_SY23.items():
-    #         processor.mask_excel_file(fname, report, config)
+    # # filenames = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    # # for fname in filenames:
+    # #     for report, config in REPORTS_CONFIG_SY23.items():
+    # #         processor.mask_excel_file(fname, report, config)
+
+    redacted_filenames = [
+        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
+        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
+    ]
+    unredacted_filenames = [
+        'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\CCUnredacted\\Annual Special Education Data Report Unredacted SY21.xlsx',
+        'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
+    ]
+    
+    # for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
+    #     for report in REPORTS_CONFIG:
+    #         processor.unmask_green_cells(redacted_file, unredacted_file, report)
+
+    for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
+        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
+
+        for report, config in REPORTS_CONFIG.items():
+            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+                ws = redacted_wb[report]
+                unredacted_ws = unredacted_wb[report]
+                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+
+        # Save the redacted workbook after unmasking green cells
+        redacted_wb.save(redacted_file)
+        redacted_wb.close()
+
+
+
