@@ -58,7 +58,7 @@ class Solution:
                         cell.value = '>5'
 
     # Step 2: Secondary Masking
-    def secondary_mask(self, ws, start_row, end_row, groups):
+    def secondary_mask(self, ws, total_col_indexes,start_row, end_row, groups):
         # groups = [(5, 6, 7), (8, 9, 10), (7, 10, 11)]  # E,F,G and H,I,J and G,J,K respectively
 
         for group in groups:
@@ -75,13 +75,21 @@ class Solution:
                                 else:
                                     ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
                                 break
+                elif len(masked_vals) > 2:  # Two or more values are already masked, if total column == `>5` and one of the other columns is `<=5` or `>5`, then unmask the rest `>5` column in this group
+                    total_col = [col for col in group if col in total_col_indexes]
+                    if total_col:
+                        total_col = total_col[0]
+                        if ws.cell(row=row_num, column=total_col).value == '>5':
+                            for col in group:
+                                if ws.cell(row=row_num, column=col).value == '<=5' or ws.cell(row=row_num, column=col).value == '>5':
+                                    ws.cell(row=row_num, column=col).value = self.mask_value_initial(ws.cell(row=row_num, column=col).value)
 
-                elif len(masked_vals) >= 2: # Two or more values are already masked, no action needed
+                elif len(masked_vals) == 2: # Two or more values are already masked, no action needed
                     continue
 
 
     # Step 3: Masking based on Subtotals        
-    def third_mask(self,ws, start_row, end_row,groups):
+    def third_mask(self,ws, total_col_indexes, start_row, end_row,groups):
         # groups = [(3,4,11,12)]  # C,D,K,L
         for group in groups:
             for row_num in range(start_row, end_row + 1):
@@ -97,24 +105,17 @@ class Solution:
                                 else:
                                     ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
                                 break
+                elif len(masked_vals) > 2:  # Two or more values are already masked, if total column == `>5` and one of the other columns is `<=5` or `>5`, then unmask the rest `>5` column in this group
+                    total_col = [col for col in group if col in total_col_indexes]
+                    if total_col:
+                        total_col = total_col[0]
+                        if ws.cell(row=row_num, column=total_col).value == '>5':
+                            for col in group:
+                                if ws.cell(row=row_num, column=col).value == '<=5' or ws.cell(row=row_num, column=col).value == '>5':
+                                    ws.cell(row=row_num, column=col).value = self.mask_value_initial(ws.cell(row=row_num, column=col).value)
                 elif len(masked_vals) >= 2:  # Two or more values are already masked, so no action needed
                     continue
 
-    # def highlight_overredaction(self, ws, total_col_indexes, start_row, end_row):
-    #     for row_num in range(start_row, end_row + 1):
-    #         overredacted_cells = []
-    #         for col_index in total_col_indexes:
-    #             cell = ws.cell(row=row_num, column=col_index)
-    #             masked_count = sum(ws.cell(row=row_num, column=col_index).value in ['>5'] for col_index in total_col_indexes)
-    #             if masked_count > 2:
-    #                 overredacted_cells.append(cell.coordinate)
-    #         print(ws.title ,'startrow:'+str(start_row), 'endrow:'+str(end_row), overredacted_cells)
-            
-    #         if overredacted_cells:
-    #             for col_index in total_col_indexes:
-    #                 cell = ws.cell(row=row_num, column=col_index)
-    #                 if cell.coordinate in overredacted_cells or cell.value in ['>5']:
-    #                     cell.fill = openpyxl.styles.PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
     def highlight_overredaction(self, ws, total_col_indexes, start_row, end_row, groups):
         for col_index in total_col_indexes:
             for row_num in range(start_row, end_row + 1):
@@ -132,22 +133,18 @@ class Solution:
                         self.highlight_cell(cell)
                         # print the cell coordinate
                         print('1',ws.title, cell.coordinate)
-                        continue
-         
-                    # If the cell is '>5', check if it's part of a group that has two masked values already.
-                    if cell.value == '>5':
-                        for group in groups:
-                            if row_num in range(group[0], group[1] + 1):
-                                masked_count = sum(ws.cell(row=row_num, column=gc).value in ['<=5', '>5'] for gc in group[2:])
-                                if masked_count >= 2:
-                                    self.green_cell(cell)
-                                    # print the cell coordinate
-                                    print('2',ws.title, cell.coordinate)
-                                    # unmask this cell 
-                                    break
+                    
+        # If the cell is '>5', check if it's part of a group that has two masked values already.
+        if cell.value == '>5':
+            for group in groups:
+                if row_num in range(group[0], group[1] + 1):
+                    masked_count = sum(ws.cell(row=row_num, column=gc).value in ['<=5', '>5'] for gc in group[2:])
+                    if masked_count >= 2:
+                        self.highlight_cell(cell)
+                        # print the cell coordinate
+                        print('2',ws.title, cell.coordinate)
+                        break
 
-    def green_cell(self, cell):
-        cell.fill = openpyxl.styles.PatternFill(start_color='00ff15', end_color='00ff15', fill_type='solid')
     def highlight_cell(self, cell):
         cell.fill = openpyxl.styles.PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
 
@@ -167,12 +164,12 @@ class Solution:
             self.initial_mask(ws, *r)
             
         # Invoke secondary masking if present in configurations, otherwise skip
-        if 'secondary_mask' in configurations and 'secondary_mask_kwargs' in configurations:
-            self.secondary_mask(ws, *configurations['secondary_mask'], **configurations.get('secondary_mask_kwargs', {}))
+        if 'secondary_mask' in configurations and 'secondary_mask_kwargs' in configurations and 'total_col_indexes' in configurations:
+            self.secondary_mask(ws,  configurations['total_col_indexes'], *configurations['secondary_mask'], **configurations.get('secondary_mask_kwargs', {}))
         
         # Conditionally invoke third masking if present in configurations
         if 'third_mask' in configurations and 'third_mask_kwargs' in configurations:
-            self.third_mask(ws, *configurations['third_mask'], **configurations['third_mask_kwargs'])
+            self.third_mask(ws,  configurations['total_col_indexes'],*configurations['third_mask'], **configurations['third_mask_kwargs'])
         # print('all masking is done, now highlight overredaction')
         # Highlight overredaction
         # if 'total_col_indexes' in configurations:

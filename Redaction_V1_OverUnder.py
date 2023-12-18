@@ -11,6 +11,23 @@ C + D +E + F + G + H + I + J + K + L + M + N + O = P
 Report 9 = Placement: C6+...+C37 = C38, D6+...+D37 = D38, C42+...C46 = C47, D42+...D46 = D47, C51+C52 = C53, D51+D52 = D53, C57+C58 = C59, D57+D58 = D59, C63+C64 = C65, 
 D63+D64 = D65, C69+C72 = C73, D69+D72 = D73, C77+C89=D90, D77+D89=D90
 Report 10 = LRE-MRE: C6+...C37=C38,D6+...D37=D38,E6+...E37=E38,F6+...F37=F38, C42+...C46=C47,D42+...D46=D47,E42+...E46=E47,F42+...F46=F47,C51+C52=C53,D51+D52=D53,E51+E52=E53,F51+F52=F53,E57+E58=E59,F57+F58=F59,C63+C64=C65,D63+D64=D65,E63+E64=E65,F63+F64=F65,C69+C72=C73,D69+D72=D73,E69+E72=E73,F69+F72=F73,C77+...+C89=C90,D77+...+D89=D90,E77+...+E89=E90,F77+...+F89=F90
+
+Redaction rules: 
+Column based masking:
+Initial mask: find all data 0<data<=5 and make them as <=5
+Then since there are Total calculations for every column, iterate each column if there is only one <=5 in this column to mask the smallest data of rest unmasked data for this column as >5
+
+Row based masking:
+Secondary mask: for all the 3 column subtotal calculation, if there is only one masked data (<=5 or >5) in this row, mask the smallest data of the rest unmasked data . If there are two or more masked data, no need to data masking.
+
+
+Row based masking:
+for all the 5 column subtotal calculation, if there is only one masked data in the row, mask the smallest data of the rest unmasked data. If there are two or more masked data, no need to do data masking.
+
+Why always mask the smallest of rest unmasked data? Avoid overredaction. For example, in the secondary masking, if we masked E5 and G5, since G5 being to G +   = , it may trigger third masking and more data will be masked. However, if we mask E5 and F5 no need to mask G5 and it won't trigger third layer masking.
+
+For overredaction, if there are more than two` >5 ` within the same group the same row or there are two `>5` within the same group the same row but also has at least one `<=5`  within the same group the same row and this `>5` is not the only `>5` in the column within its range it belongs to,  its' an overredaction, the first`>5` within the same group should be highlighted as green, but here my code the overredacted value has not been highlighted as green, for example, E89 needs to be highlighted as green since E89 + F89 = G89 and there are already two `>5` within the same group, then the first `>5` which is E89 needs to be highlighted as green and unmasked later. For example, check attached picture, for tab `Reports 1-4 = Initials`, D89 is the only `>5 ` of its column within its range it belongs to avoid the back track D90, D89's range is   (78, 3, 91, 13) according to redaction_config.py
+For underredaction,  interate each row and for the same row if there is only one masked cell within the same group then highlight this cell, for example, H89 + I89 = J89, since there is only J89 was masked as `>5` we need to mask the smallest value within this group which is I89 here, I89 is 16 so it should be masked as `>5`.   
 """
 import openpyxl
 import os, shutil
@@ -62,9 +79,14 @@ class Solution:
             valid_vals = [cell.value for cell in col if isinstance(cell.value, (int, float)) and cell.value != '<=5']
             if sum([cell.value == '<=5' for cell in col]) == 1 and valid_vals:
                 min_val = min(valid_vals)
+                # if min_val == 0 then skip it and mask the next smallest value
+                if min_val == 0:
+                    continue
                 for cell in col:
                     if cell.value == min_val:
                         cell.value = '>5'
+                        break
+
 
     # Step 2: Secondary Masking
     def secondary_mask(self, ws, start_row, end_row, groups):

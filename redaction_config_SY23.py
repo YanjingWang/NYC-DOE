@@ -4,30 +4,35 @@ REPORTS_CONFIG_SY23 = {
         'secondary_mask': (5, 109),
         'secondary_mask_kwargs': {'groups': [(5, 6, 7), (8, 9, 10), (7, 10, 11)]},
         'third_mask': (5, 109),
-        'third_mask_kwargs': {'groups': [(3, 4, 11, 12, 13)]}
+        'third_mask_kwargs': {'groups': [(3, 4, 11, 12, 13)]},
+        'groups':[(5,6,7),(8,9,10),(7,10,11),(3,4,11,12,13)]
     },
     'Reports 5-7 = Reevaluations': {
         'ranges': [(5, 3, 37, 12), (41, 3, 46, 12), (50, 3, 52, 12), (56, 3, 59, 12), (63, 3, 65, 12), (69, 3, 73, 12), (77, 3, 90, 12),(95, 3, 97, 12),(102, 3, 104, 12)],  # Adjust accordingly
         'secondary_mask': (5, 104),
         'secondary_mask_kwargs': {'groups': [(5, 6, 7), (8, 9, 10), (7, 10, 11)]},
         'third_mask': (5, 104),
-        'third_mask_kwargs': {'groups': [(3,4,11,12)]}
+        'third_mask_kwargs': {'groups': [(3,4,11,12)]},
+        'groups':[(5,6,7),(8,9,10),(7,10,11),(3,4,11,12)]
     },
     # Add more configurations for other tabs
     "Report 8 = Registers": {
         "ranges": [ (5, 3, 37, 13),(41, 3, 46, 13), (50, 3, 52, 13), (56, 3, 59, 13), (63, 3, 76, 13), (80, 3, 93, 13),(97, 3, 99, 13),(104, 3, 106, 13)],
         'secondary_mask': (5, 106),
-        'secondary_mask_kwargs':{"groups": [(3, 4, 5, 6,7), (8, 9, 10, 11,12), (7, 12, 13)]}
+        'secondary_mask_kwargs':{"groups": [(3, 4, 5, 6,7), (8, 9, 10, 11,12), (7, 12, 13)]},
+        'groups':[(3,4,5,6,7),(8,9,10,11,12),(7,12,13)]
     },
     "Report 8a = Disability class" : {
         "ranges": [(5,  3, 37, 16),(41, 3, 46, 16),(50, 3, 52, 16),(56, 3, 59, 16),(63, 3, 65, 16),(69, 3, 73, 16),(77, 3, 90, 16),(94, 3, 96, 16),(100, 3, 102, 16)],
         'secondary_mask': (5, 102),
-        'secondary_mask_kwargs': {'groups': [(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)]}
+        'secondary_mask_kwargs': {'groups': [(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)]},
+        'groups':[(3,4,5,6,7,8,9,10,11,12,13,14,15,16)]
     },
     "Report 8b = IEP Service Recs" : {
         "ranges": [(5,  3, 37, 16),(41, 3, 46, 16),(50, 3, 52, 16),(56, 3, 59, 16),(63, 3, 65, 16),(69, 3, 73, 16),(77, 3, 90, 16),(94, 3, 96, 16),(100, 3, 102, 16)],
         'secondary_mask': (5, 102),
-        'secondary_mask_kwargs': {'groups': [(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)]}
+        'secondary_mask_kwargs': {'groups': [(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)]},
+        'groups':[(3,4,5,6,7,8,9,10,11,12,13,14,15,16)]
     },
     "Report 8c = SWDs by School" : {
         "ranges": [(4, 3, 1606, 3)]
