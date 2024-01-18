@@ -45,6 +45,8 @@ class Solution:
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx', mylocalCCfolder)
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', mylocalCCfolder)
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     def is_percentage(self, cell):
         if isinstance(cell.value, float) and '0%' in cell.number_format:
             return True
@@ -228,6 +230,18 @@ class Solution:
         except KeyError:
             print(f"Warning: Worksheet {tab_name} does not exist in the file {filename}. Skipping...") #SWDs by School is not in SY23
             return
+
+        # Convert string to int where possible
+        for r in configurations['ranges']:
+            for row in ws.iter_rows(min_row=r[0], max_row=r[2], min_col=r[1], max_col=r[3]):
+                for cell in row:
+                    if isinstance(cell.value, str):
+                        try:
+                            cell.value = int(cell.value)
+                        except ValueError:
+                            # If the value cannot be converted to int, keep the original value
+                            pass
+                        
         # Mask data for the specific ranges
         for r in configurations['ranges']:
             self.initial_mask(ws, *r)
@@ -281,7 +295,15 @@ class Solution:
 
         # Save the modified redacted workbook
         redacted_wb.save(redacted_filename)
+    def print_cell_formats(file_name, sheet_name, cell_range):
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb[sheet_name]
+        for row in ws[cell_range]:
+            for cell in row:
+                print(f"Cell {cell.coordinate} - Value: {cell.value} - Type: {type(cell.value)} - Format: {cell.number_format}")
 
+    # Example usage
+    print_cell_formats(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', 'Reports 5-7 = Reevaluations', 'C5:M37')
 
 
 # Call the function with your filename
