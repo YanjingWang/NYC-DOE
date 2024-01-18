@@ -33,6 +33,7 @@ import openpyxl
 import os, shutil
 from redaction_config import REPORTS_CONFIG
 from redaction_config_SY23 import REPORTS_CONFIG_SY23
+from redaction_config_SY24 import REPORTS_CONFIG_SY24
 class Solution:
     def copyonefile(src,dst):
         shutil.copy(src,dst)
@@ -286,6 +287,7 @@ class Solution:
 # Call the function with your filename
 if __name__ == "__main__":
     processor = Solution()
+    ##SY21 and SY22
     filenames = [
         'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
         'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
@@ -294,11 +296,6 @@ if __name__ == "__main__":
     for fname in filenames:
         for report, config in REPORTS_CONFIG.items():
             processor.mask_excel_file(fname, report, config)
-            
-    # # filenames = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    # # for fname in filenames:
-    # #     for report, config in REPORTS_CONFIG_SY23.items():
-    # #         processor.mask_excel_file(fname, report, config)
 
     redacted_filenames = [
         'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
@@ -308,10 +305,6 @@ if __name__ == "__main__":
         'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\CCUnredacted\\Annual Special Education Data Report Unredacted SY21.xlsx',
         'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
     ]
-    
-    # for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
-    #     for report in REPORTS_CONFIG:
-    #         processor.unmask_green_cells(redacted_file, unredacted_file, report)
 
     for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
         redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
@@ -326,6 +319,42 @@ if __name__ == "__main__":
         # Save the redacted workbook after unmasking green cells
         redacted_wb.save(redacted_file)
         redacted_wb.close()
+    ##SY23
+    filename_SY23 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx'
+    for report, config in REPORTS_CONFIG_SY23.items():
+        processor.mask_excel_file(filename_SY23, report, config)
 
+    redacted_filenames_SY23 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    unredacted_filenames_SY23 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    for redacted_file, unredacted_file in zip(redacted_filenames_SY23, unredacted_filenames_SY23):
+        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
+        for report, config in REPORTS_CONFIG_SY23.items():
+            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+                ws = redacted_wb[report]
+                unredacted_ws = unredacted_wb[report]
+                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
 
+        # Save the redacted workbook after unmasking green cells
+        redacted_wb.save(redacted_file)
+        redacted_wb.close()
+    #SY24
+    filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx'
+    for report, config in REPORTS_CONFIG_SY24.items():
+        processor.mask_excel_file(filename_SY24, report, config)
+    redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx']
+    unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY24.xlsx']
+    for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
+        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
+
+        for report, config in REPORTS_CONFIG_SY24.items():
+            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+                ws = redacted_wb[report]
+                unredacted_ws = unredacted_wb[report]
+                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+
+        # Save the redacted workbook after unmasking green cells
+        redacted_wb.save(redacted_file)
+        redacted_wb.close()
