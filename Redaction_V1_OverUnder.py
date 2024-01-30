@@ -82,9 +82,12 @@ class Solution:
             valid_vals = [cell.value for cell in col if isinstance(cell.value, (int, float)) and cell.value != '<=5']
             if sum([cell.value == '<=5' for cell in col]) == 1 and valid_vals:
                 min_val = min(valid_vals)
-                # if min_val == 0 then skip it and mask the next smallest value
+                # if min_val == 0 then mask it as <=5 if not then mask it as >5
                 if min_val == 0:
-                    continue
+                    for cell in col:
+                        if cell.value == min_val:
+                            cell.value = '<=5'
+                            break
                 for cell in col:
                     if cell.value == min_val:
                         cell.value = '>5'
