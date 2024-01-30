@@ -5,6 +5,7 @@ REPORTS_CONFIG_SY24 = {
         'secondary_mask_kwargs': {'groups': [(5, 6, 7), (8, 9, 10), (7, 10, 11)]},
         'third_mask': (5, 109),
         'third_mask_kwargs': {'groups': [(3, 4, 11, 12, 13)]},
+        'total_col_indexes': [7, 10, 11, 3],  # Add the index of 'Total' columns G, J, K, C
         'groups':[(5,6,7),(8,9,10),(7,10,11),(3,4,11,12,13)]
     },
     'Reports 5-7 = Reevaluations': {
@@ -13,6 +14,7 @@ REPORTS_CONFIG_SY24 = {
         'secondary_mask_kwargs': {'groups': [(5, 6, 7), (8, 9, 10), (7, 10, 11)]},
         'third_mask': (5, 104),
         'third_mask_kwargs': {'groups': [(3,4,11,12)]},
+        'total_col_indexes': [7, 10, 11, 3],  # Add the index of 'Total' columns G, J, K, C
         'groups':[(5,6,7),(8,9,10),(7,10,11),(3,4,11,12)]
     },
     # Add more configurations for other tabs
@@ -20,6 +22,7 @@ REPORTS_CONFIG_SY24 = {
         "ranges": [ (5, 3, 37, 13),(41, 3, 46, 13), (50, 3, 52, 13), (56, 3, 59, 13), (63, 3, 76, 13), (80, 3, 93, 13),(97, 3, 99, 13),(104, 3, 106, 13)],
         'secondary_mask': (5, 106),
         'secondary_mask_kwargs':{"groups": [(3, 4, 5, 6,7), (8, 9, 10, 11,12), (7, 12, 13)]},
+        'total_col_indexes': [7, 12, 13],  # Add the index of 'Total' columns G, L, M
         'groups':[(3,4,5,6,7),(8,9,10,11,12),(7,12,13)]
     },
     "Report 8a = SWDs by School" : {
@@ -29,6 +32,7 @@ REPORTS_CONFIG_SY24 = {
         "ranges": [(5,  3, 37, 16),(41, 3, 46, 16),(50, 3, 52, 16),(56, 3, 59, 16),(63, 3, 65, 16),(69, 3, 73, 16),(77, 3, 90, 16),(94, 3, 96, 16),(100, 3, 102, 16)],
         'secondary_mask': (5, 102),
         'secondary_mask_kwargs': {'groups': [(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)]},
+        'total_col_indexes': [16],  # Add the index of 'Total' columns P
         'groups':[(3,4,5,6,7,8,9,10,11,12,13,14,15,16)]
     },
     # "Report 10 = IEP Service Recs" : {
@@ -43,8 +47,9 @@ REPORTS_CONFIG_SY24 = {
             (68, 3, 70, 14),   # C68 to N70
             (75, 3, 79, 14),   # C75 to N79
             (84, 3, 97, 14),   # C84 to N97
-            (103, 3, 105, 14), # C103 to N105
-            (111, 3, 113, 14)  # C111 to N113
+            (103, 3, 116, 14), # C103 to N116
+            (122, 3, 124, 14),  # C122 to N124
+            (130, 3, 132, 14)  # C130 to N132            
         ]},
     "Report 11 = Placement" : {
         "ranges": [(6, 3,  38, 4),(42, 3, 47, 4),(51, 3, 53, 4),(57, 3, 60, 4),(64, 3, 66, 4),(70, 3, 74, 4),(78, 3, 91, 4),(96, 3, 98, 4),(103, 3, 105, 4)]
@@ -53,7 +58,8 @@ REPORTS_CONFIG_SY24 = {
         "ranges": [(6, 3, 38, 6), (42, 3, 47, 6), (51, 3, 53, 6), (57, 3, 60, 6), (64, 3, 66, 6), (70, 3, 74, 6), (78, 3, 91, 6), (96, 3, 98, 6), (103, 3, 105, 6)]
     },
     "Report 13 = 3Yr Reevaluations" : {
-    "ranges": [(6, 3, 38, 5),(42, 3, 47, 5),(51, 3, 53, 5),(57, 3, 60, 5),(64, 3, 66, 5),(70, 3, 74, 5),(78, 3, 91, 5),(96, 3, 98, 5),(103, 3, 105, 5)]
+    "ranges": [(6, 3, 38, 5),(42, 3, 47, 5),(51, 3, 53, 5),(57, 3, 60, 5),(64, 3, 66, 5),(70, 3, 74, 5),(78, 3, 91, 5),(96, 3, 98, 5),(103, 3, 105, 5)],
+    'total_col_indexes': [3],  # Add the index of 'Total' columns C
     },
      "Report 14 = Programs" : {
              "ranges": [
@@ -83,7 +89,7 @@ REPORTS_CONFIG_SY24 = {
         (76, 3, 78, 8),  # C76 to H78
     ],
     },
-    "Report 15 = Transportation" : {
+    "Report 15a = Transportation" : {
     "ranges": [
         (5, 3, 37, 8),   # C5 to H37
         (41, 3, 46, 8),  # C41 to H46
