@@ -241,7 +241,39 @@ class Solution:
     def apply_percentage_redaction(self,ws, config, start_row, end_row):
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
             self.redact_percentage_based_on_number(ws, numeric_col, perc_col, start_row, end_row)
+
+    def mask_smallest_numeric_and_percentage(self, ws, start_row, end_row, groups):
+        for row_num in range(start_row, end_row + 1):
+            numeric_cells = []
+            percentage_cells = []
             
+            # Extract numeric and percentage cells from the row
+            for col_index in range(1, ws.max_column + 1, 2):
+                numeric_cell = ws.cell(row=row_num, column=col_index)
+                percentage_cell = ws.cell(row=row_num, column=col_index + 1)
+                # Ensure that only cells with numeric values are added
+                if isinstance(numeric_cell.value, (int, float)):
+                    numeric_cells.append(numeric_cell)
+                if percentage_cell.value == '*':
+                    percentage_cells.append(percentage_cell)
+            
+            # If there is a masked percentage cell, find the smallest numeric value to mask
+            if percentage_cells:
+                # Filter out numeric cells that are already masked
+                unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
+                if unmasked_numeric_cells:
+                    # Find the smallest numeric cell by value
+                    smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+                    # Mask the smallest numeric cell and its adjacent percentage cell
+                    smallest_numeric_value = smallest_numeric_cell.value
+                    if smallest_numeric_value <= 5:
+                        smallest_numeric_cell.value = '<=5'
+                    else:
+                        smallest_numeric_cell.value = '>5'
+                    # Mask the adjacent percentage cell
+                    adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
+                    adjacent_percentage_cell.value = '*'
+
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
@@ -284,15 +316,19 @@ class Solution:
             # self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'])
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
-
-        # Mask underredacted columns
-        for r in configurations['ranges']:
-            self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
             
         # Apply the percentage redaction based on configuration if the key exists
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations:
                 self.apply_percentage_redaction(ws, configurations, r[0], r[2])
+
+        for r in configurations['ranges']:
+            if '100_percentage_sum' in configurations:
+                self.mask_smallest_numeric_and_percentage(ws, r[0], r[2], configurations.get('100_percentage_sum', []))
+
+        # Mask underredacted columns
+        for r in configurations['ranges']:
+            self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
