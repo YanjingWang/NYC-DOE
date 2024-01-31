@@ -50,7 +50,8 @@ REPORTS_CONFIG_SY24 = {
             (103, 3, 116, 14), # C103 to N116
             (122, 3, 124, 14),  # C122 to N124
             (130, 3, 132, 14)  # C130 to N132            
-        ]},
+        ],
+        'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8), (9, 10), (11, 12)]},
     "Report 11 = Placement" : {
         "ranges": [(6, 3,  38, 4),(42, 3, 47, 4),(51, 3, 53, 4),(57, 3, 60, 4),(64, 3, 66, 4),(70, 3, 74, 4),(78, 3, 91, 4),(96, 3, 98, 4),(103, 3, 105, 4)]
     },
@@ -72,9 +73,12 @@ REPORTS_CONFIG_SY24 = {
         (48, 3, 61, 8),  # C48 to H61
         (65, 3, 67, 8),  # C65 to H67
         (71, 3, 73, 8),  # C71 to H73
-    ]},
+    ],
+    'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)]
+    },
     "Report 14a = Bilingual Programs" : {
-        "ranges": [(5, 3, 8, 8)]
+        "ranges": [(5, 3, 8, 8)],
+        'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)]
     },    
     "Report 15 = Related Services" : {
     "ranges": [
@@ -88,6 +92,7 @@ REPORTS_CONFIG_SY24 = {
         (70, 3, 72, 8),  # C70 to H72
         (76, 3, 78, 8),  # C76 to H78
     ],
+    'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)]
     },
     "Report 15a = Transportation" : {
     "ranges": [
@@ -102,6 +107,7 @@ REPORTS_CONFIG_SY24 = {
         (100, 3, 102, 8),# C100 to H102
         (106, 3, 1614, 8)# C106 to H1614
     ],
+    'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)]
     },
     "Report 16 = BIP" : {
     "ranges": [
@@ -117,8 +123,10 @@ REPORTS_CONFIG_SY24 = {
         (108, 3, 110, 6),# C108 to F110
         (114, 3, 1717, 6)# C114 to F1717
     ],
+    'numeric_percentage_pairs': [(3, 4), (5, 6)]
     },
     "Report 17 = Inclusion" : {
-        "ranges": [(5, 3, 8, 4)]
+        "ranges": [(5, 3, 8, 4)],
+        'numeric_percentage_pairs': [(3, 4)]
     }
 }

@@ -27,7 +27,13 @@ for all the 5 column subtotal calculation, if there is only one masked data in t
 Why always mask the smallest of rest unmasked data? Avoid overredaction. For example, in the secondary masking, if we masked E5 and G5, since G5 being to G +   = , it may trigger third masking and more data will be masked. However, if we mask E5 and F5 no need to mask G5 and it won't trigger third layer masking.
 
 For overredaction, if there are more than two` >5 ` within the same group the same row or there are two `>5` within the same group the same row but also has at least one `<=5`  within the same group the same row and this `>5` is not the only `>5` in the column within its range it belongs to,  its' an overredaction, the first`>5` within the same group should be highlighted as green, but here my code the overredacted value has not been highlighted as green, for example, E89 needs to be highlighted as green since E89 + F89 = G89 and there are already two `>5` within the same group, then the first `>5` which is E89 needs to be highlighted as green and unmasked later. For example, check attached picture, for tab `Reports 1-4 = Initials`, D89 is the only `>5 ` of its column within its range it belongs to avoid the back track D90, D89's range is   (78, 3, 91, 13) according to redaction_config.py
-For underredaction,  interate each row and for the same row if there is only one masked cell within the same group then highlight this cell, for example, H89 + I89 = J89, since there is only J89 was masked as `>5` we need to mask the smallest value within this group which is I89 here, I89 is 16 so it should be masked as `>5`.   
+For underredaction,  interate each row and for the same row if there is only one masked cell within the same group then highlight this cell, for example, H89 + I89 = J89, since there is only J89 was masked as `>5` we need to mask the smallest value within this group which is I89 here, I89 is 16 so it should be masked as `>5`.
+
+For percentage redaction, if the number is masked as `<=5` or `>5` then the percentage should be masked as `*`.
+
+For overall column in every range check, if there is only one masked cell (`<=5` or `>5`) in that column then it's underredaction, we need to mask the smallest value of the rest cell in that column.For example, in tab `Report 9 = Disability class`, N102 is the only `>5 ` of its column within its range it belongs to, in order to avoid the back track we need to redact the smallest value of this column which is N100 (0), N102's range is (100, 3, 102, 16) according to redaction_config_SY24.py
+
+
 """
 import openpyxl
 import os, shutil
@@ -225,6 +231,17 @@ class Solution:
     def yellow_cell(self, cell):
         cell.fill = openpyxl.styles.PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
 
+    def redact_percentage_based_on_number(self,ws, numeric_col, perc_col, start_row, end_row):
+        for row in range(start_row, end_row + 1):
+            number_cell = ws.cell(row=row, column=numeric_col)
+            percentage_cell = ws.cell(row=row, column=perc_col)
+            if number_cell.value in ['<=5', '>5']:
+                percentage_cell.value = '*'
+
+    def apply_percentage_redaction(self,ws, config, start_row, end_row):
+        for numeric_col, perc_col in config['numeric_percentage_pairs']:
+            self.redact_percentage_based_on_number(ws, numeric_col, perc_col, start_row, end_row)
+            
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
@@ -268,6 +285,11 @@ class Solution:
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
 
+        # Apply the percentage redaction based on configuration if the key exists
+        for r in configurations['ranges']:
+            if 'numeric_percentage_pairs' in configurations:
+                self.apply_percentage_redaction(ws, configurations, r[0], r[2])
+
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
@@ -298,6 +320,8 @@ class Solution:
 
         # Save the modified redacted workbook
         redacted_wb.save(redacted_filename)
+
+    # Helper function to print cell values, types, and formats
     def print_cell_formats(file_name, sheet_name, cell_range):
         wb = openpyxl.load_workbook(file_name)
         ws = wb[sheet_name]
@@ -307,6 +331,8 @@ class Solution:
 
     # Example usage
     print_cell_formats(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', 'Reports 5-7 = Reevaluations', 'C5:M37')
+
+
 
 
 # Call the function with your filename
