@@ -285,11 +285,14 @@ class Solution:
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
 
+        # Mask underredacted columns
+        for r in configurations['ranges']:
+            self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
+            
         # Apply the percentage redaction based on configuration if the key exists
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations:
                 self.apply_percentage_redaction(ws, configurations, r[0], r[2])
-
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
@@ -331,6 +334,28 @@ class Solution:
 
     # Example usage
     print_cell_formats(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', 'Reports 5-7 = Reevaluations', 'C5:M37')
+
+
+
+    def check_and_mask_underredacted_columns(self, ws, start_row, end_row, start_col, end_col):
+        # Iterate over columns within the specified range
+        for col_index in range(start_col, end_col + 1):
+            column_cells = [ws.cell(row=row_index, column=col_index) for row_index in range(start_row, end_row + 1)]
+            masked_cells = [cell for cell in column_cells if cell.value in ['<=5', '>5']]
+            unmasked_cells = [cell for cell in column_cells if cell not in masked_cells and isinstance(cell.value, (int, float))]
+
+            # If there is only one masked cell in the column
+            if len(masked_cells) == 1 and unmasked_cells:
+                # Find the smallest unmasked value
+                smallest_unmasked_cell = min(unmasked_cells, key=lambda cell: cell.value)
+                # Mask it based on its value
+                if 0 <= smallest_unmasked_cell.value <= 5:
+                    smallest_unmasked_cell.value = '<=5'
+                elif smallest_unmasked_cell.value > 5:
+                    smallest_unmasked_cell.value = '>5'
+                # Optionally highlight the cell
+                # self.yellow_cell(smallest_unmasked_cell)
+                print(ws.title,f"Underredaction: Masking cell {smallest_unmasked_cell.coordinate} with {'<=5' if smallest_unmasked_cell.value == '<=5' else '>5'}")
 
 
 
