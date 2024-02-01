@@ -257,8 +257,8 @@ class Solution:
                 if percentage_cell.value == '*':
                     percentage_cells.append(percentage_cell)
             
-            # If there is a masked percentage cell, find the smallest numeric value to mask
-            if percentage_cells:
+            # Only proceed if there's one masked numeric value and its adjacent percentage cell
+            if len(numeric_cells) > 1 and len(percentage_cells) == 1:
                 # Filter out numeric cells that are already masked
                 unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
                 if unmasked_numeric_cells:
@@ -273,6 +273,7 @@ class Solution:
                     # Mask the adjacent percentage cell
                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
                     adjacent_percentage_cell.value = '*'
+
 
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
