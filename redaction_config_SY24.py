@@ -55,13 +55,15 @@ REPORTS_CONFIG_SY24 = {
         '100_percentage_sum' : [(4,6,8,10,12,14)],
     },
     "Report 11 = Placement" : {
-        "ranges": [(6, 3,  38, 4),(42, 3, 47, 4),(51, 3, 53, 4),(57, 3, 60, 4),(64, 3, 66, 4),(70, 3, 74, 4),(78, 3, 91, 4),(96, 3, 98, 4),(103, 3, 105, 4)]
-    },
+        "ranges": [(6, 3,  38, 3),(42, 3, 47, 3),(51, 3, 53, 3),(57, 3, 60, 3),(64, 3, 66, 3),(70, 3, 74, 3),(78, 3, 91, 3),(96, 3, 98, 3),(103, 3, 105, 3)]
+    }, #don't have to redact avg column
     "Report 12 = LRE-MRE" : {
         "ranges": [(6, 3, 38, 6), (42, 3, 47, 6), (51, 3, 53, 6), (57, 3, 60, 6), (64, 3, 66, 6), (70, 3, 74, 6), (78, 3, 91, 6), (96, 3, 98, 6), (103, 3, 105, 6)]
     },
     "Report 13 = 3Yr Reevaluations" : {
     "ranges": [(6, 3, 38, 5),(42, 3, 47, 5),(51, 3, 53, 5),(57, 3, 60, 5),(64, 3, 66, 5),(70, 3, 74, 5),(78, 3, 91, 5),(96, 3, 98, 5),(103, 3, 105, 5)],
+    'secondary_mask': (5,105),
+    'secondary_mask_kwargs': {'groups': [(3, 4, 5)]},   
     'total_col_indexes': [3],  # Add the index of 'Total' columns C
     },
      "Report 14 = Programs" : {
@@ -129,8 +131,10 @@ REPORTS_CONFIG_SY24 = {
         (108, 3, 110, 6),# C108 to F110
         (114, 3, 1717, 6)# C114 to F1717
     ],
-    'numeric_percentage_pairs': [(3, 4), (5, 6)],
-    '100_percentage_sum' : [(4,6)],
+        'secondary_mask': (5, 1717),
+        'secondary_mask_kwargs': {'groups': [(3, 5)]},
+    # 'numeric_percentage_pairs': [(3, 4), (5, 6)], #don't have to redact percentage 
+    # '100_percentage_sum' : [(4,6)],
     },
     "Report 17 = Inclusion" : {
         "ranges": [(5, 3, 8, 4)],
