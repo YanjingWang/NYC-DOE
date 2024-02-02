@@ -258,7 +258,7 @@ class Solution:
                     percentage_cells.append(percentage_cell)
             
             # Only proceed if there's one masked numeric value and its adjacent percentage cell
-            if len(numeric_cells) > 1 and len(percentage_cells) == 1:
+            if len(numeric_cells) >= 1 and len(percentage_cells) == 1:
                 # Filter out numeric cells that are already masked
                 unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
                 if unmasked_numeric_cells:
