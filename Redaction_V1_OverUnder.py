@@ -31,6 +31,14 @@ For underredaction,  interate each row and for the same row if there is only one
 
 For percentage redaction, if the number is masked as `<=5` or `>5` then the percentage should be masked as `*`.
 
+100% percentage sum redaction, if the sum of the percentage is 100% then mask the smallest numeric and percentage within the same row. Since
+Tab `Report 10 = IEP Service Recs`:  D+F+H+J+L+N = 100%
+Tab `Report 14 = Programs`: D+F+H = 100%
+Tab `Report 14a = Bilingual Programs`: D+F+H = 100%
+Tab `Report 15 = Related Services`: D+F+H = 100%
+Tab `Report 15a = Transportation`: D+F+H = 100%
+Tab `Report 16 = BIP`: D+F = 100% I want to change percentage redaction rule: if there is one percentage cell is redacted as `*` and its adjacent numeric cell is masked as `<=5` or `>5` , then we redact the smallest numeric cell for the rest of the same row of that `*` redacted cell belongs to based on its value, if its value >5 then mask it as `>5` if its value <=5 then mask it as `<=5` and then mask its adjacent percentage cell. For example, check attached picture, for Tab `Report 10 = IEP Service Recs` since   D21+F21+H21+J21+L21+N21 = 100% and M21 is redacted as `<=5` and N21 is redacted as `*`, we need to mask K21 as `<=5` and its adjacent percentage cell * to avoid back track. 
+
 For overall column in every range check, if there is only one masked cell (`<=5` or `>5`) in that column then it's underredaction, we need to mask the smallest value of the rest cell in that column.For example, in tab `Report 9 = Disability class`, N102 is the only `>5 ` of its column within its range it belongs to, in order to avoid the back track we need to redact the smallest value of this column which is N100 (0), N102's range is (100, 3, 102, 16) according to redaction_config_SY24.py
 
 
