@@ -41,7 +41,7 @@ class Solution:
         # ws = wb.active
         # ws.title = "Report 9 = Placement"
         wb  = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-        ws = wb.create_sheet("Report 10 = LRE-MRE")
+        ws = wb.create_sheet("Report 12 = LRE-MRE")
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -133,8 +133,8 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_ReevalReferralsR510_SY23_fix', 'INT_StudentDemographics_063023')
-        cursor.execute("[dev].[USPCCAnnaulReport10] @tableNameCCReevalReferralsR510=?,  @tableNameINTStudentDemographics_0630=?", params)
+        params = ('CC_ReevalReferralsR510_SY23')
+        cursor.execute("[dev].[USPCCAnnaulReport10] @tableNameCCReevalReferralsR510=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):
@@ -252,59 +252,100 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'F38']:
+        for row in ws['C5':'F38'] + ws['C42':'F47'] + ws['C51':'F53'] + ws['C57':'F60'] + ws['C64':'F66'] + ws['C70':'F74'] + ws['C78':'F91'] + ws['C96':'F98'] + ws['C103':'F105']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+                if isinstance(cell.value, str):
+                    try:
+                        cell.value = int(cell.value)
+                    except ValueError:
+                        # If the value cannot be converted to int, keep the original value
+                        pass
+        # Function to check if a string represents a valid number
+        def is_number(s):
+            try:
+                float(s.replace(',', ''))  # Try converting after removing commas
+                return True
+            except ValueError:
+                return False
 
-        for row in ws['C42':'F47']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # Formatting specific cell ranges
+        cell_ranges = ['C5:F38', 'C42:F47', 'C51:F53', 'C57:F60', 'C64:F66', 'C70:F74', 'C78:F91', 'C96:F98', 'C103:F105']
+        for cell_range in cell_ranges:
+            for row in ws[cell_range]:
+                for cell in row:
+                    if isinstance(cell.value, str) and is_number(cell.value):
+                        # Convert to float after removing commas
+                        cell.value = float(cell.value.replace(',', ''))
+                        # Apply number format with commas (optional)
+                        cell.number_format = '#,##0'
+        # Function to check if a string represents a valid number
+        def is_number(s):
+            try:
+                float(s.replace(',', ''))  # Try converting after removing commas
+                return True
+            except ValueError:
+                return False
 
-        for row in ws['C51':'F53']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # Formatting specific cell ranges
+        cell_ranges = ['C5:F38', 'C42:F47', 'C51:F53', 'C57:F60', 'C64:F66', 'C70:F74', 'C78:F91', 'C96:F98', 'C103:F105']
+        for cell_range in cell_ranges:
+            for row in ws[cell_range]:
+                for cell in row:
+                    if isinstance(cell.value, str) and is_number(cell.value):
+                        # Convert to float after removing commas
+                        cell.value = float(cell.value.replace(',', ''))
+                        # Apply number format with commas (optional)
+                        cell.number_format = '#,##0'
+        # for row in ws['C42':'F47']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C57':'F60']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C51':'F53']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C64':'F66']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C57':'F60']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C70':'F74']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C64':'F66']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C78':'F91']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C70':'F74']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C96':'F98']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C78':'F91']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C103':'F105']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C96':'F98']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+
+        # for row in ws['C103':'F105']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
         for row in ws['B1': 'F1']:
             for cell in row:
                 cell.border = black_border
@@ -319,9 +360,20 @@ class Solution:
             for cell in row:
                 cell.border = black_border_thick
                 cell.font = Font(bold=True, size=12)
+        # wrap text in C5:F5
+        for row in ws['C5':'F5']:
+            for cell in row:
+                cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='center')
+
+        # wrap text of B50 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
+        ws['B50'].alignment = Alignment(wrap_text=True)
+        # make cell B1, B62, B68 higher to fit the text
+        ws.row_dimensions[1].height = 30
+        ws.row_dimensions[62].height = 30
+        ws.row_dimensions[68].height = 30       
     def Report_10_LRE_MRE(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 10 LRE/MRE Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level.", "merge_cells": "B1:F1"},
+            {"cell": "B1", "value": "Report 12 LRE/MRE Disaggregated by:  District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level;  Temp House Status and Foster Care Status.", "merge_cells": "B1:F1"},
             
 
         ]
@@ -353,20 +405,22 @@ class Solution:
         
         # Step 4: Fetch and write data for "Report 8b = IEP Service Recs by District"
         results_byDistrict = self.fetch_data_by_district(cursor)
-        # replace 01 as 1, 02 as 2, etc.
-        results_byDistrict = [(x[0].replace('01', '1'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('02', '2'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('03', '3'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('04', '4'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('05', '5'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('06', '6'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
+        # # replace 01 as 1, 02 as 2, etc.
+        # results_byDistrict = [(x[0].replace('01', '1'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('02', '2'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('03', '3'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('04', '4'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('05', '5'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('06', '6'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
         self.write_data_to_excel(ws, results_byDistrict, start_row=6)
 
         # Step 5: Fetch and write data for "Report 8b = IEP Service Recs by Meal Status"
         results_byMealStatus = self.fetch_data_by_mealstatus(cursor)
+        # replace Free or Reduced Price Meal to Eligible for the Free/Reduced Price Lunch Program
+        results_byMealStatus = [(x[0].replace('Free or Reduced Price Meal', 'Eligible for the Free/Reduced Price Lunch Program'), *x[1:]) for x in results_byMealStatus]
         self.write_data_to_excel(ws, results_byMealStatus, start_row=51)
 
         # Step 6: Fetch and write data for "Report 8b = IEP Service Recs by Gender"
@@ -376,7 +430,7 @@ class Solution:
         # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
         results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
         # replace 'ELL' with 'Ell' and 'NON-ELL' with 'Non-Ell'
-        results_byELLStatus = [('Ell' if x[0] == 'ELL' else ('Non-Ell' if x[0] == 'NOT ELL' else x[0]), *x[1:]) for x in results_byELLStatus]
+        results_byELLStatus = [('ELL' if x[0] == 'ELL' else ('NOT ELL' if x[0] == 'Non-Ell' else x[0]), *x[1:]) for x in results_byELLStatus]
         self.write_data_to_excel(ws, results_byELLStatus, start_row=64)
         
         # Step 8: Fetch and write data for "Report 8b = IEP Service Recs by Language"

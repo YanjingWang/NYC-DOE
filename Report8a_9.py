@@ -42,7 +42,7 @@ class Solution:
         # ws = wb.active
         # ws.title = "Report 8a = Disability class"
         wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-        ws = wb.create_sheet("Report 8a = Disability class")
+        ws = wb.create_sheet("Report 9 = Disability class")
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -233,59 +233,82 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'P37']:
+        for row in ws['C5':'P37'] + ws['C41':'P46'] + ws['C50':'P52'] + ws['C56':'P59'] + ws['C63':'P65'] + ws['C69':'P73'] + ws['C77':'P90'] + ws['C94':'P96'] + ws['C100':'P102']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+                if isinstance(cell.value, str):
+                    try:
+                        cell.value = int(cell.value)
+                    except ValueError:
+                        # If the value cannot be converted to int, keep the original value
+                        pass
+        # Function to check if a string represents a valid number
+        def is_number(s):
+            try:
+                float(s.replace(',', ''))  # Try converting after removing commas
+                return True
+            except ValueError:
+                return False
 
-        for row in ws['C41':'P46']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # Formatting specific cell ranges
+        cell_ranges = ['C5:P37', 'C41:P46', 'C50:P52', 'C56:P59', 'C63:P65', 'C69:P73', 'C77:P90', 'C94:P96', 'C100:P102']
+        for cell_range in cell_ranges:
+            for row in ws[cell_range]:
+                for cell in row:
+                    if isinstance(cell.value, str) and is_number(cell.value):
+                        # Convert to float after removing commas
+                        cell.value = float(cell.value.replace(',', ''))
+                        # Apply number format with commas (optional)
+                        cell.number_format = '#,##0'
+        # for row in ws['C41':'P46']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C50':'P52']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C50':'P52']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C56':'P59']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C56':'P59']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C63':'P65']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C63':'P65']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C69':'P73']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C69':'P73']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C77':'P90']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C77':'P90']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C94':'P96']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C94':'P96']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        for row in ws['C100':'P102']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+        # for row in ws['C100':'P102']:
+        #     for cell in row:
+        #         if cell.value is not None:  # Ensure there is a value in the cell
+        #             cell.value = str(cell.value) + ''  # Prepend space to the value
+        #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
         for row in ws['B1': 'P1']:
             for cell in row:
@@ -310,24 +333,31 @@ class Solution:
         for row in ws['P5':'P37'] + ws['P41':'P46'] + ws['P50':'P52'] + ws['P56':'P59'] + ws['P63':'P65'] + ws['P69':'P73'] + ws['P77':'P90'] + ws['P94':'P96'] + ws['P100':'P102']:
             for cell in row:
                 cell.fill = PatternFill(start_color='DDDDDD', end_color='DDDDDD', fill_type='solid')
+        # Make column P bold
+        for row in ws['P1':'P37'] + ws['P41':'P46'] + ws['P50':'P52'] + ws['P56':'P59'] + ws['P63':'P65'] + ws['P69':'P73'] + ws['P77':'P90'] + ws['P94':'P96'] + ws['P100':'P102']:
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
 
-    def main_Report_8a_Disability_classs(self):
+        # wrap text of B50 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
+        ws['B50'].alignment = Alignment(wrap_text=True)
+        
+    def main_Report_9_Disability_class(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 8a Disability Classification Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; and Grade Level", "merge_cells": "B1:P1"},
+            {"cell": "B1", "value": "Report 9 Disability Classification Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level; Temp House Status and Foster Care Status.", "merge_cells": "B1:P1"},
             
 
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with IEP Recommended Services by District", "merge_cells": "B3:P3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with IEP Recommended Services by Ethnicity", "merge_cells": "B39:P39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with IEP Recommended Services by Meal Status", "merge_cells": "B48:P48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with IEP Recommended Services by Gender", "merge_cells": "B54:P54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with IEP Recommended Services by ELL Status", "merge_cells": "B61:P61"},
-            {"cell": "B67", "value": "SY 2022-23 Students with IEP Recommended Services  by Recommended Language of Instruction", "merge_cells": "B67:P67"},
-            {"cell": "B75", "value": "SY 2022-23 Students with IEP Recommended Services  by Grade Level", "merge_cells": "B75:P75"},
-            {"cell": "B92", "value": "SY 2022-23 Students with IEP Recommended Services  by Temporary Housing", "merge_cells": "B92:P92"},
-            {"cell": "B98", "value": "SY 2022-23 Students with IEP Recommended Services  by Foster Care Status", "merge_cells": "B98:P98"},
+            {"cell": "B3", "value": "SY 2022-23 Student Disability Classification by District", "merge_cells": "B3:P3"},
+            {"cell": "B39", "value": "SY 2022-23 Student Disability Classification by Race/Ethnicity", "merge_cells": "B39:P39"},
+            {"cell": "B48", "value": "SY 2022-23 Student Disability Classification by Meal Status", "merge_cells": "B48:P48"},
+            {"cell": "B54", "value": "SY 2022-23 Student Disability Classification by Gender", "merge_cells": "B54:P54"},
+            {"cell": "B61", "value": "SY 2022-23 Student Disability Classification by English Language Learner (ELL) Status ", "merge_cells": "B61:P61"},
+            {"cell": "B67", "value": "SY 2022-23 Student Disability Classification by Recommended Language of Instruction", "merge_cells": "B67:P67"},
+            {"cell": "B75", "value": "SY 2022-23 Student Disability Classification by Grade Level", "merge_cells": "B75:P75"},
+            {"cell": "B92", "value": "SY 2022-23 Student Disability Classification by Temporary Housing Status", "merge_cells": "B92:P92"},
+            {"cell": "B98", "value": "SY 2022-23 Student Disability Classification by Foster Care Status", "merge_cells": "B98:P98"},
             
 
         ]
@@ -345,20 +375,21 @@ class Solution:
         
         # Step 4: Fetch and write data for "Report 8b = IEP Service Recs by District"
         results_byDistrict = self.fetch_data_by_district(cursor)
-        # replace 01 as 1, 02 as 2, etc.
-        results_byDistrict = [(x[0].replace('01', '1'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('02', '2'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('03', '3'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('04', '4'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('05', '5'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('06', '6'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
+        # # replace 01 as 1, 02 as 2, etc.
+        # results_byDistrict = [(x[0].replace('01', '1'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('02', '2'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('03', '3'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('04', '4'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('05', '5'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('06', '6'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
+        # results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
         self.write_data_to_excel(ws, results_byDistrict, start_row=5)
 
         # Step 5: Fetch and write data for "Report 8b = IEP Service Recs by Meal Status"
         results_byMealStatus = self.fetch_data_by_mealstatus(cursor)
+        results_byMealStatus = [('Eligible for the Free/Reduced Price Lunch Program' if x[0] == 'Free or Reduced Price Meal' else x[0], *x[1:]) for x in results_byMealStatus]
         self.write_data_to_excel(ws, results_byMealStatus, start_row=50)
 
         # Step 6: Fetch and write data for "Report 8b = IEP Service Recs by Gender"
@@ -368,7 +399,7 @@ class Solution:
         # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
         results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
         # replace 'ELL' with 'Ell' and 'NOT ELL' with 'Non-Ell'
-        results_byELLStatus = [('Ell' if x[0] == 'ELL' else ('Non-ELL' if x[0] == 'NOT ELL' else x[0]), *x[1:]) for x in results_byELLStatus]
+        results_byELLStatus = [('ELL' if x[0] == 'ELL' else ('NOT ELL' if x[0] == 'Non-Ell' else x[0]), *x[1:]) for x in results_byELLStatus]
         self.write_data_to_excel(ws, results_byELLStatus, start_row=63)
         
         # Step 8: Fetch and write data for "Report 8b = IEP Service Recs by Language"
@@ -432,7 +463,7 @@ class Solution:
 
 if __name__ == "__main__":
         Tab8a = Solution()
-        Tab8a.main_Report_8a_Disability_classs()   
+        Tab8a.main_Report_9_Disability_class()   
 
 
 

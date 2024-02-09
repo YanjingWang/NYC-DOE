@@ -1,8 +1,9 @@
 import openpyxl
+import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
 import pyodbc
-import os
+import time
 class Solution:
     # Existing code...
     # Function to format headers
@@ -13,7 +14,7 @@ class Solution:
         ws[header_start_cell] = header_title
         ws[header_start_cell].font = font_style
         ws[header_start_cell].border = border_style
-        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center')  
+        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)  
         ws[header_start_cell].fill = PatternFill(start_color=header_fill_color, end_color=header_fill_color, fill_type="solid")
         ws.row_dimensions[int(header_start_cell[1:])].height = row_height
         
@@ -25,25 +26,27 @@ class Solution:
             ws[col + cell_number].border = border_style
             ws[col + cell_number].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
             ws[col + cell_number].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+            print(col + cell_number)
 
         # Apply borders to all the cells in the header
         for col in [header_start_cell[0]] + column_letters + [chr(ord(c)) for c in column_letters]:
             ws[col + cell_number].border = border_style
             # ws[col + str(int(cell_number)-1)].border = border_style
+            print(col + cell_number)
 
 
 
     # Create Excel Report Template
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
-        wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-        ws = wb.create_sheet("Reports 5-7 = Reevaluations")
         # wb = openpyxl.Workbook()
         # ws = wb.active
-        # ws.title = "Reports 5-7 = Reevaluations"
+        # ws.title = "Report 9 = Placement"
+        wb  = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
+        ws = wb.create_sheet("Report 16 = BIP")
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
-        for row in ws.iter_rows(min_row=1, max_row=120, min_col=1, max_col=26):
+        for row in ws.iter_rows(min_row=1, max_row=1718, min_col=1, max_col=26):
             for cell in row:
                 cell.fill = white_fill
 
@@ -74,9 +77,11 @@ class Solution:
             ws.column_dimensions[column_letter].width = width
 
         # Call the header formatting function for each header section
-        columns = ['Total Students with Reevaluation Referrals 7/1/2022 - 06/30/2023', 'Closed without IEP Meeting',
-                'Student Declassified. IEP Meeting  <= 60 Calendar Days from Date of Referral', 'Student Declassified. IEP Meeting > 60 Calendar Days from Date of Referral', 'Total Declassified', 'Student Classified. IEP Meeting <= 60 Calendar Days from Date of Referral','Student Classified. IEP Meeting > 60 Calendar Days from Date of Referral','Total Eligible','Total IEP Meetings Held (Declassified + Eligible)','Total Open as of 06/30/2023']
-        column_letters = ['C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L']
+        columns = ['Students with Behavioral Intervention Plan',
+                'Percent Students with Behavioral Intervention Plan',
+                'Students without Behavioral Intervention Plan',
+                'Percent Students without Behavioral Intervention Plan']
+        column_letters = ['C', 'D', 'E', 'F']
         # You need to pass the correct parameters to the format_header function
         # For example, for the 'District' header starting at row 4
         # ... You would repeat the above line for each section (Ethnicity, Meal Status, Gender) with the appropriate start_row
@@ -88,19 +93,23 @@ class Solution:
         black_border_mediumside = Side(style='medium', color='000000')
         black_border = Border(top=black_border_thinside, left=black_border_thinside, right=black_border_thinside, bottom=black_border_thinside)
         black_border_thick = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
-        black_border_no_bottom = Border(left=black_border_thickside, right=black_border_thickside)
+        black_border_medium = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
+        black_border_no_bottom = Border(left=black_border_mediumside, right=black_border_mediumside)
         black_boarder_all_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
         header_fill_color = "B8CCE4"
-        column_fill_color = "B8CCE4"
-        self.format_header(ws, 'B4', 'District', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B40', 'Race/Ethnicity', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B49', 'Meal Status', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B55', 'Gender', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B62', 'ELL Status', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B68', 'Language of Instruction', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B76', 'Grade Level', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B94', 'Temporary Housing Status', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B101', 'Foster Care Status', columns, column_letters, 110, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        column_fill_color = "E0F0F8"
+        self.format_header(ws, 'B4', 'Primary IEP-Recommended Program ', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B12', 'District', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B48', 'Race/Ethnicity', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B57', 'Meal Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B63', 'Gender', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B70', 'ELL Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B76', 'Language of Instruction', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B84', 'Grade Level', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B101', 'Temporary Housing Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B107', 'Foster Care Status', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        self.format_header(ws, 'B113', 'School DBN', columns, column_letters, 80, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+
 
         
         # Deleting the default created sheet
@@ -128,13 +137,21 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_ReevalReferralsR510_SY23')
-        cursor.execute("EXEC [dev].[USPCCAnnaulReport5to7] @tableNameCCReevalReferralsR510=?", params)
+        params = ('CC_StudentRegisterR814_061523')
+        cursor.execute("EXEC [dev].[USPCCAnnaulReport14a] @tableNameCCStudentRegisterR814=?", params)
+        # sleep for 60 seconds
+        time.sleep(60)
         return cursor
-    # Fetch data for "Report 8b = IEP Service Recs by Race"
+    def  fetch_data_by_program(self,cursor):
+        query_byProgram = '''
+        select * from  (  select distinct  PrimaryProgramType  ,FORMAT(Sum(BIP) , '#,##0') as c1  ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2  ,FORMAT(sum(NoBIP) , '#,##0') as c3  ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  from ##CCTotaltemp14a a  group by PrimaryProgramType    ) cityide  union all  select * from (  select distinct 'Total' as  PrimaryProgramType  ,FORMAT(Sum(BIP) , '#,##0') as c1  ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2  ,FORMAT(sum(NoBIP) , '#,##0') as c3  ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  from ##CCTotaltemp14a a)  as total
+        '''
+        cursor.execute(query_byProgram)
+        results_byProgram = cursor.fetchall()
+        return results_byProgram
     def fetch_data_by_race(self,cursor):
         query_byRace = '''
-        select EthnicityGroupCC, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   EthnicityGroupCC_sort as sort , EthnicityGroupCC ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by EthnicityGroupCC, EthnicityGroupCC_sort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select EthnicityGroupCC, c1,c2,c3,c4 from (  select * from  ( Select Ethnicity_sort as sort , EthnicityGroupCC,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by EthnicityGroupCC, Ethnicity_sort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort 
         '''  # the byRace SQL query goes here
         cursor.execute(query_byRace)
         results_byRace = cursor.fetchall()
@@ -143,7 +160,7 @@ class Solution:
     # Fetch data for "Report 8b = IEP Service Recs by District"
     def fetch_data_by_district(self,cursor):
         query_byDistrict = '''
-        select * from  ( Select    ReportingDistrict as sort  ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by ReportingDistrict  ) a  union all  select * from ##TotalRow  order by sort 
+        select * from  ( Select  ReportingDistrict as sort ,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by ReportingDistrict  ) a  union all  select * from ##TotalRow14a  order by sort 
         '''  # the byDistrict SQL query goes here
         cursor.execute(query_byDistrict)
         results_byDistrict = cursor.fetchall()
@@ -151,7 +168,7 @@ class Solution:
 
     def fetch_data_by_mealstatus(self,cursor):
         query_byMealStatus = '''
-        select * from  ( Select    MealStatusGrouping as sort  ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by MealStatusGrouping  ) a  union all  select * from ##TotalRow  order by sort 
+        select * from  ( Select  MealStatusGrouping as sort ,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by MealStatusGrouping  ) a  union all  select * from ##TotalRow14a  order by sort
         '''  # the byMealStatus SQL query goes here
         cursor.execute(query_byMealStatus)
         results_byMealStatus = cursor.fetchall()
@@ -159,7 +176,7 @@ class Solution:
     
     def fetch_data_by_gender(self,cursor):
         query_byGender = '''
-        select * from  ( Select    GENDER as sort  ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by GENDER  ) a  union all  select * from ##TotalRow  order by sort 
+        select * from  ( Select  Gender as sort ,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by Gender  ) a  union all  select * from ##TotalRow14a  order by sort 
         '''  # the byGender SQL query goes here
         cursor.execute(query_byGender)
         results_byGender = cursor.fetchall()
@@ -167,7 +184,7 @@ class Solution:
     
     def fetch_data_by_ellstatus(self,cursor):
         query_byELLStatus = '''
-        select * from  ( Select    ELLStatus as sort  ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by ELLStatus  ) a  union all  select * from ##TotalRow  order by sort 
+        select * from  ( Select  ELLStatus as sort ,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by ELLStatus  ) a  union all  select * from ##TotalRow14a  order by sort 
         '''  # the byELLStatus SQL query goes here
         cursor.execute(query_byELLStatus)
         results_byELLStatus = cursor.fetchall()
@@ -175,7 +192,7 @@ class Solution:
     
     def fetch_data_by_language(self,cursor):
         query_byLanguage = '''
-        select OutcomeLanguageCC, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   Language_Sort as sort , OutcomeLanguageCC ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by OutcomeLanguageCC, Language_Sort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select OutcomeLanguageCC, c1,c2,c3,c4 from (  select * from  ( Select OutcomeLanguageCCSort as sort , OutcomeLanguageCC,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by OutcomeLanguageCC, OutcomeLanguageCCSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort    
         '''  # the byLanguage SQL query goes here
         cursor.execute(query_byLanguage)
         results_byLanguage = cursor.fetchall()
@@ -183,7 +200,7 @@ class Solution:
     
     def fetch_data_by_gradelevel(self,cursor):
         query_byGradeLevel = '''
-        select GradeLevel, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   GradeLevel_Sort as sort , GradeLevel ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by GradeLevel, GradeLevel_Sort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select GradeLevel, c1,c2,c3,c4 from (  select * from  ( Select GradeSort as sort , GradeLevel,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by GradeLevel, GradeSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort    
         '''
         cursor.execute(query_byGradeLevel)
         results_byGradeLevel = cursor.fetchall()
@@ -191,7 +208,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57  where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select TempResFlag, c1,c2,c3,c4 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -199,11 +216,19 @@ class Solution:
     
     def fetch_data_by_fosterCareStatus(self,cursor):
         query_byFosterCareStatus = '''
-        select FosterCareFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   FosterCareFlagSort as sort , FosterCareFlag ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57   group by FosterCareFlag, FosterCareFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select FostercareFlag, c1,c2,c3,c4 from (  select * from  ( Select FosterCareFlagSort as sort , FostercareFlag,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by FostercareFlag, FosterCareFlagSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort 
         '''
         cursor.execute(query_byFosterCareStatus)
         results_byFosterCareStatus = cursor.fetchall()
         return results_byFosterCareStatus
+    
+    def fetch_data_by_school(self,cursor):
+        query_bySchool = '''
+        select * from  ( Select  EnrolledDBN as sort ,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by EnrolledDBN  ) a  union all  select * from ##TotalRow14a  order by sort
+        '''
+        cursor.execute(query_bySchool)
+        results_bySchool = cursor.fetchall()
+        return results_bySchool
     
     # Step 3: Write data to Excel for "Report 8b = IEP Service Recs by Race"
     def write_data_to_excel(self, ws, data, start_row):
@@ -224,12 +249,12 @@ class Solution:
                 ws[col + str(row_num)].alignment = Alignment(horizontal='left')  # Right align the data
         
         # Apply borders to all columns
-        for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K','L']:
+        for col in ['B', 'C', 'D', 'E', 'F']:
             for row_num in range(start_row, start_row + len(data)):
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'L37'] + ws['C41':'L46'] + ws['C50':'L52'] + ws['C56':'L59'] + ws['C63':'L65'] + ws['C69':'L73'] + ws['C77':'L90'] + ws['C95':'L97'] + ws['C102':'L104']:
+        for row in ws['C5':'F9'] + ws['C13':'F45'] + ws['C49':'F54'] + ws['C58':'F60'] + ws['C64':'F67'] + ws['C71':'F73'] + ws['C77':'F81'] + ws['C85':'F98'] + ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F1717']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -249,7 +274,7 @@ class Solution:
                 return False
 
         # Formatting specific cell ranges
-        cell_ranges = ['C5:L37', 'C41:L46', 'C50:L52', 'C56:L59', 'C63:L65', 'C69:L73', 'C77:L90', 'C95:L97', 'C102:L104']
+        cell_ranges = ['C5:F9', 'C13:F45', 'C49:F54', 'C58:F60', 'C64:F67', 'C71:F73', 'C77:F81', 'C85:F98', 'C102:F104', 'C108:F110', 'C114:F1717']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -258,109 +283,100 @@ class Solution:
                         cell.value = float(cell.value.replace(',', ''))
                         # Apply number format with commas (optional)
                         cell.number_format = '#,##0'
-        # for row in ws['C41':'L46']:
+        # for row in ws['C13':'F45']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C50':'L52']:
+        # for row in ws['C49':'F54']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C56':'L59']:
+        # for row in ws['C58':'F60']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C63':'L65']:
+        # for row in ws['C64':'F67']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C69':'L73']:
+        # for row in ws['C71':'F73']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C77':'L90']:
+        # for row in ws['C77':'F81']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C95':'L97']:
+        # for row in ws['C85':'F98']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C102':'L104']:
+        # for row in ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F1717']:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
-        for row in ws['B1': 'L1']:
+
+        
+        for row in ws['B1': 'F1']:
             for cell in row:
                 cell.border = black_border
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B37': 'L37'] + ws['B46': 'L46'] + ws['B52': 'L52'] + ws['B59': 'L59'] + ws['B65': 'L65'] + ws['B73': 'L73'] + ws['B90': 'L90'] + ws['B97': 'L97'] + ws['B104': 'L104']:
+        for row in ws['B9':'F9'] + ws['B45':'F45'] + ws['B54':'F54'] + ws['B60':'F60'] + ws['B67':'F67'] + ws['B73':'F73'] + ws['B81':'F81'] + ws['B98':'F98'] + ws['B104':'F104'] + ws['B110':'F110'] + ws['B1717':'F1717']:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B3':'L3'] + ws['B39':'L39'] + ws['B48':'L48'] + ws['B54':'L54'] + ws['B61':'L61'] + ws['B67':'L67'] + ws['B75':'L75'] + ws['B93':'L93'] + ws['B100':'L100']:
+        for row in ws['B3':'F3'] + ws['B11':'F11'] + ws['B47':'F47'] + ws['B56':'F56'] + ws['B62':'F62'] + ws['B69':'F69'] + ws['B75':'F75'] + ws['B83':'F83'] + ws['B100':'F100'] + ws['B106':'F106'] + ws['B112':'F112']:
             for cell in row:
                 cell.border = black_border_thick
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['G4':'G37'] + ws['G40':'G46'] + ws['G49':'G52'] + ws['G55':'G59'] + ws['G62':'G65'] + ws['G68':'G74'] + ws['G76':'G90'] + ws['G94':'G97'] + ws['G101':'G104']:
-            for cell in row:
-                cell.fill = PatternFill(start_color='DDDDDD', end_color='DDDDDD', fill_type='solid')
-        for row in ws['J4':'J37'] + ws['J40':'J46'] + ws['J49':'J52'] + ws['J55':'J59'] + ws['J62':'J65'] + ws['J68':'J74'] + ws['J76':'J90'] + ws['J94':'J97'] + ws['J101':'J104']:
-            for cell in row:
-                cell.fill = PatternFill(start_color='DDDDDD', end_color='DDDDDD', fill_type='solid')
-        for row in ws['E4':'F4'] + ws['H4':'I4'] + ws['E40':'F40'] + ws['H40':'I40'] + ws['E49':'F49'] + ws['H49':'I49'] + ws['E55':'F55'] + ws['H55':'I55'] + ws['E62':'F62'] + ws['H62':'I62'] + ws['E68':'F68'] + ws['H68':'I68'] + ws['E76':'F76'] + ws['H76':'I76'] + ws['E94':'F94'] + ws['H94':'I94'] + ws['E101':'F101'] + ws['H101':'I101']:
-            for cell in row:
-                # cell.fill = PatternFill(start_color='#DCE6F1', end_color='#DCE6F1', fill_type='solid')
-                cell.fill = PatternFill(start_color='E0F0F8', end_color='E0F0F8', fill_type='solid')
-        # make total column bold C, D, K, L
-        for row in ws['C5':'D37'] + ws['K5':'L37'] + ws['C41':'D46'] + ws['K41':'L46'] + ws['C50':'D52'] + ws['K50':'L52'] + ws['C56':'D59'] + ws['K56':'L59'] + ws['C63':'D65'] + ws['K63':'L65'] + ws['C69':'D73'] + ws['K69':'L73'] + ws['C77':'D90'] + ws['K77':'L90'] + ws['C95':'D97'] + ws['K95':'L97'] + ws['C101':'D104'] + ws['K101':'L104']:
-            for cell in row:
-                cell.font = Font(bold=True, size=12)
-
-        # wrap text of B50 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
-        ws['B50'].alignment = Alignment(wrap_text=True)
+        # wrap text of B58 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
+        ws['B58'].alignment = Alignment(wrap_text=True)
+        # wrap text of B6 cell having 'Related Services or Assistive Technology Only' to fit the cell
+        ws['B6'].alignment = Alignment(wrap_text=True)
         # make cell B1 higher to fit the text
-        ws.row_dimensions[1].height = 30        
-    def main_Reports_5_7_Reevaluations(self):
+        ws.row_dimensions[1].height = 30   
+    def Report_16_BIP(self):
         title_cells = [
-            {"cell": "B1", "value": "Reports 5-7 Reevaluation Referrals Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level; Temp Housing Satus and Foster Care Status.", "merge_cells": "B1:L1"},
+            {"cell": "B1", "value": "Report 16 Number and Percentage of Students with a Behavioral Intervention Plan Disaggregated by: Service Recommendation; District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level; Temp House Status; Foster Care Status and School.", "merge_cells": "B1:F1"},
             
 
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with Reevaluation Referrals by District", "merge_cells": "B3:L3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with Reevaluation Referrals by Race/Ethnicity", "merge_cells": "B39:L39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with Reevaluation Referrals by Meal Status", "merge_cells": "B48:L48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with Reevaluation Referrals by Gender", "merge_cells": "B54:L54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with Reevaluation Referrals by English Language Learner (ELL) Status", "merge_cells": "B61:L61"},
-            {"cell": "B67", "value": "SY 2022-23 Students with Reevaluation Referrals by Recommended Language of Instruction", "merge_cells": "B67:L67"},
-            {"cell": "B75", "value": "SY 2022-23 Students with Reevaluation Referrals by Grade Level", "merge_cells": "B75:L75"},
-            {"cell": "B93", "value": "SY 2022-23 Students with Reevaluation Referrals by Temporary Housing Status", "merge_cells": "B93:L93"},
-            {"cell": "B100", "value": "SY 2022-23 Students with Reevaluation Referrals by Foster Care Status", "merge_cells": "B100:L100"},
+            {"cell": "B3", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Primary IEP-Recommended Program", "merge_cells": "B3:F3"},
+            {"cell": "B11", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by District", "merge_cells": "B11:F11"},
+            {"cell": "B47", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Race/Ethnicity", "merge_cells": "B47:F47"},
+            {"cell": "B56", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Meal Status", "merge_cells": "B56:F56"},
+            {"cell": "B62", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Gender", "merge_cells": "B62:F62"},
+            {"cell": "B69", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by English Language Learner (ELL) Status", "merge_cells": "B69:F69"},
+            {"cell": "B75", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Recommended Language of Instruction", "merge_cells": "B75:F75"},
+            {"cell": "B83", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Grade Level", "merge_cells": "B83:F83"},
+            {"cell": "B100", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Temporary Housing Status", "merge_cells": "B100:F100"},
+            {"cell": "B106", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Foster Care Status", "merge_cells": "B106:F106"},
+            {"cell": "B112", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by School", "merge_cells": "B112:F112"},
             
 
         ]
 
-        column_widths = [5, 30, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+        column_widths = [5, 30, 30, 30, 30, 30]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         
@@ -368,8 +384,15 @@ class Solution:
         cursor = self.connect_to_database()
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
+        results_byProgram = self.fetch_data_by_program(cursor)
+        # Define a dictionary for sorting order
+        sort_order= {'Integrated Co-Teaching Services': 1, 'Related Services or Assistive Technology Only': 2, 'SETSS': 3, 'Special Class': 4, 'Total': 5}
+        # Sort the list using a lambda function that references the sort_order dictionary KG,01,02...12
+        results_byProgram = sorted(results_byProgram, key=lambda x: sort_order[x[0]])
+        self.write_data_to_excel(ws, results_byProgram, start_row=5)
+
         results_byRace = self.fetch_data_by_race(cursor)
-        self.write_data_to_excel(ws, results_byRace, start_row=41)
+        self.write_data_to_excel(ws, results_byRace, start_row=49)
         
         # Step 4: Fetch and write data for "Report 8b = IEP Service Recs by District"
         results_byDistrict = self.fetch_data_by_district(cursor)
@@ -383,33 +406,33 @@ class Solution:
         # results_byDistrict = [(x[0].replace('07', '7'), *x[1:]) for x in results_byDistrict]
         # results_byDistrict = [(x[0].replace('08', '8'), *x[1:]) for x in results_byDistrict]
         # results_byDistrict = [(x[0].replace('09', '9'), *x[1:]) for x in results_byDistrict]
-        self.write_data_to_excel(ws, results_byDistrict, start_row=5)
+        self.write_data_to_excel(ws, results_byDistrict, start_row=13)
 
         # Step 5: Fetch and write data for "Report 8b = IEP Service Recs by Meal Status"
         results_byMealStatus = self.fetch_data_by_mealstatus(cursor)
         # replace Free or Reduced Price Meal to Eligible for the Free/Reduced Price Lunch Program
-        results_byMealStatus = [('Eligible for the Free/Reduced Price Lunch Program' if x[0] == 'Free or Reduced Price Meal' else x[0], *x[1:]) for x in results_byMealStatus]
-        self.write_data_to_excel(ws, results_byMealStatus, start_row=50)
+        results_byMealStatus = [(x[0].replace('Free or Reduced Price Meal', 'Eligible for the Free/Reduced Price Lunch Program'), *x[1:]) for x in results_byMealStatus]
+        self.write_data_to_excel(ws, results_byMealStatus, start_row=58)
 
         # Step 6: Fetch and write data for "Report 8b = IEP Service Recs by Gender"
         results_byMealStatus = self.fetch_data_by_gender(cursor)
-        self.write_data_to_excel(ws, results_byMealStatus, start_row=56)
+        self.write_data_to_excel(ws, results_byMealStatus, start_row=64)
 
         # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
         results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
-        # replace 'ELL' with 'Ell' and 'NOT ELL' with 'Non-Ell'
+        # replace 'ELL' with 'Ell' and 'NON-ELL' with 'Non-Ell'
         results_byELLStatus = [('ELL' if x[0] == 'ELL' else ('NOT ELL' if x[0] == 'Non-Ell' else x[0]), *x[1:]) for x in results_byELLStatus]
-        self.write_data_to_excel(ws, results_byELLStatus, start_row=63)
+        self.write_data_to_excel(ws, results_byELLStatus, start_row=71)
         
         # Step 8: Fetch and write data for "Report 8b = IEP Service Recs by Language"
         results_byLanguage = self.fetch_data_by_language(cursor)
-        # replace 'English' with 'English', 'Spanish' with 'Spanish', 'Chinese' with 'Chinese', 'Other' with 'Other'
+        # Replace 'ENGLISH' with 'English' and 'SPANISH' with 'Spanish' and 'CHINESE' with 'Chinese' and 'OTHER' with 'Other'
         results_byLanguage = [('English' if x[0] == 'ENGLISH' else ('Spanish' if x[0] == 'SPANISH' else ('Chinese' if x[0] == 'CHINESE' else ('Other' if x[0] == 'OTHER' else x[0]))), *x[1:]) for x in results_byLanguage]
-        self.write_data_to_excel(ws, results_byLanguage, start_row=69)
+        self.write_data_to_excel(ws, results_byLanguage, start_row=77)
 
         # Step 9: Fetch and write data for "Report 8b = IEP Service Recs by Grade Level"
         results_byGradeLevel = self.fetch_data_by_gradelevel(cursor)
-        # replace 01 as 1, 02 as 2, etc.
+        # replace 0K as KG, 01 as 1, 02 as 2, etc. 
         results_byGradeLevel = [(x[0].replace('0K', 'KG'), *x[1:]) for x in results_byGradeLevel]
         results_byGradeLevel = [(x[0].replace('01', '1'), *x[1:]) for x in results_byGradeLevel]
         results_byGradeLevel = [(x[0].replace('02', '2'), *x[1:]) for x in results_byGradeLevel]
@@ -419,51 +442,26 @@ class Solution:
         results_byGradeLevel = [(x[0].replace('06', '6'), *x[1:]) for x in results_byGradeLevel]
         results_byGradeLevel = [(x[0].replace('07', '7'), *x[1:]) for x in results_byGradeLevel]
         results_byGradeLevel = [(x[0].replace('08', '8'), *x[1:]) for x in results_byGradeLevel]
-        results_byGradeLevel = [(x[0].replace('09', '9'), *x[1:]) for x in results_byGradeLevel]    
-        self.write_data_to_excel(ws, results_byGradeLevel, start_row=77)
+        results_byGradeLevel = [(x[0].replace('09', '9'), *x[1:]) for x in results_byGradeLevel]
+        self.write_data_to_excel(ws, results_byGradeLevel, start_row=85)
 
         # Step 10: Fetch and write data for "Report 8b = IEP Service Recs by Temporary Housing"
         results_byTempResFlag = self.fetch_data_by_tempResFlag(cursor)
-        self.write_data_to_excel(ws, results_byTempResFlag, start_row=95)
+        results_byTempResFlag = [('Yes' if x[0] == 'Y' else ('No' if x[0] == 'N' else x[0]), *x[1:]) for x in results_byTempResFlag]   
+        self.write_data_to_excel(ws, results_byTempResFlag, start_row=102)
 
         # Step 11: Fetch and write data for "Report 8b = IEP Service Recs by Foster Care Status"
         results_byFosterCareStatus = self.fetch_data_by_fosterCareStatus(cursor)
-        # replace 'YES' with 'Yes' and 'NO' with 'No'
         results_byFosterCareStatus = [('Yes' if x[0] == 'Y' else ('No' if x[0] == 'N' else x[0]), *x[1:]) for x in results_byFosterCareStatus]
-        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=102)
+        self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=108)
+
+        results_bySchool = self.fetch_data_by_school(cursor)
+        self.write_data_to_excel(ws, results_bySchool, start_row=114)
+
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
         wb.save(save_path)
 
-    def save_or_append_to_workbook(self, wb, save_path):
-        # Check if the file already exists
-        if os.path.exists(save_path):
-            # Load the existing workbook
-            book = openpyxl.load_workbook(save_path)
-            # Get the active worksheet to copy its styles for the new worksheet
-            active_sheet = book.active
-            # Create a new worksheet by copying the active one
-            new_sheet = book.copy_worksheet(active_sheet)
-            # Set the title for the new worksheet
-            new_sheet.title = wb.active.title
-            # Now, copy the data from wb to new_sheet
-            for row in wb.active.iter_rows():
-                for cell in row:
-                    new_sheet[cell.coordinate].value = cell.value
-        else:
-            # If the file does not exist, save the new workbook as it is
-            book = wb
-        # Save the workbook
-        book.save(save_path)
-
 if __name__ == "__main__":
-        Tab5_7 = Solution()
-        Tab5_7.main_Reports_5_7_Reevaluations() 
-
-
-
-
-
-
-
-
+        Tab1 = Solution()
+        Tab1.Report_16_BIP()                                                                  

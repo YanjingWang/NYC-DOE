@@ -41,7 +41,7 @@ class Solution:
         # wb = openpyxl.Workbook()
         # ws = wb.active
         # ws.title = "Report 12 = Program Services"
-        ws = wb.create_sheet("Report 12 = Program Services")
+        ws = wb.create_sheet("Report 14a = Bilingual Programs")
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -100,7 +100,6 @@ class Solution:
         header_fill_color = "B8CCE4"
         column_fill_color = "B8CCE4"
         self.format_header(ws, 'B4', 'Primary IEP-Recommended Program', columns, column_letters, 30, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
-        self.format_header(ws, 'B13', 'Primary IEP-Recommended Program', columns, column_letters, 30, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
 
         
         # Deleting the default created sheet
@@ -129,25 +128,17 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_PSStudentR12_061523')
-        cursor.execute("[dev].[USPCCAnnaulReport12] @tableNameCCPSStudentR12=?", params)
+        cursor.execute("EXEC [dev].[USPCCAnnaulReport12b] @tableNameCCPSStudentR12=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
-    def fetch_data_by_tab12(self,cursor):
-        query_bytab12 = '''
-        select * from ##Report_12
+    def fetch_data_by_program(self,cursor):
+        query_byProgram = '''
+        Select PrimaryProgramType,c1,c2,c3,c4,c5,c6 from ##Report_12Bil 
         '''  # the bytab12 SQL query goes here
-        cursor.execute(query_bytab12)
-        results_bytab12 = cursor.fetchall()
-        return results_bytab12
-
-    # Fetch data for "Report 8b = IEP Service Recs by District"
-    def fetch_data_by_tab12Bil(self,cursor):
-        query_bytab12Bil = '''
-        select * from ##Report_12Bil
-        '''  # the byDistrict SQL query goes here
-        cursor.execute(query_bytab12Bil)
-        results_bytab12Bil = cursor.fetchall()
-        return results_bytab12Bil
+        cursor.execute(query_byProgram)
+        results_byprogram = cursor.fetchall()
+        return results_byprogram
+    
 
     
     # Step 3: Write data to Excel for "Report 8b = IEP Service Recs by Race"
@@ -178,42 +169,56 @@ class Solution:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='center')
+                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
+                if isinstance(cell.value, str):
+                    try:
+                        cell.value = int(cell.value)
+                    except ValueError:
+                        # If the value cannot be converted to int, keep the original value
+                        pass
+        # Function to check if a string represents a valid number
+        def is_number(s):
+            try:
+                float(s.replace(',', ''))  # Try converting after removing commas
+                return True
+            except ValueError:
+                return False
 
-        for row in ws['C14':'H17']:
-            for cell in row:
-                if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='center')
-
+        # Formatting specific cell ranges
+        cell_ranges = ['C5:H8']
+        for cell_range in cell_ranges:
+            for row in ws[cell_range]:
+                for cell in row:
+                    if isinstance(cell.value, str) and is_number(cell.value):
+                        # Convert to float after removing commas
+                        cell.value = float(cell.value.replace(',', ''))
+                        # Apply number format with commas (optional)
+                        cell.number_format = '#,##0'
         for row in ws['B1': 'H1']:
             for cell in row:
                 cell.border = black_border
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B8':'H8'] + ws['B17':'H17']:
+        for row in ws['B8':'H8']:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B3':'H3'] + ws['B12':'H12'] :
+        for row in ws['B3':'H3']:
             for cell in row:
                 cell.border = black_border_thick
                 cell.font = Font(bold=True, size=12)
-    def Report_12_Program_Services(self):
+    def Report_14_BIP(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 12 Delivery of Special Education Programs", "merge_cells": "B1:H1"},
-            
-
+            {"cell": "B1", "value": "Report 14 Delivery of Special Education Programs", "merge_cells": "B1:H1"},
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Delivery of Special Education Programs by Primary IEP-Recommended Program (All Languages)", "merge_cells": "B3:H3"},
-            {"cell": "B12", "value": "SY 2022-23 Delivery of Bilingual Special Education Programs by Primary IEP-Recommended Program", "merge_cells": "B12:H12"},            
+            {"cell": "B3", "value": "SY 2022-23 Delivery of Bilingual Special Education Programs by Primary IEP-Recommended Program ", "merge_cells": "B3:H3"}, 
 
         ]
 
-        column_widths = [5, 70, 30, 30, 30, 30, 30, 30, 30]
+        column_widths = [5, 38, 20, 20, 20, 20, 20, 20, 20]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         
@@ -221,12 +226,8 @@ class Solution:
         cursor = self.connect_to_database()
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
-        results_bytab12= self.fetch_data_by_tab12(cursor)
-        self.write_data_to_excel(ws, results_bytab12, start_row=5)
-        
-        # Step 4: Fetch and write data for "Report 8b = IEP Service Recs by District"
-        results_bytab12Bil = self.fetch_data_by_tab12Bil(cursor)
-        self.write_data_to_excel(ws, results_bytab12Bil, start_row=14)
+        results_byprogram= self.fetch_data_by_program(cursor)
+        self.write_data_to_excel(ws, results_byprogram, start_row=5)
 
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
@@ -234,4 +235,4 @@ class Solution:
 
 if __name__ == "__main__":
         Tab1 = Solution()
-        Tab1.Report_12_Program_Services()                                                                  
+        Tab1.Report_14_BIP()                                                                  
