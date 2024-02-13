@@ -189,7 +189,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        cell_ranges = ['A3:A258', 'B3:B11', 'D3:D11', 'F3:F11']
+        cell_ranges = ['B3:B11', 'D3:D11', 'F3:F11']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -253,6 +253,9 @@ class Solution:
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
         results_bytab5= self.fetch_data_by_tab5(cursor)
+        # sort the results_bytab5 by the first column 1: Counseling Services, 2: Counseling Services Bilingual, 3: Hearing Education Services, 4: Occupational Therapy, 5: Physical Therapy 6: Speech-Language Therapy, 7:Speech-Language Therapy Bilingual, 8: Vision Education Services, 9:Total
+        sort_order= { 'Counseling Services': 1, 'Counseling Services Bilingual': 2, 'Hearing Education Services': 3, 'Occupational Therapy': 4, 'Physical Therapy': 5, 'Speech-Language Therapy': 6, 'Speech-Language Therapy Bilingual': 7, 'Vision Education Services': 8, 'Total': 9}
+        results_bytab5.sort(key=lambda x: sort_order[x[0]])
         self.write_data_to_excel(ws, results_bytab5, start_row=3)
 
         # Step 9: Save the combined report

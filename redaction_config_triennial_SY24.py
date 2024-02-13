@@ -22,7 +22,7 @@ REPORTS_CONFIG_SY24 = {
     },
     "Related Service Delivery" : {
         "ranges": [(3, 2, 11, 7)],
-        'numeric_percentage_pairs': [(2,3),(4,5),(6,7)],
+        'numeric_percentage_pairs': [(2, 3),(4, 5),(6, 7)],
         '100_percentage_sum' : [(3,5,7)]
 
     },
@@ -32,7 +32,7 @@ REPORTS_CONFIG_SY24 = {
         '100_percentage_sum' : [(4,6,8)]
     },
     "RS Delivery by Supt" : {
-        "ranges": [(3, 4,  360, 9)],
+        "ranges": [(3, 4, 360, 9)],
         'numeric_percentage_pairs': [(4, 5), (6, 7), (8, 9)],
         '100_percentage_sum' : [(5,7,9)]
     }, 
@@ -42,14 +42,14 @@ REPORTS_CONFIG_SY24 = {
         '100_percentage_sum' : [(4,6,8)]
     },
     "Transportation by District" : {
-    "ranges": [(3, 2, 35, 7)],
-    'numeric_percentage_pairs': [(2,3),(4,5),(6,7)],
-    '100_percentage_sum' : [(3,5,7)]
+        "ranges": [(3, 2, 35, 7)],
+        'numeric_percentage_pairs': [(2, 3), (4, 5), (6, 7)],
+        '100_percentage_sum' : [(3,5,7)]
     },
      "Transportation by School" : {
-             "ranges": [(3, 2, 1544, 7)],
-    'numeric_percentage_pairs': [(2,3),(4,5),(6,7)],
-    '100_percentage_sum' : [(3,5,7)]
+        "ranges": [(3, 2, 1544, 7)],
+        'numeric_percentage_pairs': [(2, 3), (4, 5), (6, 7)],
+        '100_percentage_sum' : [(3,5,7)]
     },
 
 }

@@ -53,10 +53,16 @@ class Solution:
     mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx', mylocalCCfolder)
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    # percentage redaction including 0% to 100% redaction
     def is_percentage(self, cell):
         if isinstance(cell.value, float) and '0%' in cell.number_format:
             return True
+        # Specifically check for 100% values, which might be stored as 1.0
+        if cell.value == 1.0 and '%' in cell.number_format:
+            return True
         return False
+
+
 
     
     def mask_value_initial(self,val):
@@ -80,6 +86,7 @@ class Solution:
         # Step 1: Initial Masking
         for row in ws.iter_rows(min_row=start_row, max_row=end_row, min_col=start_col, max_col=end_col):
             for cell in row:
+                # do not mask percentage and 100%
                 if not self.is_percentage(cell):
                     cell.value = self.mask_value_initial(cell.value)
         
@@ -243,16 +250,16 @@ class Solution:
             print(f"Warning: Worksheet {tab_name} does not exist in the file {filename}. Skipping...") #SWDs by School is not in SY23
             return
 
-        # Convert string to int where possible
-        for r in configurations['ranges']:
-            for row in ws.iter_rows(min_row=r[0], max_row=r[2], min_col=r[1], max_col=r[3]):
-                for cell in row:
-                    if isinstance(cell.value, str):
-                        try:
-                            cell.value = int(cell.value)
-                        except ValueError:
-                            # If the value cannot be converted to int, keep the original value
-                            pass
+        # # Convert string to int where possible
+        # for r in configurations['ranges']:
+        #     for row in ws.iter_rows(min_row=r[0], max_row=r[2], min_col=r[1], max_col=r[3]):
+        #         for cell in row:
+        #             if isinstance(cell.value, str):
+        #                 try:
+        #                     cell.value = int(cell.value)
+        #                 except ValueError:
+        #                     # If the value cannot be converted to int, keep the original value
+        #                     pass
                         
         # Mask data for the specific ranges
         for r in configurations['ranges']:

@@ -186,7 +186,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        cell_ranges = ['A3:A258','C3:C259', 'E3:E259', 'G3:G259']
+        cell_ranges = ['C3:C259', 'E3:E259', 'G3:G259']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:

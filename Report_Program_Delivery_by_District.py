@@ -195,7 +195,7 @@ class Solution:
                 cell.font = Font(bold=True, size=12)
 
         # convert the data in columns C, E, G from string to numbers and convert column D, F, H to float and format as percentage
-        cell_ranges = ['A3:A98', 'C3:C99', 'E3:E99', 'G3:G99']
+        cell_ranges = ['C3:C99', 'E3:E99', 'G3:G99']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
