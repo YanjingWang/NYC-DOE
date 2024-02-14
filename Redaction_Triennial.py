@@ -55,7 +55,8 @@ class Solution:
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     # percentage redaction including 0% to 100% redaction
     def is_percentage(self, cell):
-        if isinstance(cell.value, float) and '0%' in cell.number_format:
+        # Check if cell's format is for percentage
+        if '%' in cell.number_format:
             return True
         # Specifically check for 100% values, which might be stored as 1.0
         if cell.value == 1.0 and '%' in cell.number_format:
