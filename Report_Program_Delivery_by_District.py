@@ -194,6 +194,11 @@ class Solution:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A1': 'H1']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+                
         # convert the data in columns C, E, G from string to numbers and convert column D, F, H to float and format as percentage
         cell_ranges = ['C3:C99', 'E3:E99', 'G3:G99']
         for cell_range in cell_ranges:
@@ -223,7 +228,7 @@ class Solution:
                             pass 
     def main_Program_Delivery_by_District(self):
         title_cells = [
-            {"cell": "A1", "value": "October 31, 2023 Number & Percentage of Students Receiving Recommended Special Education Programs", "merge_cells": "A1:H1"},
+            {"cell": "A1", "value": "October 31, 2023 Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:H1"},
             
 
         ]
@@ -242,7 +247,7 @@ class Solution:
 
         ]
 
-        column_widths = [50,50,30,20,20,20,20,20]
+        column_widths = [50,50,20,20,20,20,20,20]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         

@@ -193,6 +193,11 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A1': 'G1']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
         cell_ranges = ['A3:A34', 'B3:B1544', 'D3:D1544', 'F3:F1544']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:

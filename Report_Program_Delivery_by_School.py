@@ -188,6 +188,11 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A1': 'H1']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
         cell_ranges = ['C3:C4207', 'E3:E4207', 'G3:G4207']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
@@ -217,7 +222,7 @@ class Solution:
  
     def main_Program_Delivery_by_School(self):
         title_cells = [
-            {"cell": "A1", "value": "October 31 , 2023 Number & Percentage of Students Receiving Recommended Special Education Programs", "merge_cells": "A1:H1"},
+            {"cell": "A1", "value": "October 31 , 2023 Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:H1"},
             
 
         ]

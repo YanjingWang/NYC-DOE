@@ -186,6 +186,11 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A1': 'H1']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12) 
+
         cell_ranges = ['C3:C259', 'E3:E259', 'G3:G259']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
@@ -241,8 +246,18 @@ class Solution:
         cursor = self.connect_to_database()
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
-        results_byRace = self.fetch_data_by_district(cursor)
-        self.write_data_to_excel(ws, results_byRace, start_row=3)
+        results_byDistrict = self.fetch_data_by_district(cursor)
+        # replace 1 as 01, 2 as 02, etc.
+        results_byDistrict = [(x[0].replace('1', '01'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('2', '02'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('3', '03'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('4', '04'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('5', '05'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('6', '06'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('7', '07'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('8', '08'), *x[1:]) for x in results_byDistrict]
+        results_byDistrict = [(x[0].replace('9', '09'), *x[1:]) for x in results_byDistrict]
+        self.write_data_to_excel(ws, results_byDistrict, start_row=3)
         
 
 

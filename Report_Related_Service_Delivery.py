@@ -74,12 +74,12 @@ class Solution:
 
         # Call the header formatting function for each header section
         columns = ['Related Services Recommendation Type',
-                'Fully Receiving',
-                'Percent Fully Receiving',
-                'Partially Receiving',
-                'Percent Partially Receiving',
-                'Not Receiving',
-                'Percent Not Receiving']
+                'Full Encounter',
+                'Percent Full Encounter',
+                'Partial Encounter',
+                'Percent Partial Encounter',
+                'No Encounter',
+                'Percent No Encounter']
         column_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
         # You need to pass the correct parameters to the format_header function
         # For example, for the 'District' header starting at row 4

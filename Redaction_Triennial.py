@@ -17,19 +17,7 @@ Column based masking:
 Initial mask: find all data 0<data<=5 and make them as <=5
 Then since there are Total calculations for every column, iterate each column if there is only one <=5 in this column to mask the smallest data of rest unmasked data for this column as >5. if min_val == 0 then skip it and mask the next smallest value
 
-Row based masking:
-Secondary mask: for all the 3 column subtotal calculation, if there is only one masked data (<=5 or >5) in this row, mask the smallest data of the rest unmasked data . If there are two or more masked data, no need to data masking.
-
-
-Row based masking:
-for all the 5 column subtotal calculation, if there is only one masked data in the row, mask the smallest data of the rest unmasked data. If there are two or more masked data, no need to do data masking.
-
-Why always mask the smallest of rest unmasked data? Avoid overredaction. For example, in the secondary masking, if we masked E5 and G5, since G5 being to G +   = , it may trigger third masking and more data will be masked. However, if we mask E5 and F5 no need to mask G5 and it won't trigger third layer masking.
-
-For overredaction, if there are more than two` >5 ` within the same group the same row or there are two `>5` within the same group the same row but also has at least one `<=5`  within the same group the same row and this `>5` is not the only `>5` in the column within its range it belongs to,  its' an overredaction, the first`>5` within the same group should be highlighted as green, but here my code the overredacted value has not been highlighted as green, for example, E89 needs to be highlighted as green since E89 + F89 = G89 and there are already two `>5` within the same group, then the first `>5` which is E89 needs to be highlighted as green and unmasked later. For example, check attached picture, for tab `Reports 1-4 = Initials`, D89 is the only `>5 ` of its column within its range it belongs to avoid the back track D90, D89's range is   (78, 3, 91, 13) according to redaction_config.py
-For underredaction,  interate each row and for the same row if there is only one masked cell within the same group then highlight this cell, for example, H89 + I89 = J89, since there is only J89 was masked as `>5` we need to mask the smallest value within this group which is I89 here, I89 is 16 so it should be masked as `>5`.
-
-For percentage redaction, if the number is masked as `<=5` or `>5` then the percentage should be masked as `*`.
+For percentage redaction, if the number is masked as `<=5` or `>5` then the adjcent percentage should be masked as `*`.
 
 100% percentage sum redaction, if the sum of the percentage is 100% then mask the smallest numeric and percentage within the same row. Since
 Tab `Report 10 = IEP Service Recs`:  D+F+H+J+L+N = 100%
@@ -41,11 +29,15 @@ Tab `Report 16 = BIP`: D+F = 100% I want to change percentage redaction rule: if
 
 For overall column in every range check, if there is only one masked cell (`<=5` or `>5`) in that column then it's underredaction, we need to mask the smallest value of the rest cell in that column.For example, in tab `Report 9 = Disability class`, N102 is the only `>5 ` of its column within its range it belongs to, in order to avoid the back track we need to redact the smallest value of this column which is N100 (0), N102's range is (100, 3, 102, 16) according to redaction_config_SY24.py
 
+For related services only Bilingual recommendations can be partially encountered. Partially encountered in that case means it was a bilingual recommendation that was provided in English. For the non-bilingual recommendations there is no such thing as "partial encounter" which is why we say "N/A" 
 
+There is different redaction logic for bilingual and non-bilingual related services recommendations 
+
+for the bilingual recommendations the logic is the same as the program redaction logic, for the non-bilingual recommendations (also called "monolingual recommendations") the masking value is redacted, but the percentages can remain since there are only two possible values  
 """
 import openpyxl
 import os, shutil
-from redaction_config_triennial_SY24 import REPORTS_CONFIG_SY24
+from redaction_config_triennial_SY24 import TRIENNIAL_REPORTS_CONFIG_SY24
 class Solution:
     def copyonefile(src,dst):
         shutil.copy(src,dst)
@@ -108,95 +100,6 @@ class Solution:
                         break
 
 
-    # Step 2: Secondary Masking
-    def secondary_mask(self, ws, start_row, end_row, groups):
-        # groups = [(5, 6, 7), (8, 9, 10), (7, 10, 11)]  # E,F,G and H,I,J and G,J,K respectively
-
-        for group in groups:
-            for row_num in range(start_row, end_row + 1):
-                masked_vals = [col for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
-                if len(masked_vals) == 1:  # If only one value in the group is masked
-                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
-                    if numeric_vals:  # Ensure there are numeric values
-                        min_val = min(numeric_vals)
-                        for col in group:
-                            if ws.cell(row=row_num, column=col).value == min_val:
-                                if min_val == 0:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_zero(min_val)
-                                else:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
-                                break
-
-                elif len(masked_vals) >= 2: # Two or more values are already masked, no action needed
-                    continue
-
-
-    # Step 3: Masking based on Subtotals        
-    def third_mask(self,ws, start_row, end_row,groups):
-        # groups = [(3,4,11,12)]  # C,D,K,L
-        for group in groups:
-            for row_num in range(start_row, end_row + 1):
-                masked_vals = [col for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
-                if len(masked_vals) == 1:  # If only one value in the group is masked, need to mask the smallest of the unmasked values
-                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
-                    if numeric_vals:  # Ensure there are numeric values
-                        min_val = min(numeric_vals)
-                        for col in group:
-                            if ws.cell(row=row_num, column=col).value == min_val:
-                                if min_val == 0:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_zero(min_val)
-                                else:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
-                                break
-                elif len(masked_vals) >= 2:  # Two or more values are already masked, so no action needed
-                    continue
-
-    def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
-        for group in groups:
-            for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
-                for row_num in range(start_row, end_row + 1):
-                    gt5_cells = []
-                    lte5_exists = False
-                    for col_index in group:
-                        cell = ws.cell(row=row_num, column=col_index)
-                        if cell.value == '>5':
-                            gt5_cells.append(cell)
-                        elif cell.value == '<=5':
-                            lte5_exists = True
-
-                    # Check if the first '>5' is not the only one in its column within the range
-                    if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
-                        first_gt5_cell = gt5_cells[0]
-                        col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
-                        if col_values.count('>5') > 1:
-                            # self.green_cell(first_gt5_cell) # Highligh the overredaction cell in green
-                            # Get the original value from the unredacted worksheet
-                            original_value = unredacted_ws.cell(row=first_gt5_cell.row, column=first_gt5_cell.column).value
-                            # Unmask the cell by setting its value to the original value
-                            first_gt5_cell.value = original_value
-                            print(ws.title, f"Unmasking overredacted cell {first_gt5_cell.coordinate} with original value")
-
-    def highlight_underredaction(self, ws, start_row, end_row, groups):
-        for group in groups:
-            for row_num in range(start_row, end_row + 1):
-                masked_cells = [ws.cell(row=row_num, column=col) for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
-                if len(masked_cells) == 1:
-                    # Find the smallest unmasked value within the group
-                    unmasked_cells = [(cell, cell.value) for cell in [ws.cell(row=row_num, column=col) for col in group] if cell not in masked_cells]
-                    if unmasked_cells:
-                        smallest_cell = min(unmasked_cells, key=lambda x: x[1])
-                        # Mask the smallest cell based on its value, if <=5, mask as <=5, otherwise mask as >5
-                        if smallest_cell[1] == 0:
-                            smallest_cell[0].value = self.mask_value_zero(smallest_cell[1])
-                        else:
-                            smallest_cell[0].value = self.mask_value_secondary(smallest_cell[1])
-                        # self.yellow_cell(smallest_cell[0])  # Highlight this cell
-                        print(ws.title, f"Underredaction: Highlighting cell {smallest_cell[0].coordinate} in yellow")
-
-    def green_cell(self, cell):
-        cell.fill = openpyxl.styles.PatternFill(start_color='00ff15', end_color='00ff15', fill_type='solid')
-    def yellow_cell(self, cell):
-        cell.fill = openpyxl.styles.PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
 
     def redact_percentage_based_on_number(self,ws, numeric_col, perc_col, start_row, end_row):
         for row in range(start_row, end_row + 1):
@@ -209,37 +112,43 @@ class Solution:
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
             self.redact_percentage_based_on_number(ws, numeric_col, perc_col, start_row, end_row)
 
-    def mask_smallest_numeric_and_percentage(self, ws, start_row, end_row, groups):
+    def mask_smallest_numeric_and_percentage(self, ws, start_row, end_row, numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
+            # Initialize lists to hold numeric and percentage cells
             numeric_cells = []
             percentage_cells = []
-            
-            # Extract numeric and percentage cells from the row
-            for col_index in range(1, ws.max_column + 1, 2):
-                numeric_cell = ws.cell(row=row_num, column=col_index)
-                percentage_cell = ws.cell(row=row_num, column=col_index + 1)
-                # Ensure that only cells with numeric values are added
+
+            # Gather numeric and percentage cells for the current row based on the provided pairs
+            for pair in numeric_percentage_pairs:
+                numeric_col, perc_col = pair  # Unpack the pair
+                numeric_cell = ws.cell(row=row_num, column=numeric_col)
+                percentage_cell = ws.cell(row=row_num, column=perc_col)
                 if isinstance(numeric_cell.value, (int, float)):
                     numeric_cells.append(numeric_cell)
                 if percentage_cell.value == '*':
                     percentage_cells.append(percentage_cell)
-            
-            # Only proceed if there's one masked numeric value and its adjacent percentage cell
-            if len(numeric_cells) >= 1 and len(percentage_cells) == 1:
+
+            # Proceed if there's at two numeric cell and one percentage cell marked with '*'
+            if len(numeric_cells)>=2 and percentage_cells:
                 # Filter out numeric cells that are already masked
                 unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
+                print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
                 if unmasked_numeric_cells:
                     # Find the smallest numeric cell by value
                     smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                    # Mask the smallest numeric cell and its adjacent percentage cell
-                    smallest_numeric_value = smallest_numeric_cell.value
-                    if smallest_numeric_value <= 5:
+                    # Mask the smallest numeric cell based on its value
+                    if smallest_numeric_cell.value <= 5:
                         smallest_numeric_cell.value = '<=5'
                     else:
                         smallest_numeric_cell.value = '>5'
                     # Mask the adjacent percentage cell
                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
                     adjacent_percentage_cell.value = '*'
+
+
+
+
+
 
 
     def mask_excel_file(self,filename,tab_name,configurations):
@@ -271,13 +180,18 @@ class Solution:
             if 'numeric_percentage_pairs' in configurations:
                 self.apply_percentage_redaction(ws, configurations, r[0], r[2])
 
+        # In your mask_excel_file function
         for r in configurations['ranges']:
             if '100_percentage_sum' in configurations:
-                self.mask_smallest_numeric_and_percentage(ws, r[0], r[2], configurations.get('100_percentage_sum', []))
+                # Retrieve the correct numeric_percentage_pairs for the current tab
+                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
+                # Call the function with the correct pairs
+                self.mask_smallest_numeric_and_percentage(ws, r[0], r[2], numeric_percentage_pairs)
 
-        # Mask underredacted columns
-        for r in configurations['ranges']:
-            self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
+
+        # # Mask underredacted columns
+        # for r in configurations['ranges']:
+        #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
@@ -346,7 +260,7 @@ if __name__ == "__main__":
     processor = Solution()
     #SY24
     filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx'
-    for report, config in REPORTS_CONFIG_SY24.items():
+    for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
         processor.mask_excel_file(filename_SY24, report, config)
     redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx']
     unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx']
@@ -354,7 +268,7 @@ if __name__ == "__main__":
         redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
         unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
-        for report, config in REPORTS_CONFIG_SY24.items():
+        for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
             if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
                 ws = redacted_wb[report]
                 unredacted_ws = unredacted_wb[report]

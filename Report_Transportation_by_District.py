@@ -190,6 +190,11 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A1': 'G1']:
+            for cell in row:
+                cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+                
         cell_ranges = ['B3:B35', 'D3:D35', 'F3:F35']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
