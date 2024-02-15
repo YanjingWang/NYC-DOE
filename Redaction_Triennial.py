@@ -151,7 +151,22 @@ class Solution:
                     adjacent_percentage_cell.value = '*'
 
 
+    def apply_na_redaction(self, ws, redaction_config):
+        for start_row, recommendation_type_col, partial_encounter_col, percent_partial_col in redaction_config['NA_Partcial_Encounter_Redaction']:
+            for row in range(start_row, ws.max_row + 1):
+                recommendation_type_cell = ws.cell(row=row, column=recommendation_type_col)
+                partial_encounter_cell = ws.cell(row=row, column=partial_encounter_col)
+                percent_partial_cell = ws.cell(row=row, column=percent_partial_col)
 
+                # Check if the cell is not None and contains "Bilingual"
+                if recommendation_type_cell.value and "Bilingual" in recommendation_type_cell.value:
+                    continue
+
+                # Redact as 'N/A' if Partial Encounter is 0 or Percent Partial Encounter is 0%
+                if partial_encounter_cell.value == 0:
+                    partial_encounter_cell.value = 'N/A'
+                if percent_partial_cell.value == '0%' or percent_partial_cell.value == 0:
+                    percent_partial_cell.value = 'N/A'
 
 
 
@@ -193,6 +208,9 @@ class Solution:
                 # Call the function with the correct pairs
                 self.mask_smallest_numeric_and_percentage(ws, r[0], r[2], numeric_percentage_pairs)
 
+        # Apply N/A redaction based on new configuration if the key exists
+        if 'NA_Partcial_Encounter_Redaction' in configurations:
+            self.apply_na_redaction(ws, configurations)
 
         # # Mask underredacted columns
         # for r in configurations['ranges']:

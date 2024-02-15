@@ -28,17 +28,22 @@ TRIENNIAL_REPORTS_CONFIG_SY24 = {
     "RS Delivery by District": {
         "ranges": [(3, 3, 259, 8)], 
         'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)], # [(C,D), (E,F), (G,H)]
-        '100_percentage_sum' : [(4,6,8)] # [(D,F,H)]
+        '100_percentage_sum' : [(4,6,8)], # [(D,F,H)]
+        'NA_Partcial_Encounter_Redaction': [(3, 2, 5, 6)] # [(Start_Row, B, E, F)]
     },
+
     "RS Delivery by Supt" : {
         "ranges": [(3, 4, 360, 9)],
         'numeric_percentage_pairs': [(4, 5), (6, 7), (8, 9)], # [(D,E), (F,G), (H,I)]
-        '100_percentage_sum' : [(5,7,9)] # [(E,G,I)]
+        '100_percentage_sum' : [(5,7,9)], # [(E,G,I)]
+        'NA_Partcial_Encounter_Redaction': [(3, 3, 6, 7)] # [(Start_Row, C, F, G)]
     }, 
+
     "RS Delivery by School" : {
         "ranges": [(3, 3, 8357, 8)],
         'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)], # [(C,D), (E,F), (G,H)]
-        '100_percentage_sum' : [(4,6,8)] # [(D,F,H)]
+        '100_percentage_sum' : [(4,6,8)], # [(D,F,H)]
+        'NA_Partcial_Encounter_Redaction': [(3, 2, 5, 6)] # [(Start_Row, B, E, F)]
     },
     "Transportation by District" : {
         "ranges": [(3, 2, 35, 7)],

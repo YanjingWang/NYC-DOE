@@ -248,15 +248,8 @@ class Solution:
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
         results_byDistrict = self.fetch_data_by_district(cursor)
         # replace 1 as 01, 2 as 02, etc.
-        results_byDistrict = [(x[0].replace('1', '01'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('2', '02'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('3', '03'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('4', '04'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('5', '05'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('6', '06'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('7', '07'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('8', '08'), *x[1:]) for x in results_byDistrict]
-        results_byDistrict = [(x[0].replace('9', '09'), *x[1:]) for x in results_byDistrict]
+        # Format district numbers to two digits
+        results_byDistrict = [('0' + str(x[0]) if len(str(x[0])) == 1 else str(x[0]), *x[1:]) for x in results_byDistrict]
         self.write_data_to_excel(ws, results_byDistrict, start_row=3)
         
 
