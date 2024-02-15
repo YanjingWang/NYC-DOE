@@ -101,12 +101,17 @@ class Solution:
 
 
 
-    def redact_percentage_based_on_number(self,ws, numeric_col, perc_col, start_row, end_row):
+    def redact_percentage_based_on_number(self, ws, numeric_col, perc_col, start_row, end_row):
         for row in range(start_row, end_row + 1):
             number_cell = ws.cell(row=row, column=numeric_col)
             percentage_cell = ws.cell(row=row, column=perc_col)
+            # Check if the numeric cell is masked and the percentage cell is not '100%'
             if number_cell.value in ['<=5', '>5']:
-                percentage_cell.value = '*'
+                # If the percentage is not '100%', redact it as '*'
+                if not (percentage_cell.value == '100%' or percentage_cell.value == 1.0):
+                    percentage_cell.value = '*'
+
+                
 
     def apply_percentage_redaction(self,ws, config, start_row, end_row):
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
