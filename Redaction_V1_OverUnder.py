@@ -102,10 +102,11 @@ class Solution:
                         if cell.value == min_val:
                             cell.value = '<=5'
                             break
-                for cell in col:
-                    if cell.value == min_val:
-                        cell.value = '>5'
-                        break
+                else:
+                    for cell in col:
+                        if cell.value == min_val:
+                            cell.value = '>5'
+                            break
 
 
     # Step 2: Secondary Masking
