@@ -110,8 +110,7 @@ class Solution:
                 # If the percentage is not '100%', redact it as '*'
                 if not (percentage_cell.value == '100%' or percentage_cell.value == 1.0):
                     percentage_cell.value = '*'
-
-                
+             
 
     def apply_percentage_redaction(self,ws, config, start_row, end_row):
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
@@ -137,7 +136,7 @@ class Solution:
             if len(numeric_cells)>=2 and percentage_cells:
                 # Filter out numeric cells that are already masked
                 unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
-                print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
+                # print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
                 if unmasked_numeric_cells:
                     # Find the smallest numeric cell by value
                     smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
@@ -161,21 +160,102 @@ class Solution:
                 # Check if the cell is not None and contains "Bilingual"
                 if recommendation_type_cell.value and "Bilingual" in recommendation_type_cell.value:
                     continue
+                if recommendation_type_cell.value and "Bilingual" not in recommendation_type_cell.value:
+                    # Redact as 'N/A' if Partial Encounter is 0 or Percent Partial Encounter is 0%
+                    if partial_encounter_cell.value == 0:
+                        partial_encounter_cell.value = 'N/A'
+                    if percent_partial_cell.value == '0%' or percent_partial_cell.value == 0:
+                        percent_partial_cell.value = 'N/A'
 
-                # Redact as 'N/A' if Partial Encounter is 0 or Percent Partial Encounter is 0%
-                if partial_encounter_cell.value == 0:
-                    partial_encounter_cell.value = 'N/A'
-                if percent_partial_cell.value == '0%' or percent_partial_cell.value == 0:
-                    percent_partial_cell.value = 'N/A'
+    def cross_tab_check(self, ws, cross_tab_config, unredacted_ws):
+        # Extract information from the configuration
+        for config in cross_tab_config:
+            primary_type_col, full_receiving_col, percent_full_receiving_col = config
+        
+        # Create a dictionary to hold categories and their respective rows and values
+        category_dict = {}
+        
+        # Iterate through the worksheet and populate the dictionary
+        for row in range(3, ws.max_row + 1):  # Assuming row 1 is the header and row 2 is the category  
+            print(ws.title, row)
+            category = ws.cell(row=row, column=primary_type_col).value
+            print(ws.title, category)
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+            
+            # Skip if the category is None
+            if category is None:
+                continue
+            
+            # Add the category if not present
+            if category not in category_dict:
+                category_dict[category] = {'rows': [], 'values': []}
+            
+            # Append the row number and the value to the dictionary
+            category_dict[category]['rows'].append(row)
+            category_dict[category]['values'].append(full_receiving_value)
+        
+        # Now iterate over the categories and apply the masking rule
+        for category, info in category_dict.items():
+            masked_cells = [value for value in info['values'] if value in ['<=5', '>5']]
+            # Skip if there are two or more masked cells in the same category
+            if len(masked_cells) >= 2:
+                continue
 
+            # Apply masking if there is only one '<=5' cell in the category
+            elif masked_cells.count('<=5') == 1:
+                # Get the smallest value that is not masked and its index
+                smallest_value = min((val for val in info['values'] if val not in ['<=5', '>5']), default=None)
+                if smallest_value is not None:
+                    smallest_index = info['values'].index(smallest_value)
+                    smallest_row = info['rows'][smallest_index]
+                    # Mask the smallest value based on its value
+                    if 0 <= smallest_value <= 5:
+                        ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5'
+                    elif smallest_value > 5:
+                        ws.cell(row=smallest_row, column=full_receiving_col).value = '>5'
 
+            # Restore original value if there is only one '>5' cell in the category
+            elif masked_cells.count('>5') == 1:
+                gt5_index = info['values'].index('>5')
+                gt5_row = info['rows'][gt5_index]
+                original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
+                ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
+                
 
+    def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
+        for group in groups:
+            for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
+                for row_num in range(start_row, end_row + 1):
+                    gt5_cells = []
+                    lte5_exists = False
+                    for col_index in group:
+                        cell = ws.cell(row=row_num, column=col_index)
+                        if cell.value == '>5':
+                            gt5_cells.append(cell)
+                        elif cell.value == '<=5':
+                            lte5_exists = True
 
-    def mask_excel_file(self,filename,tab_name,configurations):
+                    # Check if the first '>5' is not the only one in its column within the range
+                    if gt5_cells and (len(gt5_cells) > 2 or (len(gt5_cells) == 2 and lte5_exists)):
+                        first_gt5_cell = gt5_cells[0]
+                        col_values = [ws.cell(row=r, column=first_gt5_cell.column).value for r in range(start_row, end_row + 1)]
+                        if col_values.count('>5') > 1:
+                            # self.green_cell(first_gt5_cell) # Highligh the overredaction cell in green
+                            # Get the original value from the unredacted worksheet
+                            original_value = unredacted_ws.cell(row=first_gt5_cell.row, column=first_gt5_cell.column).value
+                            # Unmask the cell by setting its value to the original value
+                            first_gt5_cell.value = original_value
+                            print(ws.title, f"Unmasking overredacted cell {first_gt5_cell.coordinate} with original value")
+
+    def mask_excel_file(self,filename,tab_name,configurations,unredacted_filename):
+        # Load the workbooks
+        wb = openpyxl.load_workbook(filename)
+        unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
         try:
             ws = wb[tab_name]
+            unredacted_ws = unredacted_wb[tab_name]  # Define unredacted_ws here
         except KeyError:
             print(f"Warning: Worksheet {tab_name} does not exist in the file {filename}. Skipping...") #SWDs by School is not in SY23
             return
@@ -211,7 +291,10 @@ class Solution:
         # Apply N/A redaction based on new configuration if the key exists
         if 'NA_Partcial_Encounter_Redaction' in configurations:
             self.apply_na_redaction(ws, configurations)
-
+            
+        # Apply cross-tab redaction based on new configuration if the key exists
+        if 'cross_tab_check' in configurations:
+            self.cross_tab_check(ws, configurations['cross_tab_check'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
@@ -283,8 +366,9 @@ if __name__ == "__main__":
     processor = Solution()
     #SY24
     filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx'
+    unredacted_filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx'
     for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
-        processor.mask_excel_file(filename_SY24, report, config)
+        processor.mask_excel_file(filename_SY24, report, config, unredacted_filename_SY24)
     redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx']
     unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx']
     for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
