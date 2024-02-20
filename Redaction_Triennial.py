@@ -167,7 +167,7 @@ class Solution:
                     if percent_partial_cell.value == '0%' or percent_partial_cell.value == 0:
                         percent_partial_cell.value = 'N/A'
 
-    def cross_tab_check(self, ws, cross_tab_config, unredacted_ws):
+    def mask_by_samecategory(self, ws, cross_tab_config, unredacted_ws):
         # Extract information from the configuration
         for config in cross_tab_config:
             primary_type_col, full_receiving_col, percent_full_receiving_col = config
@@ -177,9 +177,9 @@ class Solution:
         
         # Iterate through the worksheet and populate the dictionary
         for row in range(3, ws.max_row + 1):  # Assuming row 1 is the header and row 2 is the category  
-            print(ws.title, row)
+            # print(ws.title, row)
             category = ws.cell(row=row, column=primary_type_col).value
-            print(ws.title, category)
+            # print(ws.title, category)
             full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
             
             # Skip if the category is None
@@ -220,7 +220,65 @@ class Solution:
                 gt5_row = info['rows'][gt5_index]
                 original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
-                
+
+    def mask_by_samecategoryanddistrict(self, ws, cross_tab_config, unredacted_ws):
+        # Extract information from the configuration
+        for config in cross_tab_config:
+            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
+
+        
+        # Create a dictionary to hold categories, districts, and their respective rows and values
+        category_district_dict = {}
+
+        # Iterate through the worksheet and populate the dictionary
+        for row in range(3, ws.max_row + 1):  # Assuming row 1 is the header and row 2 is the category
+            school_dbn = ws.cell(row=row, column=district_col).value
+            category = ws.cell(row=row, column=primary_type_col).value
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+
+            # Skip if the school DBN or category is None
+            if school_dbn is None or category is None:
+                continue
+
+            # Extract the district number from the school DBN
+            district = school_dbn[:2]
+
+            # Add the category and district if not present
+            if (district, category) not in category_district_dict:
+                category_district_dict[(district, category)] = {'rows': [], 'values': []}
+
+            # Append the row number and the value to the dictionary
+            category_district_dict[(district, category)]['rows'].append(row)
+            category_district_dict[(district, category)]['values'].append(full_receiving_value)
+
+        # Now iterate over the categories and districts and apply the masking rule
+        for (district, category), info in category_district_dict.items():
+            masked_cells = [value for value in info['values'] if value in ['<=5', '>5']]
+            # Skip if there are two or more masked cells in the same category and district
+            if len(masked_cells) >= 2:
+                continue
+
+            # Apply masking if there is only one '<=5' cell in the category and district
+            elif masked_cells.count('<=5') == 1:
+                # Get the smallest value that is not masked and its index
+                smallest_value = min((val for val in info['values'] if val not in ['<=5', '>5']), default=None)
+                if smallest_value is not None:
+                    smallest_index = info['values'].index(smallest_value)
+                    smallest_row = info['rows'][smallest_index]
+                    # Mask the smallest value based on its value
+                    if 0 <= smallest_value <= 5:
+                        ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5'
+                    elif smallest_value > 5:
+                        ws.cell(row=smallest_row, column=full_receiving_col).value = '>5'
+
+            # Restore original value if there is only one '>5' cell in the category and district
+            elif masked_cells.count('>5') == 1:
+                gt5_index = info['values'].index('>5')
+                gt5_row = info['rows'][gt5_index]
+                original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
+                ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
+
+          
 
     def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
         for group in groups:
@@ -292,9 +350,13 @@ class Solution:
         if 'NA_Partcial_Encounter_Redaction' in configurations:
             self.apply_na_redaction(ws, configurations)
             
-        # Apply cross-tab redaction based on new configuration if the key exists
-        if 'cross_tab_check' in configurations:
-            self.cross_tab_check(ws, configurations['cross_tab_check'], unredacted_ws)
+        # Apply mask by category redaction based on new configuration if the key exists
+        if 'mask_by_category' in configurations and 'mask_by_district' not in configurations:
+            self.mask_by_samecategory(ws, configurations['mask_by_category'], unredacted_ws)
+
+        # Apply mask by district redaction based on new configuration if the key exists
+        if 'mask_by_district' in configurations:
+            self.mask_by_samecategoryanddistrict(ws, configurations['mask_by_district'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
