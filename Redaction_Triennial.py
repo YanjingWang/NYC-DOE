@@ -101,7 +101,7 @@ class Solution:
 
 
 
-    def redact_percentage_based_on_number(self, ws, numeric_col, perc_col, start_row, end_row):
+    def redact_percentage_based_on_number_byPS(self, ws, numeric_col, perc_col, start_row, end_row):
         for row in range(start_row, end_row + 1):
             number_cell = ws.cell(row=row, column=numeric_col)
             percentage_cell = ws.cell(row=row, column=perc_col)
@@ -112,11 +112,11 @@ class Solution:
                     percentage_cell.value = '*'
              
 
-    def apply_percentage_redaction(self,ws, config, start_row, end_row):
+    def apply_percentage_redaction_byPS(self,ws, config, start_row, end_row):
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
-            self.redact_percentage_based_on_number(ws, numeric_col, perc_col, start_row, end_row)
+            self.redact_percentage_based_on_number_byPS(ws, numeric_col, perc_col, start_row, end_row)
 
-    def mask_smallest_numeric_and_percentage(self, ws, start_row, end_row, numeric_percentage_pairs):
+    def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
             # Initialize lists to hold numeric and percentage cells
             numeric_cells = []
@@ -149,25 +149,84 @@ class Solution:
                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
                     adjacent_percentage_cell.value = '*'
 
+    def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row, numeric_percentage_pairs):
+        for row_num in range(start_row, end_row + 1):
+            recommendation_type_cell = ws.cell(row=row_num, column=2)  # Assuming column B contains the recommendation type
+            numeric_cells = [ws.cell(row=row_num, column=col) for col, _ in numeric_percentage_pairs]
+            percentage_cells = [ws.cell(row=row_num, column=col) for _, col in numeric_percentage_pairs]
 
-    def apply_na_redaction(self, ws, redaction_config):
-        for start_row, recommendation_type_col, partial_encounter_col, percent_partial_col in redaction_config['NA_Partcial_Encounter_Redaction']:
+            if recommendation_type_cell.value:
+                if "Bilingual" in recommendation_type_cell.value:
+                    # For bilingual, mask the smallest unmasked numeric cell and its adjacent percentage cell marked with '*'
+                    self.mask_cells_bilingual(ws, numeric_cells, percentage_cells)
+                else:
+                    # For non-bilingual, mask the smallest unmasked numeric cell
+                    self.mask_cells_non_bilingual(ws, numeric_cells)
+                    
+                    
+
+    def mask_cells_bilingual(self, ws, numeric_cells, percentage_cells):
+        # Filter out cells that are already masked
+        unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
+        if len(unmasked_numeric_cells) >= 2:  # Ensure there are unmasked cells to work with
+            # Find the smallest unmasked numeric cell
+            smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+            smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+            # Find the adjacent percentage cell and mark it
+            index = numeric_cells.index(smallest_numeric_cell)
+            percentage_cells[index].value = '*'
+            print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'} and {percentage_cells[index].coordinate} as '*'")
+        else:
+            print("No unmasked numeric cells found to mask.")
+
+
+    def mask_cells_non_bilingual(self, ws, numeric_cells):
+        # Filter out cells that are not integers or floats
+        unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
+        # Only proceed if there are two or more numeric cells to compare
+        if len(unmasked_numeric_cells) >= 2:
+            # Find the smallest numeric cell by value
+            smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+            # Mask it based on its value
+            smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+            print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
+
+
+
+
+       
+    def apply_na_redaction(self, ws, na_redaction_config, bilingual_percent_config):
+        # Get the numeric and percentage column pairs from the configuration
+        numeric_percentage_pairs = bilingual_percent_config['mask_RS_bilingual_percent']
+
+        # Iterate through each row for redaction based on the configuration
+        for start_row, recommendation_type_col, partial_encounter_col, percent_partial_col in na_redaction_config['NA_Partcial_Encounter_Redaction']:
             for row in range(start_row, ws.max_row + 1):
                 recommendation_type_cell = ws.cell(row=row, column=recommendation_type_col)
-                partial_encounter_cell = ws.cell(row=row, column=partial_encounter_col)
-                percent_partial_cell = ws.cell(row=row, column=percent_partial_col)
-
-                # Check if the cell is not None and contains "Bilingual"
+                
+                # Apply redaction rules for bilingual recommendations
                 if recommendation_type_cell.value and "Bilingual" in recommendation_type_cell.value:
-                    continue
-                if recommendation_type_cell.value and "Bilingual" not in recommendation_type_cell.value:
-                    # Redact as 'N/A' if Partial Encounter is 0 or Percent Partial Encounter is 0%
+                    # Iterate through each numeric and percentage column pair
+                    for numeric_col, perc_col in numeric_percentage_pairs:
+                        numeric_cell = ws.cell(row=row, column=numeric_col)
+                        percentage_cell = ws.cell(row=row, column=perc_col)
+                        # print(ws.title, f"Row {row}, Numeric cell: {numeric_cell.coordinate}, Percentage cell: {percentage_cell.coordinate}")
+                        # Mask the percentage cell if the numeric cell is masked
+                        if numeric_cell.value in ['<=5', '>5']:
+                            percentage_cell.value = '*'
+
+                # Handle non-bilingual recommendations
+                else:
+                    partial_encounter_cell = ws.cell(row=row, column=partial_encounter_col)
+                    percent_partial_cell = ws.cell(row=row, column=percent_partial_col)
+                    # Redact as 'N/A' if applicable
                     if partial_encounter_cell.value == 0:
                         partial_encounter_cell.value = 'N/A'
-                    if percent_partial_cell.value == '0%' or percent_partial_cell.value == 0:
+                    if percent_partial_cell.value in ['0%', 0]:
                         percent_partial_cell.value = 'N/A'
 
-    def mask_by_samecategory(self, ws, cross_tab_config, unredacted_ws):
+
+    def mask_by_samecategory_byPS(self, ws, cross_tab_config, unredacted_ws):
         # Extract information from the configuration
         for config in cross_tab_config:
             primary_type_col, full_receiving_col, percent_full_receiving_col = config
@@ -213,6 +272,9 @@ class Solution:
                         ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5'
                     elif smallest_value > 5:
                         ws.cell(row=smallest_row, column=full_receiving_col).value = '>5'
+                    # Mask the adjacent percentage cell
+                    adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
+                    adjacent_percentage_cell.value = '*'
 
             # Restore original value if there is only one '>5' cell in the category
             elif masked_cells.count('>5') == 1:
@@ -221,7 +283,7 @@ class Solution:
                 original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
 
-    def mask_by_samecategoryanddistrict(self, ws, cross_tab_config, unredacted_ws):
+    def mask_by_samecategoryanddistrict_byPS(self, ws, cross_tab_config, unredacted_ws):
         # Extract information from the configuration
         for config in cross_tab_config:
             district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
@@ -332,31 +394,43 @@ class Solution:
         # Mask data for the specific ranges
         for r in configurations['ranges']:
             self.initial_mask(ws, *r)
-                       
-        # Apply the percentage redaction based on configuration if the key exists
-        for r in configurations['ranges']:
-            if 'numeric_percentage_pairs' in configurations:
-                self.apply_percentage_redaction(ws, configurations, r[0], r[2])
-
-        # In your mask_excel_file function
-        for r in configurations['ranges']:
-            if '100_percentage_sum' in configurations:
-                # Retrieve the correct numeric_percentage_pairs for the current tab
-                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
-                # Call the function with the correct pairs
-                self.mask_smallest_numeric_and_percentage(ws, r[0], r[2], numeric_percentage_pairs)
 
         # Apply N/A redaction based on new configuration if the key exists
         if 'NA_Partcial_Encounter_Redaction' in configurations:
-            self.apply_na_redaction(ws, configurations)
-            
-        # Apply mask by category redaction based on new configuration if the key exists
-        if 'mask_by_category' in configurations and 'mask_by_district' not in configurations:
-            self.mask_by_samecategory(ws, configurations['mask_by_category'], unredacted_ws)
+            self.apply_na_redaction(ws, configurations, configurations)
 
-        # Apply mask by district redaction based on new configuration if the key exists
-        if 'mask_by_district' in configurations:
-            self.mask_by_samecategoryanddistrict(ws, configurations['mask_by_district'], unredacted_ws)
+
+                                   
+        # # Apply the percentage redaction based on configuration if the key exists for PS reports
+        # for r in configurations['ranges']:
+        #     if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+        #         self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
+
+        # # Apply the percentage redaction based on configuration if the key exists for RS reports
+        # for r in configurations['ranges']:
+        #     if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+        #         # don't do any redaction for the percentage for RS reports
+        #         pass
+
+        # In your mask_excel_file function
+        for r in configurations['ranges']:
+            if '100_percentage_sum' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+                # Retrieve the correct numeric_percentage_pairs for the current tab
+                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
+                # Call the function with the correct pairs
+                self.mask_smallest_numeric_and_percentage_byPS(ws, r[0], r[2], numeric_percentage_pairs)
+            if '100_percentage_sum' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+                # Retrieve the correct numeric_percentage_pairs for the current tab
+                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
+                # Call the function with the correct pairs
+                self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs)          
+        # # Apply mask by category redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+        #     self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
+
+        # # Apply mask by district redaction based on new configuration if the key exists
+        # if 'mask_by_district' in configurations and 'mask_by_category' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+        #     self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
