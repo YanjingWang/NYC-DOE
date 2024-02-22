@@ -34,7 +34,7 @@ TRIENNIAL_REPORTS_CONFIG_SY24 = {
         'numeric_percentage_pairs': [(2, 3),(4, 5),(6, 7)], # [(B,C), (D,E), (F,G)]
         '100_percentage_sum' : [(3,5,7)], # [(C,E,G)]
         'total_by_RStype': [(1)], # [(A)]
-        'RS_flag': True
+        # 'RS_flag': True
     },
     "RS Delivery by District": {
         "ranges": [(3, 3, 259, 8)], 
