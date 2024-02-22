@@ -182,16 +182,17 @@ class Solution:
 
     def mask_cells_non_bilingual(self, ws, numeric_cells):
         # Filter out cells that are not integers or floats
+        masked_numeric_cells = [cell for cell in numeric_cells if cell.value in ['<=5', '>5']]
         unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
         # Only proceed if there are two or more numeric cells to compare
-        if len(unmasked_numeric_cells) >= 2:
+        if len(masked_numeric_cells) == 1 and unmasked_numeric_cells:
             # Find the smallest numeric cell by value
             smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
             # Mask it based on its value
             smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
             print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
-
-
+        else:
+            print("No unmasked numeric cells found to mask.")
 
 
        
@@ -391,28 +392,28 @@ class Solution:
         #                     # If the value cannot be converted to int, keep the original value
         #                     pass
                         
-        # Mask data for the specific ranges
+        # 1. Mask data for the specific ranges
         for r in configurations['ranges']:
             self.initial_mask(ws, *r)
 
-        # Apply N/A redaction based on new configuration if the key exists
+        # 2. Apply N/A redaction based on new configuration if the key exists
         if 'NA_Partcial_Encounter_Redaction' in configurations:
             self.apply_na_redaction(ws, configurations, configurations)
 
 
                                    
-        # # Apply the percentage redaction based on configuration if the key exists for PS reports
-        # for r in configurations['ranges']:
-        #     if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-        #         self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
+        # 3. Apply the percentage redaction based on configuration if the key exists for PS reports
+        for r in configurations['ranges']:
+            if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+                self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
 
-        # # Apply the percentage redaction based on configuration if the key exists for RS reports
-        # for r in configurations['ranges']:
-        #     if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
-        #         # don't do any redaction for the percentage for RS reports
-        #         pass
+        # Apply the percentage redaction based on configuration if the key exists for RS reports
+        for r in configurations['ranges']:
+            if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+                # don't do any redaction for the percentage for RS reports
+                pass
 
-        # In your mask_excel_file function
+        # 4. Apply the 100% percentage sum redaction based on configuration if the key exists
         for r in configurations['ranges']:
             if '100_percentage_sum' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
                 # Retrieve the correct numeric_percentage_pairs for the current tab
@@ -424,13 +425,21 @@ class Solution:
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
                 # Call the function with the correct pairs
                 self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs)          
-        # # Apply mask by category redaction based on new configuration if the key exists
-        # if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-        #     self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
+        # 5. Apply mask by category redaction based on new configuration if the key exists
+        if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+            self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
 
-        # # Apply mask by district redaction based on new configuration if the key exists
-        # if 'mask_by_district' in configurations and 'mask_by_category' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-        #     self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
+        # 6. Apply mask by district redaction based on new configuration if the key exists
+        if 'mask_by_district' in configurations and 'mask_by_category' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+            self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
+
+        # # Apply mask by category redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+        #     self.mask_by_samecategory_byRS(ws, configurations['mask_by_category'], unredacted_ws)
+
+        # # Apply mask by category and district redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+        #     self.mask_by_samecategoryanddistrict_byRS(ws, configurations['mask_by_district'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
