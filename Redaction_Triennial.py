@@ -381,7 +381,7 @@ class Solution:
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
                     # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
-                    print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                    print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                 else:
                     # mask the smallest value of the rest cell in that column
                     unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
@@ -393,7 +393,7 @@ class Solution:
                                 adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                 adjacent_percentage_cell.value = '*'
                                 # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                                print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -457,9 +457,13 @@ class Solution:
                         for index, value in enumerate(info['values']):
                             if value == min_val:
                                 ws.cell(row=info['rows'][index], column=full_receiving_col).value = '<=5' if min_val <= 5 else '>5'
-                                adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
-                                adjacent_percentage_cell.value = '*'
-                                print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                # Mask the adjacent percentage cell if RS Program Type is "Bilingual"
+                                if ws.cell(row=info['rows'][index], column=primary_type_col).value == "Bilingual":
+                                    adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
+                                    adjacent_percentage_cell.value = '*'
+                                    print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                else:
+                                    print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'}")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -524,7 +528,7 @@ class Solution:
                         adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                         adjacent_percentage_cell.value = '*'
                         # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
-                        print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                        print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                     else:
                         print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
                 else:
@@ -535,10 +539,14 @@ class Solution:
                         for index, value in enumerate(info['values']):
                             if value == min_val:
                                 ws.cell(row=info['rows'][index], column=full_receiving_col).value = '<=5' if min_val <= 5 else '>5'
-                                adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
-                                adjacent_percentage_cell.value = '*'
-                                # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                                # Mask the adjacent percentage cell if RS Program Type is "Bilingual"
+                                if ws.cell(row=info['rows'][index], column=primary_type_col).value == "Bilingual":
+                                    adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
+                                    adjacent_percentage_cell.value = '*'
+                                    # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
+                                    print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                else:
+                                    print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'}")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
