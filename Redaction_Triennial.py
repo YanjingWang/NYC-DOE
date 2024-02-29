@@ -193,11 +193,13 @@ class Solution:
                     self.mask_smallest_numeric_and_percentage_byPS(ws, start_row, end_row, numeric_percentage_pairs)
                 else:
                     # For non-bilingual, mask the smallest unmasked numeric cell
-                    self.mask_cells_non_bilingual(ws, numeric_cells)
+                    self.mask_cells_non_bilingual(ws, numeric_cells,numeric_percentage_pairs)
                     
                     
 
-    def mask_cells_non_bilingual(self, ws, numeric_cells):
+    def mask_cells_non_bilingual(self, ws, numeric_cells,numeric_percentage_pairs):
+        # Identify the full receiving column from the numeric_percentage_pairs
+        full_receiving_col = numeric_percentage_pairs[0][0]
         # Filter out cells that are not integers or floats
         masked_numeric_cells = [cell for cell in numeric_cells if cell.value in ['<=5', '>5']]
         unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
@@ -205,9 +207,24 @@ class Solution:
         if len(masked_numeric_cells) == 1 and unmasked_numeric_cells:
             # Find the smallest numeric cell by value
             smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-            # Mask it based on its value
-            smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
-            # print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
+            # Check if the smallest unmasked numeric cell is in the full receiving column
+            if smallest_numeric_cell.column == full_receiving_col:
+                # Find the smallest numeric cell that is not in the full receiving column
+                non_full_receiving_numeric_cells = [cell for cell in unmasked_numeric_cells if cell.column != full_receiving_col]
+                if len(non_full_receiving_numeric_cells) >=2:
+                    smallest_non_full_receiving_numeric_cell = min(non_full_receiving_numeric_cells, key=lambda cell: float(cell.value))
+                    # Mask it based on its value
+                    smallest_non_full_receiving_numeric_cell.value = '<=5' if float(smallest_non_full_receiving_numeric_cell.value) <= 5 else '>5'
+                else:
+                    # mask the smallest value of the rest cell in full receiving column
+                    smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+                    smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+            else:
+                # Find the smallest numeric cell by value
+                smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+                # Mask it based on its value
+                smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+                # print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
         else:
             # print("No unmasked numeric cells found to mask.")
             pass
