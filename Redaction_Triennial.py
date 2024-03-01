@@ -142,6 +142,7 @@ class Solution:
                     # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
                     # Check if the smallest unmasked cell is in the full receiving column
                     smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+                    print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
                     if smallest_numeric_cell.column != full_receiving_col:
                         # Mask the smallest numeric cell based on its value
                         if smallest_numeric_cell.value <= 5:
@@ -153,11 +154,8 @@ class Solution:
                         adjacent_percentage_cell.value = '*'
                     else:
                         # Mask the other numeric cell that is not full receiving column
-                        # next_smallest_numeric_cell = min(
-                        #     [cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], 
-                        #     key=lambda cell: cell.value
-                        # )
-                        next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell ], key=lambda cell: cell.value)
+                        next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
+                        print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
                         if next_smallest_numeric_cell.value <= 5:
                             next_smallest_numeric_cell.value = '<=5'
                         else:
@@ -166,19 +164,7 @@ class Solution:
                         adjacent_percentage_cell = ws.cell(row=row_num, column=next_smallest_numeric_cell.column + 1)
                         adjacent_percentage_cell.value = '*'
                         print(ws.title, f"Masking next smallest cell {next_smallest_numeric_cell.coordinate} as {'<=5' if next_smallest_numeric_cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
-                    # mask_non_full_receiving_numeric_cells = [cell for cell in unmasked_numeric_cells if cell.column != full_receiving_col]
-                    # # Iterate through each cell in the filtered list of non-full receiving numeric cells
-                    # for cell in mask_non_full_receiving_numeric_cells:
-                    #     # Check the value of each cell and mask accordingly
-                    #     if cell.value <= 5:
-                    #         cell.value = '<=5'
-                    #     else:
-                    #         cell.value = '>5'
-                        
-                    #     # Identify and mask the adjacent percentage cell
-                    #     # Assuming the percentage cell is immediately next to the numeric cell in the next column
-                    #     adjacent_percentage_cell = ws.cell(row=cell.row, column=cell.column + 1)
-                    #     adjacent_percentage_cell.value = '*'
+
 
     def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
@@ -581,6 +567,33 @@ class Solution:
                             first_gt5_cell.value = original_value
                             print(ws.title, f"Unmasking overredacted cell {first_gt5_cell.coordinate} with original value")
 
+    def restore_percentage_cells_if_excessive_redaction(self, ws, numeric_percentage_pairs, unredacted_ws):
+        for row_num in range(1, ws.max_row + 1):
+            # Initialize a counter for masked numeric cells in the row
+            masked_numeric_count = 0
+
+            # Iterate through each numeric and percentage column pair
+            for numeric_col, perc_col in numeric_percentage_pairs:
+                numeric_cell = ws.cell(row=row_num, column=numeric_col)
+                percentage_cell = ws.cell(row=row_num, column=perc_col)
+
+                # Check if the numeric cell is masked as <=5 or >5
+                if numeric_cell.value in ['<=5', '>5']:
+                    masked_numeric_count += 1
+
+            # If more than three numeric cells are masked in the row
+            if masked_numeric_count >= 3:
+                # Iterate again to restore the original percentage values where applicable
+                for numeric_col, perc_col in numeric_percentage_pairs:
+                    percentage_cell = ws.cell(row=row_num, column=perc_col)
+                    if percentage_cell.value == '*':
+                        # Retrieve the original value from the unredacted worksheet
+                        original_percentage_value = unredacted_ws.cell(row=row_num, column=perc_col).value
+                        # Restore the original percentage value
+                        percentage_cell.value = original_percentage_value
+                        # print(f"Restored original value for cell {percentage_cell.coordinate} in row {row_num}")
+
+
     def mask_excel_file(self,filename,tab_name,configurations,unredacted_filename):
         # Load the workbooks
         wb = openpyxl.load_workbook(filename)
@@ -653,6 +666,10 @@ class Solution:
         # Apply mask by category and district redaction based on new configuration if the key exists
         if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
             self.mask_by_samecategoryanddistrict_byRS(ws, configurations['mask_by_district'], unredacted_ws)
+
+        # 7. unmask the adjacent percentage cells
+        for r in configurations['ranges']:
+            self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws) 
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
