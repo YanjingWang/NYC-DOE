@@ -142,7 +142,7 @@ class Solution:
                     # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
                     # Check if the smallest unmasked cell is in the full receiving column
                     smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                    print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
+                    # print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
                     if smallest_numeric_cell.column != full_receiving_col:
                         # Mask the smallest numeric cell based on its value
                         if smallest_numeric_cell.value <= 5:
@@ -155,7 +155,7 @@ class Solution:
                     else:
                         # Mask the other numeric cell that is not full receiving column
                         next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
-                        print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
+                        # print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
                         if next_smallest_numeric_cell.value <= 5:
                             next_smallest_numeric_cell.value = '<=5'
                         else:
@@ -180,8 +180,24 @@ class Solution:
                 else:
                     # For non-bilingual, mask the smallest unmasked numeric cell
                     self.mask_cells_non_bilingual(ws, numeric_cells,numeric_percentage_pairs)
-                    
-                    
+                  
+            # Additional check for conditions where we need to unmask the <=5 value
+            # We need to find the cell with the 100% value
+            hundred_percent_cells = [cell for cell in percentage_cells if cell.value == '100%' or cell.value == 1.0]
+            for hundred_percent_cell in hundred_percent_cells:
+                # Check for 'N/A' and '0%' in the same row
+                if 'N/A' in [cell.value for cell in numeric_cells] and any(val in ('0%', 0.0) for val in [cell.value for cell in percentage_cells]):
+                    # Get the corresponding numeric cell
+                    hundred_percent_numeric_cell = ws.cell(row=row_num, column=hundred_percent_cell.column - 1)
+                    if hundred_percent_numeric_cell.value in ['<=5', '>5']:
+                        # Restore the original value for the numeric cell adjacent to the '0%' cell
+                        zero_percent_cell = ws.cell(row=row_num, column=hundred_percent_cell.column + 4)
+                        if zero_percent_cell.value == '0%' or zero_percent_cell.value == 0.0:
+                            masked_numeric_cell = ws.cell(row=row_num, column=zero_percent_cell.column - 1)
+                            original_value = 0
+                            if isinstance(original_value, (int, float)) and original_value <= 5:
+                                masked_numeric_cell.value = original_value
+                                print(ws.title, f"Restoring cell {masked_numeric_cell.coordinate} to original value {original_value} due to impossible backtrack scenario.")                    
 
     def mask_cells_non_bilingual(self, ws, numeric_cells,numeric_percentage_pairs):
         # Identify the full receiving column from the numeric_percentage_pairs
@@ -650,30 +666,31 @@ class Solution:
                 # Retrieve the correct numeric_percentage_pairs for the current tab
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
                 # Call the function with the correct pairs
-                self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs)          
-        # 5. Apply mask by category redaction based on new configuration if the key exists
-        if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-            self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
+                self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs)  
+    
+        # # 5. Apply mask by category redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+        #     self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
 
-        # 6. Apply mask by district redaction based on new configuration if the key exists
-        if 'mask_by_district' in configurations and 'mask_by_category' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-            self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
+        # # 6. Apply mask by district redaction based on new configuration if the key exists
+        # if 'mask_by_district' in configurations and 'mask_by_category' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+        #     self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
 
-        # Apply mask by category redaction based on new configuration if the key exists
-        if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
-            self.mask_by_samecategory_byRS(ws, configurations['mask_by_category'], unredacted_ws)
+        # # Apply mask by category redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+        #     self.mask_by_samecategory_byRS(ws, configurations['mask_by_category'], unredacted_ws)
 
-        # Apply mask by category and district redaction based on new configuration if the key exists
-        if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
-            self.mask_by_samecategoryanddistrict_byRS(ws, configurations['mask_by_district'], unredacted_ws)
+        # # Apply mask by category and district redaction based on new configuration if the key exists
+        # if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+        #     self.mask_by_samecategoryanddistrict_byRS(ws, configurations['mask_by_district'], unredacted_ws)
 
-        # 7. unmask the adjacent percentage cells
-        for r in configurations['ranges']:
-            self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws) 
-        # # Mask underredacted columns
+        # # 7. unmask the adjacent percentage cells
         # for r in configurations['ranges']:
-        #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
-        # Save the modified workbook
+        #     self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws) 
+        # # # Mask underredacted columns
+        # # for r in configurations['ranges']:
+        # #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
+        # # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
     def unmask_green_cells(self, redacted_filename, unredacted_filename, tab_name):
