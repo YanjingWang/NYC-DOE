@@ -116,33 +116,66 @@ class Solution:
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
             self.redact_percentage_based_on_number_byPS(ws, numeric_col, perc_col, start_row, end_row)
 
-    def redact_adjacent_percentage_cells_byRS(self, ws, start_row, start_col, end_row, end_col):
-        """
-        This function will redact the adjacent percentage cells if two or more
-        numeric cells in a row are redacted as '<=5' or '>5'.
-        """
-        for row in ws.iter_rows(min_row=start_row, max_row=end_row, min_col=start_col, max_col=end_col):
-            two_redacted_numeric_cells = [cell for cell in row if cell.value in ['<=5', '>5']]
-            if len(two_redacted_numeric_cells) == 2:
-                print(ws.title, f"Two redacted numeric cells found in row {row[0].row}")
-                for cell in row:
-                    # Check if the cell's adjacent percent cell is not already redacted
-                    if cell.value in ['<=5', '>5']:
-                        adjacent_cell = ws.cell(row=cell.row, column=cell.col_idx + 1)
-                        if adjacent_cell.value != '*':
-                            adjacent_cell.value = '*'
-                            print(ws.title,f"Redacted cell {adjacent_cell.coordinate} to '*'")
 
+
+    # def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
+    #     for row_num in range(start_row, end_row + 1):
+    #         # Initialize lists to hold numeric and percentage cells
+    #         numeric_cells = []
+    #         percentage_cells = []
+    #         full_receiving_col = numeric_percentage_pairs[0][0]
+
+    #         # Gather numeric and percentage cells for the current row based on the provided pairs
+    #         for pair in numeric_percentage_pairs:
+    #             numeric_col, perc_col = pair  # Unpack the pair
+    #             numeric_cell = ws.cell(row=row_num, column=numeric_col)
+    #             percentage_cell = ws.cell(row=row_num, column=perc_col)
+    #             if isinstance(numeric_cell.value, (int, float)):
+    #                 numeric_cells.append(numeric_cell)
+    #             if percentage_cell.value == '*':
+    #                 percentage_cells.append(percentage_cell)
+
+    #         # Proceed if there's at two numeric cell and one percentage cell marked with '*'
+    #         if len(numeric_cells)>=2 and percentage_cells:
+    #             # Filter out numeric cells that are already masked
+    #             unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
+    #             # print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
+    #             if unmasked_numeric_cells:
+    #                 # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
+    #                 # Check if the smallest unmasked cell is in the full receiving column
+    #                 smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+    #                 # print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
+    #                 if smallest_numeric_cell.column != full_receiving_col:
+    #                     # Mask the smallest numeric cell based on its value
+    #                     if smallest_numeric_cell.value <= 5:
+    #                         smallest_numeric_cell.value = '<=5'
+    #                     else:
+    #                         smallest_numeric_cell.value = '>5'
+    #                     # Mask the adjacent percentage cell
+    #                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
+    #                     adjacent_percentage_cell.value = '*'
+    #                 else:
+    #                     # Mask the other numeric cell that is not full receiving column
+    #                     next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
+    #                     # print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
+    #                     if next_smallest_numeric_cell.value <= 5:
+    #                         next_smallest_numeric_cell.value = '<=5'
+    #                     else:
+    #                         next_smallest_numeric_cell.value = '>5'
+    #                     # Mask the adjacent percentage cell
+    #                     adjacent_percentage_cell = ws.cell(row=row_num, column=next_smallest_numeric_cell.column + 1)
+    #                     adjacent_percentage_cell.value = '*'
+    #                     print(ws.title, f"Masking next smallest cell {next_smallest_numeric_cell.coordinate} as {'<=5' if next_smallest_numeric_cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+            
     def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
             # Initialize lists to hold numeric and percentage cells
             numeric_cells = []
             percentage_cells = []
-            full_receiving_col = numeric_percentage_pairs[0][0]
+            full_receiving_col = numeric_percentage_pairs[0][0]  # Assuming the first column in the pair is the full receiving column
 
             # Gather numeric and percentage cells for the current row based on the provided pairs
-            for pair in numeric_percentage_pairs:
-                numeric_col, perc_col = pair  # Unpack the pair
+            for numeric_col, perc_col in numeric_percentage_pairs:
                 numeric_cell = ws.cell(row=row_num, column=numeric_col)
                 percentage_cell = ws.cell(row=row_num, column=perc_col)
                 if isinstance(numeric_cell.value, (int, float)):
@@ -150,37 +183,24 @@ class Solution:
                 if percentage_cell.value == '*':
                     percentage_cells.append(percentage_cell)
 
-            # Proceed if there's at two numeric cell and one percentage cell marked with '*'
-            if len(numeric_cells)>=2 and percentage_cells:
-                # Filter out numeric cells that are already masked
-                unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
-                # print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
+            # Check if there's at least one percentage cell marked with '*' and at least two numeric cells
+            if len(numeric_cells) >= 2 and any(percentage_cell.value == '*' for percentage_cell in percentage_cells):
+                # Filter out numeric cells that are already masked and the full receiving column cell
+                unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5'] and cell.column != full_receiving_col]
+
+                # If there are any unmasked numeric cells that are not in the full receiving column
                 if unmasked_numeric_cells:
-                    # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
-                    # Check if the smallest unmasked cell is in the full receiving column
-                    smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                    # print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
-                    if smallest_numeric_cell.column != full_receiving_col:
-                        # Mask the smallest numeric cell based on its value
-                        if smallest_numeric_cell.value <= 5:
-                            smallest_numeric_cell.value = '<=5'
+                    # Mask those cells based on their values
+                    for cell in unmasked_numeric_cells:
+                        if cell.value <= 5:
+                            cell.value = '<=5'
                         else:
-                            smallest_numeric_cell.value = '>5'
+                            cell.value = '>5'
                         # Mask the adjacent percentage cell
-                        adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
-                        adjacent_percentage_cell.value = '*'
-                    else:
-                        # Mask the other numeric cell that is not full receiving column
-                        next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
-                        # print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
-                        if next_smallest_numeric_cell.value <= 5:
-                            next_smallest_numeric_cell.value = '<=5'
-                        else:
-                            next_smallest_numeric_cell.value = '>5'
-                        # Mask the adjacent percentage cell
-                        adjacent_percentage_cell = ws.cell(row=row_num, column=next_smallest_numeric_cell.column + 1)
-                        adjacent_percentage_cell.value = '*'
-                        print(ws.title, f"Masking next smallest cell {next_smallest_numeric_cell.coordinate} as {'<=5' if next_smallest_numeric_cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                        adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
+                        if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
+                            adjacent_percentage_cell.value = '*'
+                        print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
 
     def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
@@ -220,89 +240,54 @@ class Solution:
                                 masked_numeric_cell.value = original_value
                                 print(ws.title, f"Restoring cell {masked_numeric_cell.coordinate} to original value {original_value} due to impossible backtrack scenario.")                    
 
+    # def mask_cells_non_bilingual(self, ws, numeric_cells,numeric_percentage_pairs):
+    #     # Identify the full receiving column from the numeric_percentage_pairs
+    #     full_receiving_col = numeric_percentage_pairs[0][0]
+    #     # Filter out cells that are not integers or floats
+    #     masked_numeric_cells = [cell for cell in numeric_cells if cell.value in ['<=5', '>5']]
+    #     unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
+    #     # Only proceed if there are two or more numeric cells to compare
+    #     if len(masked_numeric_cells) == 1 and unmasked_numeric_cells:
+    #         # Find the smallest numeric cell by value
+    #         smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+    #         # Check if the smallest unmasked numeric cell is in the full receiving column
+    #         if smallest_numeric_cell.column == full_receiving_col:
+    #             # Find the smallest numeric cell that is not in the full receiving column
+    #             non_full_receiving_numeric_cells = [cell for cell in unmasked_numeric_cells if cell.column != full_receiving_col]
+    #             if len(non_full_receiving_numeric_cells) >=2:
+    #                 smallest_non_full_receiving_numeric_cell = min(non_full_receiving_numeric_cells, key=lambda cell: float(cell.value))
+    #                 # Mask it based on its value
+    #                 smallest_non_full_receiving_numeric_cell.value = '<=5' if float(smallest_non_full_receiving_numeric_cell.value) <= 5 else '>5'
+    #             else:
+    #                 # mask the smallest value of the rest cell in full receiving column
+    #                 smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+    #                 smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+    #         else:
+    #             # Find the smallest numeric cell by value
+    #             smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
+    #             # Mask it based on its value
+    #             smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
+    #             # print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
+    #     else:
+    #         # print("No unmasked numeric cells found to mask.")
+    #         pass
+                                
     def mask_cells_non_bilingual(self, ws, numeric_cells,numeric_percentage_pairs):
         # Identify the full receiving column from the numeric_percentage_pairs
         full_receiving_col = numeric_percentage_pairs[0][0]
         # Filter out cells that are not integers or floats
         masked_numeric_cells = [cell for cell in numeric_cells if cell.value in ['<=5', '>5']]
-        unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5']]
+        unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5'] and cell.column != full_receiving_col]
         # Only proceed if there are two or more numeric cells to compare
         if len(masked_numeric_cells) == 1 and unmasked_numeric_cells:
-            # Find the smallest numeric cell by value
-            smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-            # Check if the smallest unmasked numeric cell is in the full receiving column
-            if smallest_numeric_cell.column == full_receiving_col:
-                # Find the smallest numeric cell that is not in the full receiving column
-                non_full_receiving_numeric_cells = [cell for cell in unmasked_numeric_cells if cell.column != full_receiving_col]
-                if len(non_full_receiving_numeric_cells) >=2:
-                    smallest_non_full_receiving_numeric_cell = min(non_full_receiving_numeric_cells, key=lambda cell: float(cell.value))
-                    # Mask it based on its value
-                    smallest_non_full_receiving_numeric_cell.value = '<=5' if float(smallest_non_full_receiving_numeric_cell.value) <= 5 else '>5'
+            for cell in unmasked_numeric_cells:
+                if cell.value <= 5:
+                    cell.value = '<=5'
                 else:
-                    # mask the smallest value of the rest cell in full receiving column
-                    smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                    smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
-            else:
-                # Find the smallest numeric cell by value
-                smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                # Mask it based on its value
-                smallest_numeric_cell.value = '<=5' if smallest_numeric_cell.value <= 5 else '>5'
-                # print(ws.title, f"Masking cell {smallest_numeric_cell.coordinate} as {'<=5' if smallest_numeric_cell.value == '<=5' else '>5'}")
+                    cell.value = '>5'
         else:
             # print("No unmasked numeric cells found to mask.")
             pass
-
-    def mask_cells_bilingual(self, ws, start_row, end_row, numeric_percentage_pairs):
-        for row_num in range(start_row, end_row + 1):
-            # Initialize lists to hold numeric and percentage cells
-            numeric_cells = []
-            percentage_cells = []
-            full_receiving_col = numeric_percentage_pairs[0][0]
-
-            # Gather numeric and percentage cells for the current row based on the provided pairs
-            for pair in numeric_percentage_pairs:
-                numeric_col, perc_col = pair  # Unpack the pair
-                numeric_cell = ws.cell(row=row_num, column=numeric_col)
-                percentage_cell = ws.cell(row=row_num, column=perc_col)
-                if isinstance(numeric_cell.value, (int, float)):
-                    numeric_cells.append(numeric_cell)
-                if percentage_cell.value == '*':
-                    percentage_cells.append(percentage_cell)
-
-            # print(ws.title, f"Numeric cells in row {row_num}: {[cell.coordinate for cell in numeric_cells]}")  
-            # Proceed if there's at two numeric cell and one percentage cell marked with '*'      
-            if len(numeric_cells)>=2 and percentage_cells:
-                # Filter out numeric cells that are already masked
-                unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
-                # print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
-                if unmasked_numeric_cells:
-                    # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
-                    # Check if the smallest unmasked cell is in the full receiving column
-                    smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-                    # print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
-                    if smallest_numeric_cell.column != full_receiving_col:
-                        # Mask the smallest numeric cell based on its value
-                        if smallest_numeric_cell.value <= 5:
-                            smallest_numeric_cell.value = '<=5'
-                        else:
-                            smallest_numeric_cell.value = '>5'
-                        # Mask the adjacent percentage cell
-                        adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
-                        adjacent_percentage_cell.value = '*'
-                    else:
-                        # Mask the other numeric cell that is not full receiving column
-                        next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
-                        # print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
-                        if next_smallest_numeric_cell.value <= 5:
-                            next_smallest_numeric_cell.value = '<=5'
-                        else:
-                            next_smallest_numeric_cell.value = '>5'
-                        # Mask the adjacent percentage cell
-                        adjacent_percentage_cell = ws.cell(row=row_num, column=next_smallest_numeric_cell.column + 1)
-                        adjacent_percentage_cell.value = '*'
-                        print(ws.title, f"Masking next smallest cell {next_smallest_numeric_cell.coordinate} as {'<=5' if next_smallest_numeric_cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
-
-
        
     def apply_na_redaction(self, ws, na_redaction_config, bilingual_percent_config):
         # Get the numeric and percentage column pairs from the configuration
@@ -732,9 +717,8 @@ class Solution:
                     # Now we check the value of recommendation_type_cell
                     if recommendation_type_cell.value:
                         if "Bilingual" in recommendation_type_cell.value:
-                            self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
-                            # self.redact_adjacent_percentage_cells_byRS(ws, r[0], r[1], r[2], r[3])
-                            # print(f"Applying {ws.title} for row {row_num} percentage redaction")
+                            # self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
+                            print(f"Applying {ws.title} for row {row_num} percentage redaction")
 
 
         # 4. Apply the 100% percentage sum redaction based on configuration if the key exists
