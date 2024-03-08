@@ -116,6 +116,23 @@ class Solution:
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
             self.redact_percentage_based_on_number_byPS(ws, numeric_col, perc_col, start_row, end_row)
 
+    def redact_adjacent_percentage_cells_byRS(self, ws, start_row, start_col, end_row, end_col):
+        """
+        This function will redact the adjacent percentage cells if two or more
+        numeric cells in a row are redacted as '<=5' or '>5'.
+        """
+        for row in ws.iter_rows(min_row=start_row, max_row=end_row, min_col=start_col, max_col=end_col):
+            two_redacted_numeric_cells = [cell for cell in row if cell.value in ['<=5', '>5']]
+            if len(two_redacted_numeric_cells) == 2:
+                print(ws.title, f"Two redacted numeric cells found in row {row[0].row}")
+                for cell in row:
+                    # Check if the cell's adjacent percent cell is not already redacted
+                    if cell.value in ['<=5', '>5']:
+                        adjacent_cell = ws.cell(row=cell.row, column=cell.col_idx + 1)
+                        if adjacent_cell.value != '*':
+                            adjacent_cell.value = '*'
+                            print(ws.title,f"Redacted cell {adjacent_cell.coordinate} to '*'")
+
     def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
             # Initialize lists to hold numeric and percentage cells
@@ -168,7 +185,10 @@ class Solution:
 
     def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
-            recommendation_type_cell = ws.cell(row=row_num, column=2)  # Assuming column B contains the recommendation type
+            if report == 'RS Delivery by Supt':
+                recommendation_type_cell = ws.cell(row=row_num, column=3)
+            elif report == 'RS Delivery by District' or report == 'RS Delivery by School':
+                recommendation_type_cell = ws.cell(row=row_num, column=2)  # Assuming column B contains the recommendation type
             numeric_cells = [ws.cell(row=row_num, column=col) for col, _ in numeric_percentage_pairs]
             percentage_cells = [ws.cell(row=row_num, column=col) for _, col in numeric_percentage_pairs]
             
@@ -713,7 +733,8 @@ class Solution:
                     if recommendation_type_cell.value:
                         if "Bilingual" in recommendation_type_cell.value:
                             self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
-                            print(f"Applying {ws.title} for row {row_num} percentage redaction")
+                            # self.redact_adjacent_percentage_cells_byRS(ws, r[0], r[1], r[2], r[3])
+                            # print(f"Applying {ws.title} for row {row_num} percentage redaction")
 
 
         # 4. Apply the 100% percentage sum redaction based on configuration if the key exists
