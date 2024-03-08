@@ -189,13 +189,35 @@ class Solution:
                 unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5'] and cell.column != full_receiving_col]
 
                 # If there are any unmasked numeric cells that are not in the full receiving column
-                if unmasked_numeric_cells:
+                if len(unmasked_numeric_cells) == 1:
                     # Mask those cells based on their values
                     for cell in unmasked_numeric_cells:
                         if cell.value <= 5:
                             cell.value = '<=5'
                         else:
                             cell.value = '>5'
+                        # Mask the adjacent percentage cell
+                        adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
+                        if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
+                            adjacent_percentage_cell.value = '*'
+                        print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                elif len(unmasked_numeric_cells) >= 2:
+                    # mask the smallest value of unmasked numeric cells
+                    min_val = min([cell.value for cell in unmasked_numeric_cells])
+                    max_val = max([cell.value for cell in unmasked_numeric_cells])
+                    if min_val != max_val:
+                        for cell in unmasked_numeric_cells:
+                            if cell.value == min_val:
+                                cell.value = '<=5' if min_val <= 5 else '>5'
+                                # Mask the adjacent percentage cell
+                                adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
+                                if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
+                                    adjacent_percentage_cell.value = '*'
+                                print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    else:
+                        # mask the first cell of unmasked numeric cells
+                        cell = unmasked_numeric_cells[0]
+                        cell.value = '<=5' if min_val <= 5 else '>5'
                         # Mask the adjacent percentage cell
                         adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
                         if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
@@ -280,11 +302,26 @@ class Solution:
         unmasked_numeric_cells = [cell for cell in numeric_cells if isinstance(cell.value, (int, float)) and cell.value not in ['<=5', '>5'] and cell.column != full_receiving_col]
         # Only proceed if there are two or more numeric cells to compare
         if len(masked_numeric_cells) == 1 and unmasked_numeric_cells:
-            for cell in unmasked_numeric_cells:
-                if cell.value <= 5:
-                    cell.value = '<=5'
+            if len(unmasked_numeric_cells) == 1:
+                for cell in unmasked_numeric_cells:
+                    if cell.value <= 5:
+                        cell.value = '<=5'
+                    else:
+                        cell.value = '>5'
+            elif len(unmasked_numeric_cells) >= 2:
+                # mask the smallest value of the rest cell in that column
+                min_val = min([cell.value for cell in unmasked_numeric_cells])
+                max_val = max([cell.value for cell in unmasked_numeric_cells])
+                if min_val != max_val:
+                    for cell in unmasked_numeric_cells:
+                        if cell.value == min_val:
+                            cell.value = '<=5' if min_val <= 5 else '>5'
+                            print(ws.title, f"Masking cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'}")
                 else:
-                    cell.value = '>5'
+                    # mask the first cell of unmasked numeric cells
+                    cell = unmasked_numeric_cells[0]
+                    cell.value = '<=5' if min_val <= 5 else '>5'
+                    print(ws.title, f"Masking cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'}")
         else:
             # print("No unmasked numeric cells found to mask.")
             pass
