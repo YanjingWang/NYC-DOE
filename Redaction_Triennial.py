@@ -116,56 +116,6 @@ class Solution:
         for numeric_col, perc_col in config['numeric_percentage_pairs']:
             self.redact_percentage_based_on_number_byPS(ws, numeric_col, perc_col, start_row, end_row)
 
-
-
-    # def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
-    #     for row_num in range(start_row, end_row + 1):
-    #         # Initialize lists to hold numeric and percentage cells
-    #         numeric_cells = []
-    #         percentage_cells = []
-    #         full_receiving_col = numeric_percentage_pairs[0][0]
-
-    #         # Gather numeric and percentage cells for the current row based on the provided pairs
-    #         for pair in numeric_percentage_pairs:
-    #             numeric_col, perc_col = pair  # Unpack the pair
-    #             numeric_cell = ws.cell(row=row_num, column=numeric_col)
-    #             percentage_cell = ws.cell(row=row_num, column=perc_col)
-    #             if isinstance(numeric_cell.value, (int, float)):
-    #                 numeric_cells.append(numeric_cell)
-    #             if percentage_cell.value == '*':
-    #                 percentage_cells.append(percentage_cell)
-
-    #         # Proceed if there's at two numeric cell and one percentage cell marked with '*'
-    #         if len(numeric_cells)>=2 and percentage_cells:
-    #             # Filter out numeric cells that are already masked
-    #             unmasked_numeric_cells = [cell for cell in numeric_cells if cell.value not in ['<=5', '>5']]
-    #             # print(ws.title, f"Unmasked numeric cells in row {row_num}: {[cell.coordinate for cell in unmasked_numeric_cells]}")
-    #             if unmasked_numeric_cells:
-    #                 # if the smallest numeric cell by value in (partial,no) then mask it, if smallest numeric cell is full then mask the next smallest numeric cell
-    #                 # Check if the smallest unmasked cell is in the full receiving column
-    #                 smallest_numeric_cell = min(unmasked_numeric_cells, key=lambda cell: cell.value)
-    #                 # print(ws.title, f"Smallest numeric cell in row {row_num}: {smallest_numeric_cell.coordinate}")
-    #                 if smallest_numeric_cell.column != full_receiving_col:
-    #                     # Mask the smallest numeric cell based on its value
-    #                     if smallest_numeric_cell.value <= 5:
-    #                         smallest_numeric_cell.value = '<=5'
-    #                     else:
-    #                         smallest_numeric_cell.value = '>5'
-    #                     # Mask the adjacent percentage cell
-    #                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
-    #                     adjacent_percentage_cell.value = '*'
-    #                 else:
-    #                     # Mask the other numeric cell that is not full receiving column
-    #                     next_smallest_numeric_cell = min([cell for cell in unmasked_numeric_cells if cell != smallest_numeric_cell and cell.column != full_receiving_col], key=lambda cell: cell.value)
-    #                     # print(ws.title, f"Next smallest numeric cell in row {row_num}: {next_smallest_numeric_cell.coordinate}")
-    #                     if next_smallest_numeric_cell.value <= 5:
-    #                         next_smallest_numeric_cell.value = '<=5'
-    #                     else:
-    #                         next_smallest_numeric_cell.value = '>5'
-    #                     # Mask the adjacent percentage cell
-    #                     adjacent_percentage_cell = ws.cell(row=row_num, column=next_smallest_numeric_cell.column + 1)
-    #                     adjacent_percentage_cell.value = '*'
-    #                     print(ws.title, f"Masking next smallest cell {next_smallest_numeric_cell.coordinate} as {'<=5' if next_smallest_numeric_cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
             
     def mask_smallest_numeric_and_percentage_byPS(self, ws, start_row, end_row, numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
@@ -200,7 +150,7 @@ class Solution:
                         adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
                         if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
                             adjacent_percentage_cell.value = '*'
-                        print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                        # print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                 elif len(unmasked_numeric_cells) >= 2:
                     # mask the smallest value of unmasked numeric cells
                     min_val = min([cell.value for cell in unmasked_numeric_cells])
@@ -213,7 +163,7 @@ class Solution:
                                 adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
                                 if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
                                     adjacent_percentage_cell.value = '*'
-                                print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                # print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                     else:
                         # mask the first cell of unmasked numeric cells
                         cell = unmasked_numeric_cells[0]
@@ -222,7 +172,7 @@ class Solution:
                         adjacent_percentage_cell = ws.cell(row=row_num, column=cell.column + 1)
                         if adjacent_percentage_cell.value != '100%' and adjacent_percentage_cell.value != 1.0:
                             adjacent_percentage_cell.value = '*'
-                        print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                        # print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
 
     def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
@@ -260,7 +210,7 @@ class Solution:
                             original_value = 0
                             if isinstance(original_value, (int, float)) and original_value <= 5:
                                 masked_numeric_cell.value = original_value
-                                print(ws.title, f"Restoring cell {masked_numeric_cell.coordinate} to original value {original_value} due to impossible backtrack scenario.")                    
+                                # print(ws.title, f"Restoring cell {masked_numeric_cell.coordinate} to original value {original_value} due to impossible backtrack scenario.")                    
 
     def mask_cells_non_bilingual(self, ws, numeric_cells,numeric_percentage_pairs):
         # Identify the full receiving column from the numeric_percentage_pairs
@@ -383,7 +333,7 @@ class Solution:
             if len(masked_cells) >= 2:
                 continue
             elif masked_cells.count('<=5') == 1:
-                unmasked_values_indices = [index for index, value in enumerate(info['values']) if value not in ['<=5', '>5', None]]
+                unmasked_values_indices = [index for index, value in enumerate(info['values']) if value not in ['<=5', '>5', None] and value != 0]
                 smallest_unmasked_value = None
                 smallest_unmasked_index = None
 
@@ -401,7 +351,7 @@ class Solution:
                     ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5' if smallest_unmasked_value <= 5 else '>5'
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
-                    print(ws.title, f"Masking same category cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    # print(ws.title, f"Masking same category cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                 else:
                     # mask the smallest value of the rest cell in that column
                     unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
@@ -412,7 +362,7 @@ class Solution:
                                 ws.cell(row=info['rows'][index], column=full_receiving_col).value = '<=5' if min_val <= 5 else '>5'
                                 adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                 adjacent_percentage_cell.value = '*'
-                                print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                # print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -423,16 +373,16 @@ class Solution:
                 adjacent_percentage_cell = ws.cell(row=gt5_row, column=percent_full_receiving_col)
                 percent_original_value = unredacted_ws.cell(row=gt5_row, column=percent_full_receiving_col).value
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
-                print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
+                # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
 
 
     def mask_by_samecategoryanddistrict_byPS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
             district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
-
+        
         # Create a dictionary to hold categories, districts, and their respective rows and values
         category_district_dict = {}
-
+        
         # Iterate through the worksheet and populate the dictionary
         for row in range(3, ws.max_row + 1):
             school_dbn = ws.cell(row=row, column=district_col).value
@@ -456,27 +406,26 @@ class Solution:
         for key, info in category_district_dict.items():
             district, category = key
             masked_cells = [value for value in info['values'] if value in ['<=5', '>5']]
-            if len(masked_cells) >= 2:
-                continue
-            elif masked_cells.count('<=5') == 1:
+            if len(masked_cells) < 2:
+                # Find the indices of the unmasked values that are not zero
+                unmasked_values_indices = [index for index, value in enumerate(info['values']) if isinstance(value, (int, float)) and value not in ['<=5', '>5'] and value != 0]
+
+                # Find the smallest unmasked value that is not zero
                 smallest_unmasked_value = None
                 smallest_unmasked_index = None
-                for index, value in enumerate(info['values']):
-                    if value not in ['<=5', '>5', None]:
-                        row = info['rows'][index]
-                        # Check for other masked cells in the same row
-                        if any(ws.cell(row=row, column=col).value in ['<=5', '>5'] for col in range(1, ws.max_column + 1)):
-                            if smallest_unmasked_value is None or value < smallest_unmasked_value:
-                                smallest_unmasked_value = value
-                                smallest_unmasked_index = index
+                for index in unmasked_values_indices:
+                    value = info['values'][index]
+                    if smallest_unmasked_value is None or value < smallest_unmasked_value:
+                        smallest_unmasked_value = value
+                        smallest_unmasked_index = index
 
                 if smallest_unmasked_value is not None:
+                    # Mask the value based on the smallest unmasked value
                     smallest_row = info['rows'][smallest_unmasked_index]
                     ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5' if smallest_unmasked_value <= 5 else '>5'
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
-                    # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
-                    print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    # print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                 else:
                     # mask the smallest value of the rest cell in that column
                     unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
@@ -488,7 +437,7 @@ class Solution:
                                 adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                 adjacent_percentage_cell.value = '*'
                                 # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                # print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -521,7 +470,7 @@ class Solution:
             if len(masked_cells) >= 2:
                 continue
             elif masked_cells.count('<=5') == 1:
-                unmasked_values_indices = [index for index, value in enumerate(info['values']) if value not in ['<=5', '>5', None]]
+                unmasked_values_indices = [index for index, value in enumerate(info['values']) if value not in ['<=5', '>5', None] and value != 0]
                 smallest_unmasked_value = None
                 smallest_unmasked_index = None
 
@@ -541,7 +490,7 @@ class Solution:
                     if ws.cell(row=smallest_row, column=primary_type_col).value == "Bilingual":
                         adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                         adjacent_percentage_cell.value = '*'
-                        print(ws.title, f"Masking same category cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                        # print(ws.title, f"Masking same category cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                     else:
                         print(ws.title, f"Masking same category cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
                 else:
@@ -556,7 +505,7 @@ class Solution:
                                 if ws.cell(row=info['rows'][index], column=primary_type_col).value == "Bilingual":
                                     adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                     adjacent_percentage_cell.value = '*'
-                                    print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                    # print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                                 else:
                                     print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'}")
 
@@ -569,7 +518,7 @@ class Solution:
                 adjacent_percentage_cell = ws.cell(row=gt5_row, column=percent_full_receiving_col)
                 percent_original_value = unredacted_ws.cell(row=gt5_row, column=percent_full_receiving_col).value
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
-                print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
+                # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
 
     def mask_by_samecategoryanddistrict_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
@@ -623,12 +572,12 @@ class Solution:
                         adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                         adjacent_percentage_cell.value = '*'
                         # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
-                        print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                        # print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                     else:
                         print(ws.title, f"Masking same category and district cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
                 else:
                     # mask the smallest value of the rest cell in that column
-                    unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
+                    unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None] and value != 0]
                     if unmasked_values:
                         min_val = min(unmasked_values)
                         for index, value in enumerate(info['values']):
@@ -639,7 +588,7 @@ class Solution:
                                     adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                     adjacent_percentage_cell.value = '*'
                                     # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                    print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                    # print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                                 else:
                                     print(ws.title, f"Masking same category and district cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'}")
 
@@ -755,14 +704,14 @@ class Solution:
                         if adjacent_numeric_cell.value in ['<=5', '>5']:
                             # Mask the 0% percentage cell with '*'
                             zero_percent_cell.value = '*'
-                            print(ws.title, f"Masking 0% cell {zero_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
+                            # print(ws.title, f"Masking 0% cell {zero_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
 
                     for hundred_percent_cell in hundred_percent_cells:
                         adjacent_numeric_cell = ws.cell(row=row_num, column=hundred_percent_cell.column - 1)
                         if adjacent_numeric_cell.value in ['<=5', '>5']:
                             # Mask the 100% percentage cell with '*'
                             hundred_percent_cell.value = '*'
-                            print(ws.title, f"Masking 100% cell {hundred_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
+                            # print(ws.title, f"Masking 100% cell {hundred_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
 
 
 
@@ -852,7 +801,8 @@ class Solution:
                     if recommendation_type_cell.value:
                         if "Bilingual" in recommendation_type_cell.value:
                             # self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
-                            print(f"Applying {ws.title} for row {row_num} percentage redaction")
+                            # print(f"Applying {ws.title} for row {row_num} percentage redaction")
+                            pass
 
 
         # 4. Apply the 100% percentage sum redaction based on configuration if the key exists
