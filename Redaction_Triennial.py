@@ -99,6 +99,113 @@ class Solution:
                         cell.value = '>5'
                         break
 
+    def PS_column_masking(self,ws, start_row, start_col, end_row, end_col, numeric_percentage_pairs):
+        """Full receiving: 1.case when fullyreceiving <> 0 and FullyReceiving <= 5 then '<=5';2.when (notreceiving <=5 and notreceiving <> 0 and FullyReceiving = 0 and PartiallyReceiving <> 0 and PartiallyReceiving >5) then '<=5';3.when (PartiallyReceiving <=5 and PartiallyReceiving <> 0 and FullyReceiving = 0 and NotReceiving <> 0 and NotReceiving >5) then '<=5';else fullyreceiving 
+        #  Partial receiving: 1.case when Partiallyreceiving <> 0 and partiallyreceiving <= 5 then '<=5'; 2.when (Partiallyreceiving >5 and notreceiving <> 0 and notreceiving <=5 and fullyreceiving >5) then '>5'; 3.when (notreceiving <=5 and notreceiving <> 0 and PartiallyReceiving = 0 and FullyReceiving <> 0 and FullyReceiving >5) then '<=5'; 4.when (FullyReceiving <=5 and fullyreceiving <> 0 and PartiallyReceiving = 0 and NotReceiving <> 0 and NotReceiving >5) then '<=5' else partiallyreceiving 
+        #  No receiving: 1.case when NotReceiving <> 0 and notreceiving <= 5 then '<=5'; 2.when (Partiallyreceiving >5 and notreceiving >5 and fullyreceiving <> 0 and FullyReceiving <=5) then '>5'; 3. when (Partiallyreceiving <=5 and partiallyreceiving <> 0 and notreceiving >5 and fullyreceiving <> 0 and FullyReceiving >5) then '>5'; 4. when (Partiallyreceiving <=5 and partiallyreceiving <> 0 and notreceiving = 0 and fullyreceiving <> 0 and FullyReceiving >5) then '<=5'; 5. when (FullyReceiving <=5 and FullyReceiving <> 0 and notreceiving = 0 and PartiallyReceiving <> 0 and PartiallyReceiving >5) then '<=5' else notreceiving """
+        full_receiving_col = numeric_percentage_pairs[0][0]
+        partial_receiving_col = numeric_percentage_pairs[1][0]
+        not_receiving_col = numeric_percentage_pairs[2][0]
+        for row in range(start_row, end_row + 1):
+            fully_receiving_cell = ws.cell(row=row, column=full_receiving_col)
+            partial_receiving_cell = ws.cell(row=row, column=partial_receiving_col)
+            not_receiving_cell = ws.cell(row=row, column=not_receiving_col)
+            # fully receiving
+            if fully_receiving_cell.value != 0 and fully_receiving_cell.value <= 5:
+                fully_receiving_cell.value = '<=5'
+            elif not_receiving_cell.value <= 5 and not_receiving_cell.value != 0 and fully_receiving_cell.value == 0 and partial_receiving_cell.value != 0 and partial_receiving_cell.value > 5:
+                fully_receiving_cell.value = '<=5'
+            elif partial_receiving_cell.value <= 5 and partial_receiving_cell.value != 0 and fully_receiving_cell.value == 0 and not_receiving_cell.value != 0 and not_receiving_cell.value > 5:
+                fully_receiving_cell.value = '<=5'
+            # partial receiving
+            elif partial_receiving_cell.value != 0 and partial_receiving_cell.value <= 5:
+                partial_receiving_cell.value = '<=5'
+            elif partial_receiving_cell.value > 5 and not_receiving_cell.value != 0 and not_receiving_cell.value <= 5 and fully_receiving_cell.value > 5:
+                partial_receiving_cell.value = '>5'
+            elif not_receiving_cell.value <= 5 and not_receiving_cell.value != 0 and partial_receiving_cell.value == 0 and fully_receiving_cell.value != 0 and fully_receiving_cell.value > 5:
+                partial_receiving_cell.value = '<=5'
+            elif fully_receiving_cell.value <= 5 and fully_receiving_cell.value != 0 and partial_receiving_cell.value == 0 and not_receiving_cell.value != 0 and not_receiving_cell.value > 5:
+                partial_receiving_cell.value = '<=5'
+            # not receiving
+            elif not_receiving_cell.value != 0 and not_receiving_cell.value <= 5:
+                not_receiving_cell.value = '<=5'
+            elif partial_receiving_cell.value > 5 and not_receiving_cell.value > 5 and fully_receiving_cell.value != 0 and fully_receiving_cell.value <= 5:
+                not_receiving_cell.value = '>5'
+            elif partial_receiving_cell.value <= 5 and partial_receiving_cell.value != 0 and not_receiving_cell.value > 5 and fully_receiving_cell.value != 0 and fully_receiving_cell.value > 5:
+                not_receiving_cell.value = '>5'
+            elif partial_receiving_cell.value <= 5 and partial_receiving_cell.value != 0 and not_receiving_cell.value == 0 and fully_receiving_cell.value != 0 and fully_receiving_cell.value > 5:
+                not_receiving_cell.value = '<=5'
+            elif fully_receiving_cell.value <= 5 and fully_receiving_cell.value != 0 and not_receiving_cell.value == 0 and partial_receiving_cell.value != 0 and partial_receiving_cell.value > 5:
+                not_receiving_cell.value = '<=5'
+
+    def RS_column_masking(self,ws, start_row, start_col, end_row, end_col, numeric_percentage_pairs):
+        """ Full encounter: 
+             1.case when (FullEncounter <> 0 and FullEncounter <= 5) then '<=5'; 
+             2. when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (NoEncounter <=5 and NoEncounter <> 0 and FullEncounter = 0 and PartialEncounter <> 0 and PartialEncounter >5)) then '<=5'; 
+             3.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (PartialEncounter <=5 and PartialEncounter <> 0 and FullEncounter = 0 and NoEncounter <> 0 and NoEncounter >5)) then '<=5'; 
+             4. when (recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and NoEncounter <=5 and NoEncounter <> 0 and FullEncounter <> 0) then '>5' else FullEncounter 
+             Partial encounter:
+            1.case when PartialEncounter <> 0 and PartialEncounter <= 5 then '<=5'; 
+            2.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (PartialEncounter >5 and NoEncounter <> 0 and NoEncounter <=5 and FullEncounter >5)) then '>5'; 
+            3.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (NoEncounter <=5 and NoEncounter <> 0 and PartialEncounter = 0 and FullEncounter <> 0 and FullEncounter >5)) then '<=5'; 
+            4.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (FullEncounter <=5 and FullEncounter <> 0 and PartialEncounter = 0 and NoEncounter <> 0 and NoEncounter >5)) then '<=5'; 
+            5.when (recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual')) then 'N/A' else PartialEncounter 
+            No encounter:
+            1.case when NoEncounter <> 0 and NoEncounter <= 5 then '<=5'; 
+            2.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (PartialEncounter >5 and NoEncounter >5 and FullEncounter <> 0 and FullEncounter <=5)) then '>5'; 
+            3.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (PartialEncounter <=5 and PartialEncounter <> 0 and NoEncounter >5 and FullEncounter <> 0 and FullEncounter >5)) then '>5'; 
+            4.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (PartialEncounter <=5 and PartialEncounter <> 0 and NoEncounter = 0 and FullEncounter <> 0 and FullEncounter >5)) then '<=5'; 
+            5.when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (FullEncounter <=5 and FullEncounter <> 0 and NoEncounter = 0 and PartialEncounter <> 0 and PartialEncounter >5)) then '<=5'; 
+            6.when (recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and FullEncounter <=5 and FullEncounter <> 0 and NoEncounter <> 0) then '>5' else NoEncounter """
+        full_encounter_col = numeric_percentage_pairs[0][0]
+        partial_encounter_col = numeric_percentage_pairs[1][0]
+        no_encounter_col = numeric_percentage_pairs[2][0]
+        for row_num in range(start_row, end_row + 1):
+            if report == 'RS Delivery by Supt':
+                recommendation_type_cell = ws.cell(row=row_num, column=3) # Assuming column C contains the recommendation type
+            elif report == 'RS Delivery by District' or report == 'RS Delivery by School':
+                recommendation_type_cell = ws.cell(row=row_num, column=2)  # Assuming column B contains the recommendation type
+            full_encounter_cell = ws.cell(row=row_num, column=full_encounter_col)
+            partial_encounter_cell = ws.cell(row=row_num, column=partial_encounter_col)
+            no_encounter_cell = ws.cell(row=row_num, column=no_encounter_col)
+            # Full encounter
+            if full_encounter_cell.value != 0 and full_encounter_cell.value <= 5:
+                full_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and no_encounter_cell.value <=5 and no_encounter_cell.value != 0 and full_encounter_cell.value == 0 and partial_encounter_cell.value != 0 and partial_encounter_cell.value > 5:
+                full_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and partial_encounter_cell.value <=5 and partial_encounter_cell.value != 0 and full_encounter_cell.value == 0 and no_encounter_cell.value != 0 and no_encounter_cell.value > 5:
+                full_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and no_encounter_cell.value <=5 and no_encounter_cell.value != 0 and full_encounter_cell.value != 0:
+                full_encounter_cell.value = '>5'
+            # Partial encounter
+            elif partial_encounter_cell.value != 0 and partial_encounter_cell.value <= 5:
+                partial_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and partial_encounter_cell.value >5 and no_encounter_cell.value != 0 and no_encounter_cell.value <=5 and full_encounter_cell.value >5:
+                partial_encounter_cell.value = '>5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and no_encounter_cell.value <=5 and no_encounter_cell.value != 0 and partial_encounter_cell.value == 0 and full_encounter_cell.value != 0 and full_encounter_cell.value >5:
+                partial_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and full_encounter_cell.value <=5 and full_encounter_cell.value != 0 and partial_encounter_cell.value == 0 and no_encounter_cell.value != 0 and no_encounter_cell.value >5:
+                partial_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual'):
+                partial_encounter_cell.value = 'N/A'
+            # No encounter
+            elif no_encounter_cell.value != 0 and no_encounter_cell.value <= 5:
+                no_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and partial_encounter_cell.value >5 and no_encounter_cell.value >5 and full_encounter_cell.value != 0 and full_encounter_cell.value <=5:
+                no_encounter_cell.value = '>5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and partial_encounter_cell.value <=5 and partial_encounter_cell.value != 0 and no_encounter_cell.value >5 and full_encounter_cell.value != 0 and full_encounter_cell.value >5:
+                no_encounter_cell.value = '>5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and partial_encounter_cell.value <=5 and partial_encounter_cell.value != 0 and no_encounter_cell.value == 0 and full_encounter_cell.value != 0 and full_encounter_cell.value >5:
+                no_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and full_encounter_cell.value <=5 and full_encounter_cell.value != 0 and no_encounter_cell.value == 0 and partial_encounter_cell.value != 0 and partial_encounter_cell.value >5:
+                no_encounter_cell.value = '<=5'
+            elif recommendation_type_cell.value not in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and full_encounter_cell.value <=5 and full_encounter_cell.value != 0 and no_encounter_cell.value != 0:
+                no_encounter_cell.value = '>5'
+
+
+
+
+
 
 
     def redact_percentage_based_on_number_byPS(self, ws, numeric_col, perc_col, start_row, end_row):
@@ -406,7 +513,7 @@ class Solution:
         for key, info in category_district_dict.items():
             district, category = key
             masked_cells = [value for value in info['values'] if value in ['<=5', '>5']]
-            if len(masked_cells) < 2:
+            if len(masked_cells) == 1:
                 # Find the indices of the unmasked values that are not zero
                 unmasked_values_indices = [index for index, value in enumerate(info['values']) if isinstance(value, (int, float)) and value not in ['<=5', '>5'] and value != 0]
 
@@ -425,7 +532,7 @@ class Solution:
                     ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5' if smallest_unmasked_value <= 5 else '>5'
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
-                    # print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                 else:
                     # mask the smallest value of the rest cell in that column
                     unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
@@ -437,7 +544,7 @@ class Solution:
                                 adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                 adjacent_percentage_cell.value = '*'
                                 # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                # print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                                print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -672,7 +779,7 @@ class Solution:
                         adjacent_percentage_cell.value = percent_original_value
                         # print(f"Unmasked cell {first_gt5_cell.coordinate} with original value {original_numeric_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
 
-    def mask_percent_having0_and_100_percent(self, ws, numeric_percentage_pairs):
+    def mask_percent_having0_and_100_percent(self, ws, numeric_percentage_pairs, unredacted_ws):
         for row_num in range(1, ws.max_row + 1):
             # Initialize a counter for masked numeric cells in the row
             masked_numeric_count = 0
@@ -713,7 +820,17 @@ class Solution:
                             hundred_percent_cell.value = '*'
                             # print(ws.title, f"Masking 100% cell {hundred_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
 
-
+            # If there are two 0% percentage cells and one masked numeric cell, unmask masked numeric cell's percentage cell
+            if masked_numeric_count == 1:
+                zero_percent_cells = [perc_cell for num_cell, perc_cell in numeric_and_percentage_cells if perc_cell.value in ('0%', 0.0)]
+                if len(zero_percent_cells) == 2:
+                    # unmask the masked numeric cell's percentage cell
+                    for numeric_cell, percentage_cell in numeric_and_percentage_cells:
+                        if numeric_cell.value in ['<=5', '>5']:
+                            # Retrieve the original value of its adjacent percent cell from the unredacted worksheet
+                            original_value = unredacted_ws.cell(row=row_num, column=percentage_cell.column).value
+                            # Restore the original value
+                            percentage_cell.value = original_value
 
   
             
@@ -746,7 +863,46 @@ class Solution:
                 percent_full_receiving_cell.value = '*'
                 print(ws.title, f"Masking Percent cell {percent_full_receiving_cell.coordinate} as '*'")
 
+    def overredaction_0(self, ws, numeric_percentage_pairs, unredacted_ws):
+        for row_num in range(1, ws.max_row + 1):
+            # Initialize a counter for masked numeric cells in the row
+            masked_numeric_count = 0
+            masked_numeric_cells = []
+            full_col = numeric_percentage_pairs[0][0]
+            partial_column = numeric_percentage_pairs[1][0]
+            no_column = numeric_percentage_pairs[2][0]
+            # Iterate through each numeric and percentage column pair
+            for numeric_col, perc_col in numeric_percentage_pairs:
+                numeric_cell = ws.cell(row=row_num, column=numeric_col)
+                percentage_cell = ws.cell(row=row_num, column=perc_col)
 
+                # Check if the numeric cell is masked as <=5 or >5 and add it to the list
+                if numeric_cell.value in ['<=5', '>5']:
+                    masked_numeric_count += 1
+                    masked_numeric_cells.append(numeric_cell)
+
+            # If more than three numeric cells are masked in the row
+            if masked_numeric_count >= 3:
+                if len([cell for cell in masked_numeric_cells if cell.value == '<=5']) >= 2:
+                    # if there is a `<=5` and its percentage cell is 0%, then restore the masked `<=5` cell to its original value 
+                    if (ws.cell(row=row_num, column=full_col).value == '<=5' and ws.cell(row=row_num, column=numeric_percentage_pairs[0][1]).value in ('0%', 0.0)):
+                        # Retrieve the original value from the unredacted worksheet
+                        original_value = unredacted_ws.cell(row=row_num, column=full_col).value
+                        # Restore the original value
+                        ws.cell(row=row_num, column=full_col).value = original_value
+                        print(ws.title, f"Unmasking full cell {ws.cell(row=row_num, column=full_col).coordinate} with original value {original_value}")
+                    elif (ws.cell(row=row_num, column=partial_column).value == '<=5' and ws.cell(row=row_num, column=numeric_percentage_pairs[1][1]).value in ('0%', 0.0)):
+                        # Retrieve the original value from the unredacted worksheet
+                        original_value = unredacted_ws.cell(row=row_num, column=partial_column).value
+                        # Restore the original value
+                        ws.cell(row=row_num, column=partial_column).value = original_value
+                        print(ws.title, f"Unmasking partial cell {ws.cell(row=row_num, column=partial_column).coordinate} with original value {original_value}")
+                    elif (ws.cell(row=row_num, column=no_column).value == '<=5' and ws.cell(row=row_num, column=numeric_percentage_pairs[2][1]).value in ('0%', 0.0)):
+                        # Retrieve the original value from the unredacted worksheet
+                        original_value = unredacted_ws.cell(row=row_num, column=no_column).value
+                        # Restore the original value
+                        ws.cell(row=row_num, column=no_column).value = original_value
+                        print(ws.title, f"Unmasking no cell {ws.cell(row=row_num, column=no_column).coordinate} with original value {original_value}")
 
 
     def mask_excel_file(self,filename,tab_name,configurations,unredacted_filename):
@@ -774,6 +930,14 @@ class Solution:
         #                     pass
                         
         # 1. Mask data for the specific ranges
+        for r in configurations['ranges']:
+            if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
+                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
+                self.PS_column_masking(ws, *r, numeric_percentage_pairs)
+            if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+                numeric_percentage_pairs = configurations['numeric_percentage_pairs']
+                self.RS_column_masking(ws, *r, numeric_percentage_pairs)
+
         for r in configurations['ranges']:
             self.initial_mask(ws, *r)
 
@@ -838,7 +1002,8 @@ class Solution:
         for r in configurations['ranges']:
             self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws) 
             self.mask_0_percent_in_full(ws, configurations['numeric_percentage_pairs'])
-            self.mask_percent_having0_and_100_percent(ws, configurations['numeric_percentage_pairs'])
+            self.mask_percent_having0_and_100_percent(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
+            self.overredaction_0(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
@@ -890,6 +1055,26 @@ class Solution:
             unmasked_cells = [cell for cell in column_cells if cell not in masked_cells and isinstance(cell.value, (int, float))]
 
             # If there is only one masked cell in the column
+            if len(masked_cells) == 1 and unmasked_cells:
+                # Find the smallest unmasked value
+                smallest_unmasked_cell = min(unmasked_cells, key=lambda cell: cell.value)
+                # Mask it based on its value
+                if 0 <= smallest_unmasked_cell.value <= 5:
+                    smallest_unmasked_cell.value = '<=5'
+                elif smallest_unmasked_cell.value > 5:
+                    smallest_unmasked_cell.value = '>5'
+                # Optionally highlight the cell
+                # self.yellow_cell(smallest_unmasked_cell)
+                print(ws.title,f"Underredaction: Masking cell {smallest_unmasked_cell.coordinate} with {'<=5' if smallest_unmasked_cell.value == '<=5' else '>5'}")
+
+    def check_and_mask_underredacted_rows(self, ws, start_row, end_row, start_col, end_col):
+        # Iterate over rows within the specified range
+        for row_index in range(start_row, end_row + 1):
+            row_cells = [ws.cell(row=row_index, column=col_index) for col_index in range(start_col, end_col + 1)]
+            masked_cells = [cell for cell in row_cells if cell.value in ['<=5', '>5']]
+            unmasked_cells = [cell for cell in row_cells if cell not in masked_cells and isinstance(cell.value, (int, float))]
+
+            # If there is only one masked cell in the row
             if len(masked_cells) == 1 and unmasked_cells:
                 # Find the smallest unmasked value
                 smallest_unmasked_cell = min(unmasked_cells, key=lambda cell: cell.value)
