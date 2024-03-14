@@ -129,7 +129,7 @@ class Solution:
             # not receiving
             elif not_receiving_cell.value != 0 and not_receiving_cell.value <= 5:
                 not_receiving_cell.value = '<=5'
-            elif partial_receiving_cell.value > 5 and not_receiving_cell.value > 5 and fully_receiving_cell.value != 0 and fully_receiving_cell.value <= 5:
+            elif partial_receiving_cell.value > 5 and not_receiving_cell.value > 5 and fully_receiving_cell.value !=0 and fully_receiving_cell.value <= 5:
                 not_receiving_cell.value = '>5'
             elif partial_receiving_cell.value <= 5 and partial_receiving_cell.value != 0 and not_receiving_cell.value > 5 and fully_receiving_cell.value != 0 and fully_receiving_cell.value > 5:
                 not_receiving_cell.value = '>5'
@@ -285,7 +285,7 @@ class Solution:
     def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
         for row_num in range(start_row, end_row + 1):
             if report == 'RS Delivery by Supt':
-                recommendation_type_cell = ws.cell(row=row_num, column=3)
+                recommendation_type_cell = ws.cell(row=row_num, column=3) # Assuming column C contains the recommendation type
             elif report == 'RS Delivery by District' or report == 'RS Delivery by School':
                 recommendation_type_cell = ws.cell(row=row_num, column=2)  # Assuming column B contains the recommendation type
             numeric_cells = [ws.cell(row=row_num, column=col) for col, _ in numeric_percentage_pairs]
