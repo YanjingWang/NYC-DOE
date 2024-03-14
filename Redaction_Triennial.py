@@ -486,10 +486,10 @@ class Solution:
     def mask_by_samecategoryanddistrict_byPS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
             district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
-        
+
         # Create a dictionary to hold categories, districts, and their respective rows and values
         category_district_dict = {}
-        
+
         # Iterate through the worksheet and populate the dictionary
         for row in range(3, ws.max_row + 1):
             school_dbn = ws.cell(row=row, column=district_col).value
@@ -513,29 +513,31 @@ class Solution:
         for key, info in category_district_dict.items():
             district, category = key
             masked_cells = [value for value in info['values'] if value in ['<=5', '>5']]
-            if len(masked_cells) == 1:
-                # Find the indices of the unmasked values that are not zero
-                unmasked_values_indices = [index for index, value in enumerate(info['values']) if isinstance(value, (int, float)) and value not in ['<=5', '>5'] and value != 0]
-
-                # Find the smallest unmasked value that is not zero
+            if len(masked_cells) >= 2:
+                continue
+            elif masked_cells.count('<=5') == 1:
                 smallest_unmasked_value = None
                 smallest_unmasked_index = None
-                for index in unmasked_values_indices:
-                    value = info['values'][index]
-                    if smallest_unmasked_value is None or value < smallest_unmasked_value:
-                        smallest_unmasked_value = value
-                        smallest_unmasked_index = index
+                for index, value in enumerate(info['values']):
+                    # skip 0 values
+                    if value not in ['<=5', '>5', None, 0]:
+                        row = info['rows'][index]
+                        # Check for other masked cells in the same row
+                        if any(ws.cell(row=row, column=col).value in ['<=5', '>5'] for col in range(1, ws.max_column + 1)):
+                            if smallest_unmasked_value is None or value < smallest_unmasked_value:
+                                smallest_unmasked_value = value
+                                smallest_unmasked_index = index
 
                 if smallest_unmasked_value is not None:
-                    # Mask the value based on the smallest unmasked value
                     smallest_row = info['rows'][smallest_unmasked_index]
                     ws.cell(row=smallest_row, column=full_receiving_col).value = '<=5' if smallest_unmasked_value <= 5 else '>5'
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
-                    print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if smallest_unmasked_value <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
+                    print(ws.title, f"Masking same category and district non-zero cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
                 else:
-                    # mask the smallest value of the rest cell in that column
-                    unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None]]
+                    # mask the smallest non-zero value of the rest cell in that column
+                    unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None] and value != 0]
                     if unmasked_values:
                         min_val = min(unmasked_values)
                         for index, value in enumerate(info['values']):
@@ -552,6 +554,11 @@ class Solution:
                 original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
                 print(f"Unmasked {category} in district {district} on row {gt5_row} to original value {original_value}")
+        
+
+
+
+
 
     def mask_by_samecategory_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
