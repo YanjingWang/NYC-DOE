@@ -826,6 +826,15 @@ class Solution:
                             # Mask the 100% percentage cell with '*'
                             hundred_percent_cell.value = '*'
                             # print(ws.title, f"Masking 100% cell {hundred_percent_cell.coordinate} as '*' due to adjacent numeric cell {adjacent_numeric_cell.coordinate} being masked.")
+                
+                # Check if there are two `<=5` and one `N/A` in the same row,if so, unmask the `<=5`'s percentage cell
+                if len([cell for cell in numeric_and_percentage_cells if cell[0].value == '<=5']) == 2 and len([cell for cell in numeric_and_percentage_cells if cell[0].value == 'N/A']) == 1:
+                    # Retrieve the original value of the `<=5`'s percentage cell from the unredacted worksheet
+                    original_value = unredacted_ws.cell(row=row_num, column=numeric_and_percentage_cells[0][1].column).value
+                    numeric_and_percentage_cells[0][1].value = original_value
+                    original_value = unredacted_ws.cell(row=row_num, column=numeric_and_percentage_cells[2][1].column).value
+                    numeric_and_percentage_cells[2][1].value = original_value
+                    # print(ws.title, f"Unmasking percent cell {numeric_and_percentage_cells[0][1].coordinate} with original value {original_value}")
 
             # If there are two 0% percentage cells and one masked numeric cell, unmask masked numeric cell's percentage cell
             if masked_numeric_count == 1:
@@ -839,7 +848,43 @@ class Solution:
                             # Restore the original value
                             percentage_cell.value = original_value
 
-  
+    def unmask_numeric_having0_and_100_percent_non_bilingual(self, ws, numeric_percentage_pairs, unredacted_ws): 
+        for row_num in range(1, ws.max_row + 1):
+            # Initialize a counter for masked numeric cells in the row
+            masked_numeric_count = 0
+            # Create a list to store the numeric cells and their corresponding percentage cells
+            numeric_and_percentage_cells = []
+            
+            # Iterate through each numeric and percentage column pair
+            for numeric_col, perc_col in numeric_percentage_pairs:
+                numeric_cell = ws.cell(row=row_num, column=numeric_col)
+                percentage_cell = ws.cell(row=row_num, column=perc_col)
+                
+                # Add the cells to the list as a tuple
+                numeric_and_percentage_cells.append((numeric_cell, percentage_cell))
+                
+                # Check if the numeric cell is masked as <=5 or >5 and increment the count
+                if numeric_cell.value in ['<=5', '>5']:
+                    masked_numeric_count += 1
+
+            # If there are exactly two masked numeric cells and one `N/A` in the same row
+            if masked_numeric_count == 2 and len([cell for cell in numeric_and_percentage_cells if cell[0].value == 'N/A']) == 1:
+                # Check if one percentage is 0% and another is 100%
+                zero_percent_cells = [perc_cell for num_cell, perc_cell in numeric_and_percentage_cells if perc_cell.value in ('0%', 0.0)]
+                hundred_percent_cells = [perc_cell for num_cell, perc_cell in numeric_and_percentage_cells if perc_cell.value in ('100%', 1.0)]
+
+                if zero_percent_cells and hundred_percent_cells:
+                    # restore the original value of the `<=5`
+                    for numeric_cell, percentage_cell in numeric_and_percentage_cells:
+                        if numeric_cell.value in ['<=5'] and percentage_cell.value in ['0%', 0.0]:
+                            # Retrieve the original value of its adjacent percent cell from the unredacted worksheet
+                            original_value = unredacted_ws.cell(row=row_num, column=numeric_cell.column).value
+                            # Restore the original value
+                            numeric_cell.value = original_value
+                            # print(ws.title, f"Unmasking percent cell {percentage_cell.coordinate} with original value {original_value}")
+
+
+
             
 
                 
@@ -1011,6 +1056,9 @@ class Solution:
             self.mask_0_percent_in_full(ws, configurations['numeric_percentage_pairs'])
             self.mask_percent_having0_and_100_percent(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
             self.overredaction_0(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
+        for r in configurations['ranges']:
+            if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
+                self.unmask_numeric_having0_and_100_percent_non_bilingual(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
