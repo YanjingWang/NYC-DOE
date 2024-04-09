@@ -38,5 +38,5 @@ def part1(df, by_var):
     return total_df
 
 Reg2Dist = part1(R8aDist, 'ReportingDistrict')
-Reg2Eth = part1(R8aEth, 'EthnicityGroupCC')
+# Reg2Eth = part1(R8aEth, 'EthnicityGroupCC')
 # ... repeat for the other 'part1' operations ...

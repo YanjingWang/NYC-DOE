@@ -190,41 +190,41 @@ def RelatedServices():
     RSCompliance = 'R:\SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d"))
     RSDashboardSharepoint = 'https://nycdoe.sharepoint.com/:f:/r/sites/RelatedServicesDashboard/Shared%20Documents/RS%20Compliance?csf=1&web=1&e=52Kaaq'
 
-    # createdir(int_pdfpath)
-    # createdir(int_xlspath)
-    # createdir(int_charterpdf)  
-    # createdir(int_charterxls)  
-    # createdir(CSD_Archive)
-    # createdir(Charter_Archive)  # really created?
-    # createdir(shareCharter)  # really created?
-    # createdir(mylocalXLSfolder)
-    # createdir(currentdateCSDfolder)
-    # createdir(currentdateCharterfolder)
+    createdir(int_pdfpath)
+    createdir(int_xlspath)
+    createdir(int_charterpdf)  
+    createdir(int_charterxls)  
+    createdir(CSD_Archive)
+    createdir(Charter_Archive)  # really created?
+    createdir(shareCharter)  # really created?
+    createdir(mylocalXLSfolder)
+    createdir(currentdateCSDfolder)
+    createdir(currentdateCharterfolder)
 
-    # # # 2.1): delete previous week XLS and PDF files 
-    # for f in os.listdir(dst_CSD_PDF):
-    #     os.remove(os.path.join(dst_CSD_PDF, f))
-    #     print(f)
+    # # 2.1): delete previous week XLS and PDF files 
+    for f in os.listdir(dst_CSD_PDF):
+        os.remove(os.path.join(dst_CSD_PDF, f))
+        print(f)
 
-    # for file in os.scandir(dst_CSD_XLS):
-    #     os.remove(file.path)
-    #     print(file)
+    for file in os.scandir(dst_CSD_XLS):
+        os.remove(file.path)
+        print(file)
 
-    # rmfilesfromdir(int_pdfpath)
-    # rmfilesfromdir(int_xlspath)
-    # rmfilesfromdir(int_charterpdf)  # add to run guidance
-    # rmfilesfromdir(int_charterxls)  # add to run guidance
-    # rmfilesfromdir(mylocalXLSfolder)
+    rmfilesfromdir(int_pdfpath)
+    rmfilesfromdir(int_xlspath)
+    rmfilesfromdir(int_charterpdf)  # add to run guidance
+    rmfilesfromdir(int_charterxls)  # add to run guidance
+    rmfilesfromdir(mylocalXLSfolder)
 
 
-    # # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
-    # copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_SY23-24\Mandate_Distribution_SY23-24.accdb', mylocalXLSfolder)
-    # os.startfile('C:\Template\Mandate_Distribution_SY23-24.accdb')
-    # # time.sleep(60)
-    # now = datetime.datetime.now()
-    # print('Click Run and wait for 50 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
-    # time.sleep(50*60)
-    # print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
+    # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
+    copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_SY23-24\Mandate_Distribution_SY23-24.accdb', mylocalXLSfolder)
+    os.startfile('C:\Template\Mandate_Distribution_SY23-24.accdb')
+    # time.sleep(60)
+    now = datetime.datetime.now()
+    print('Click Run and wait for 50 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
+    time.sleep(50*60)
+    print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
 
 
 
@@ -535,12 +535,12 @@ if __name__ == '__main__':
     # RelatedServices()
     # R_Process()
     # rerun_R() 
-    # rs_charter_send_outlook_email()
+    rs_charter_send_outlook_email()
     # MandatedServices()
-    # ms_send_outlook_email()
+    ms_send_outlook_email()
     # upload_to_sharepoint(RSCompliance, RSDashboardSharepoint, USERNAME, PASSWORD)
     rs_compliace_send_outlook_email() 
     # openfiles('R:\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard')
-    # archive_rs_borough()
+    archive_rs_borough()
 
 
