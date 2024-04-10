@@ -39,9 +39,9 @@ class Solution:
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
         # wb = openpyxl.Workbook()
         # ws = wb.active
-        # ws.title = "District"
+        # ws.title = "Language"
         wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_02-12-2024.xlsx')
-        ws = wb.create_sheet("District")
+        ws = wb.create_sheet("Language")
 
         # # Set fill color for cells from A1 to Zn to white
         # white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -49,7 +49,7 @@ class Solution:
         #     for cell in row:
         #         cell.fill = white_fill
 
-        black_border, black_border_thick, _, _ = self.create_border_styles()
+        black_border, _,black_border_medium, _, _ = self.create_border_styles()
 
         # Add report title and merge cells
         for cell_info in title_cells:
@@ -62,7 +62,7 @@ class Solution:
             cell = ws[cell_info["cell"]]
             cell.value = cell_info["value"]
             ws.merge_cells(cell_info["merge_cells"])  # Merge cells outside the loop
-            cell.border = black_border_thick
+            cell.border = black_border_medium
 
         # Style and align the merged title and subtitle
         for cell_info in title_cells + subtitle_cells:
@@ -105,9 +105,9 @@ class Solution:
         black_border_medium = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
         black_border_no_bottom = Border(left=black_border_mediumside, right=black_border_mediumside)
         black_boarder_all_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
-        header_fill_color = "D9E1F2"
-        column_fill_color = "D9E1F2"
-        self.format_header(ws, 'A5', "District", columns, column_letters, 60, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
+        header_fill_color = "F2F2F2"
+        column_fill_color = "F2F2F2"
+        self.format_header(ws, 'A5', "Language", columns, column_letters, 60, header_fill_color, column_fill_color,  black_boarder_all_medium, header_font)
 
         
         # Deleting the default created sheet
@@ -125,10 +125,11 @@ class Solution:
 
         black_border = Border(top=black_border_side, left=black_border_side, right=black_border_side, bottom=black_border_side)
         black_border_thick = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
+        black_border_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
         black_border_no_bottom = Border(left=black_border_thickside, right=black_border_thickside)
         black_boarder_all = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
 
-        return black_border, black_border_thick, black_border_no_bottom, black_boarder_all
+        return black_border, black_border_thick, black_border_medium, black_border_no_bottom, black_boarder_all
 
     # Step 2: Connect to the database
     def connect_to_database(self):
@@ -337,24 +338,25 @@ class Solution:
     def write_data_to_excel(self, ws, data, start_row):
         black_border_side = Side(style='thin', color='000000')
         black_border_thickside = Side(style='thick', color='000000')
-        black_boarder_medium = Side(style='medium', color='000000')
+        black_border_mediumside = Side(style='medium', color='000000')
         black_border = Border(top=black_border_side, left=black_border_side, right=black_border_side, bottom=black_border_side)
         black_border_thick = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
-        black_boarder_medium = Border(top=black_boarder_medium, left=black_boarder_medium, right=black_boarder_medium, bottom=black_boarder_medium)
+        black_boarder_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
         black_border_no_bottom = Border(left=black_border_thickside, right=black_border_thickside)
+        black_border_right_side = Border(right=black_border_mediumside)
         black_boarder_all = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
         # Write data to Excel starting from row B5
         for row_num, row_data in enumerate(data, start=start_row):  # Adjusted start_row here
             for i, value in enumerate(row_data):
                 col = get_column_letter(i + 1)  # +2 because data starts from column 'A'
                 ws[col + str(row_num)].value = value
-                ws[col + str(row_num)].border = black_border
-                ws[col + str(row_num)].alignment = Alignment(horizontal='left')  # Right align the data
+                # ws[col + str(row_num)].border = black_border
+                ws[col + str(row_num)].alignment = Alignment(horizontal='right')  # Right align the data
         
         # Apply borders to all columns
-        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-            for row_num in range(start_row, start_row + len(data)):
-                ws[col + str(row_num)].border = black_border_no_bottom
+        for row_num, row_data in enumerate(data, start=start_row):  # Adjusted start_row here
+            for col in ['B', 'H', 'N']:  # Columns B, H, N
+                ws[col + str(row_num)].border = black_border_right_side   # Apply the right border
 
         # Update alignment for range C6:N38
         for row in ws['B3':'G6']:
@@ -363,47 +365,35 @@ class Solution:
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center')
 
-        for row in ws['B1': 'G1']:
+        for row in ws['A6':'A39']:
+            for cell in row:
+                if cell.value is not None:
+                    cell.alignment = openpyxl.styles.Alignment(horizontal='left')
+                    cell.font = Font(bold=True, size=12)
+
+        for row in ws['A1': 'N1']:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A6':'G6']:
+        for row in ws['A5': 'N5']:
             for cell in row:
-                cell.border = black_boarder_all
-                cell.font = Font(bold=True, size=12)
-
-        for row in ws['A1': 'Q1']:
-            for cell in row:
-                cell.border = black_boarder_all
-                cell.font = Font(bold=True, size=12)
+                if cell.value is not None:
+                    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center', wrap_text=True)
                 
-        cell_ranges = ['B3:B6', 'D3:D6', 'F3:F6']
+        cell_ranges = ['B6:N39']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
-                    if cell.value is not None and isinstance(cell.value, str):
+                    if cell.value is not None and isinstance(cell.value, int or float):
                         try:
-                            cell.value = int(cell.value)
                             cell.number_format = '#,##0'  # Apply comma format
                             print("Int converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
                             pass
-        cell_ranges = ['C3:C6', 'E3:E6','G3:G6']
-        for cell_range in cell_ranges:
-            for row in ws[cell_range]:
-                for cell in row:
-                    if cell.value is not None and isinstance(cell.value, str):
-                        try:
-                            cell.value = float(cell.value)
-                            cell.number_format = '0%'  # Apply percentage format
-                            print("Float converting")
-                        except ValueError:
-                            # If the value cannot be converted to int, keep the original value
-                            print("Float converting Error")
-                            pass
+
         # change the row height
         ws.row_dimensions[4].height = 40      
                               
@@ -413,7 +403,7 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "C4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "G4:H4"},
+            {"cell": "A4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "A4:H4"},
             {"cell": "I4", "value": "# of ELLs with IEPs with BSE Recommendation Served in a Bilingual Class with a Bilingual Teacher", "merge_cells": "I4:N4"},            
 
         ]
@@ -421,6 +411,10 @@ class Solution:
         column_widths = [15, 20, 10, 15, 15, 15, 15, 15, 10, 15, 15, 15, 15, 15]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
+        # fill subtitle_cells with color D0CECE
+        for cell_info in subtitle_cells:
+            cell = ws[cell_info["cell"]]
+            cell.fill = PatternFill(start_color="D0CECE", end_color="D0CECE", fill_type="solid")
         
         # Step 2: Connect to the database
         cursor = self.connect_to_database()
