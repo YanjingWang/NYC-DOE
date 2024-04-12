@@ -4,7 +4,8 @@ from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
 import pyodbc
 class Solution:
-    # Existing code...
+    def __init__(self, datestamp='02/12/2024'):
+        self.datestamp = datestamp
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -344,6 +345,8 @@ class Solution:
         black_border_no_bottom = Border(left=black_border_thickside, right=black_border_thickside)
         black_border_right_side = Border(right=black_border_mediumside)
         black_boarder_all = Border(top=black_border_thickside, left=black_border_thickside, right=black_border_thickside, bottom=black_border_thickside)
+        black_border_up_down = Border(top=black_border_mediumside, bottom=black_border_mediumside)
+        black_border_all_medium = Border(top=black_border_mediumside, left=black_border_mediumside, right=black_border_mediumside, bottom=black_border_mediumside)
         # Write data to Excel starting from row B5
         for row_num, row_data in enumerate(data, start=start_row):  # Adjusted start_row here
             for i, value in enumerate(row_data):
@@ -366,18 +369,45 @@ class Solution:
         for row in ws['B6':'B40']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
-                    cell.value = str(cell.value) + ' '  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right', vertical='center')  # Center align the text
+                    cell.alignment = openpyxl.styles.Alignment(horizontal='right', vertical='center')  # Center align the text
                 
         for row in ws['C6':'N40']:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
 
+        for row in ws['B6':'N40']:
+            for cell in row:
+                if cell.value is None:
+                    cell.value = '-'  # Replace None with '-'
+                    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')  
+
+        for row in ws['A6':'A40']:
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
+
         for row in ws['A1': 'N1']:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
+
+        fill_color = "F2F2F2"  # Color for the Total columns and row
+        fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
+        
+        # Fill 'Total' columns with the specified color
+        for col in ['C', 'I']:  # Columns F and L are the 'Total' columns
+            for row_num in range(start_row, ws.max_row + 1):
+                ws[col + str(row_num)].fill = fill
+        
+        # Fill 'Total' row with the specified color
+        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=40, max_row=40):
+            for cell in row:
+                cell.fill = fill
+        # add border to the last row
+        for cell in ws['A40:B40'][0]:  # Only one row, so it's safe to use [0]
+            cell.border = black_border_up_down
+        for cell in ws['C40:N40'][0]:  # Only one row, so it's safe to use [0]
+            cell.border = black_border_all_medium
                 
         cell_ranges = ['B6:N40']
         for cell_range in cell_ranges:
@@ -386,14 +416,17 @@ class Solution:
                     if cell.value is not None and isinstance(cell.value, int or float):
                         try:
                             cell.number_format = '#,##0'  # Apply comma format
-                            print("Int converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
                             pass
 
         # change the row height
-        ws.row_dimensions[4].height = 40      
+        ws.row_dimensions[4].height = 40   
+        # insert datestamp to the second row then merge cell A2:Q2 then bold the font
+        ws['A2'] = 'As of ' + self.datestamp 
+        ws.merge_cells('A2:N2')
+        ws['A2'].font = Font(bold=True, size=12)    
                               
     def Report_District(self):
         title_cells = [
@@ -421,6 +454,19 @@ class Solution:
         # self.fetch_data_by_BESReg(conn)
         # self.fetch_data_by_Register(conn)
         results_bytab1 = self.fetch_data_by_District(cursor)
+        # add Total row to calculate the total number of ELLs at the end of the list
+        total = ['Total']
+        for i in range(1, 14):
+            # if data = Null, set it to 0; if data is string, set it to NULL
+            if results_bytab1 and all(isinstance(row[i], int) for row in results_bytab1):
+                total.append(sum([row[i] for row in results_bytab1 if row[i] is not None]))
+            elif results_bytab1 and all(isinstance(row[i], str) for row in results_bytab1):
+                total.append('')
+            else:
+                # if the data is mixed with data and nonetype,calculate the sum of the data and set the nonetype to 0
+                total.append(sum([row[i] if row[i] is not None else 0 for row in results_bytab1]))
+        results_bytab1.append(total)
+
 
         self.write_data_to_excel(ws, results_bytab1, start_row=6)
         
