@@ -81,7 +81,7 @@ class Solution:
                    'Total',
                 'ICT D1-32,79',
                 'SC D1-32,79',
-                'ICT D1-32,79',
+                # 'ICT D1-32,79',
                 'SETSS D1-32,79',
                 'Multiple Programs D1-32,79',
                 'D75',
@@ -165,7 +165,8 @@ class Solution:
             ,[IsBilingualSETSS] AS BilingualSETSS
 
             INTO #BSEReg
-        From  [SEO_MART].[dbo].[RPT_ELLCAPBilingualPS]
+        From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
+		Where ProcessedDate = '02-12-2024'
 
 
 
@@ -212,10 +213,11 @@ class Solution:
             ,CAP.[ProcessedDateTime]
             ,case when loc.boroughcode = 'O' then 'Q' else loc.boroughcode end as boroughcode
         into #Register
-        FROM [SEO_MART].[dbo].[RPT_PSProvisioningStudent] as CAP
+        FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] as CAP
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
-        where CAP.ELLStatus = 'ELL'
+        where CAP.ELLStatus = 'ELL' 
+		and CAP.ProcessedDate = '02-12-2024'
         '''
         )
         return cursor
@@ -390,6 +392,13 @@ class Solution:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
+                
+        for row in ws['A40':'N40']:
+            # make font bold
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
+
+        ws.auto_filter.ref = "A5:N5"
 
         fill_color = "F2F2F2"  # Color for the Total columns and row
         fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
@@ -434,7 +443,7 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "A4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "A4:H4"},
+            {"cell": "C4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "C4:H4"},
             {"cell": "I4", "value": "# of ELLs with IEPs with BSE Recommendation Served in a Bilingual Class with a Bilingual Teacher", "merge_cells": "I4:N4"},            
 
         ]

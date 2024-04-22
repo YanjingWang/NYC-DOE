@@ -81,7 +81,7 @@ class Solution:
                    'Total',
                 'ICT D1-32,79',
                 'SC D1-32,79',
-                'ICT D1-32,79',
+                #'ICT D1-32,79',
                 'SETSS D1-32,79',
                 'Multiple Programs D1-32,79',
                 'D75',
@@ -165,7 +165,8 @@ class Solution:
             ,[IsBilingualSETSS] AS BilingualSETSS
 
             INTO #BSEReg
-        From  [SEO_MART].[dbo].[RPT_ELLCAPBilingualPS]
+        From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
+		Where ProcessedDate = '02-12-2024'
 
 
 
@@ -212,10 +213,11 @@ class Solution:
             ,CAP.[ProcessedDateTime]
             ,case when loc.boroughcode = 'O' then 'Q' else loc.boroughcode end as boroughcode
         into #Register
-        FROM [SEO_MART].[dbo].[RPT_PSProvisioningStudent] as CAP
+        FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] as CAP
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
-        where CAP.ELLStatus = 'ELL'
+        where CAP.ELLStatus = 'ELL' 
+		and CAP.ProcessedDate = '02-12-2024'
         '''
         )
         return cursor
@@ -379,6 +381,13 @@ class Solution:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['A14':'N14']:
+            # make font bold
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
+
+        ws.auto_filter.ref = "A5:N5"
+        
         fill_color = "F2F2F2"  # Color for the Total columns and row
         fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
         
@@ -401,9 +410,8 @@ class Solution:
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
-                    if cell.value is not None and isinstance(cell.value, str):
+                    if cell.value is not None and isinstance(cell.value, (int, float)):
                         try:
-                            cell.value = int(cell.value)
                             cell.number_format = '#,##0'  # Apply comma format
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
@@ -422,12 +430,12 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "A4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "A4:H4"},
+            {"cell": "C4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "C4:H4"},
             {"cell": "I4", "value": "# of ELLs with IEPs with BSE Recommendation Served in a Bilingual Class with a Bilingual Teacher", "merge_cells": "I4:N4"},            
 
         ]
 
-        column_widths = [15, 20, 10, 15, 15, 15, 15, 15, 10, 15, 15, 15, 15, 15]
+        column_widths = [20, 20, 10, 15, 15, 15, 15, 15, 10, 15, 15, 15, 15, 15]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         # fill subtitle_cells with color D0CECE

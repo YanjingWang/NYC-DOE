@@ -81,7 +81,7 @@ class Solution:
                    'Total',
                 'ICT D1-32,79',
                 'SC D1-32,79',
-                'ICT D1-32,79',
+                # 'ICT D1-32,79',
                 'SETSS D1-32,79',
                 'Multiple Programs D1-32,79',
                 'D75',
@@ -165,7 +165,8 @@ class Solution:
             ,[IsBilingualSETSS] AS BilingualSETSS
 
             INTO #BSEReg
-        From  [SEO_MART].[dbo].[RPT_ELLCAPBilingualPS]
+        From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
+		Where ProcessedDate = '02-12-2024'
 
 
 
@@ -212,10 +213,11 @@ class Solution:
             ,CAP.[ProcessedDateTime]
             ,case when loc.boroughcode = 'O' then 'Q' else loc.boroughcode end as boroughcode
         into #Register
-        FROM [SEO_MART].[dbo].[RPT_PSProvisioningStudent] as CAP
+        FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] as CAP
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
-        where CAP.ELLStatus = 'ELL'
+        where CAP.ELLStatus = 'ELL' 
+		and CAP.ProcessedDate = '02-12-2024'
         '''
         )
         return cursor
@@ -373,7 +375,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A6': 'A42']:
+        for row in ws['A6': 'A40']:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
@@ -381,6 +383,13 @@ class Solution:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center', wrap_text=True)
+        
+        for row in ws['A40':'N40']:
+            # make font bold
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
+
+        ws.auto_filter.ref = "A5:N5"
 
         fill_color = "F2F2F2"  # Color for the Total columns and row
         fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
@@ -391,16 +400,16 @@ class Solution:
                 ws[col + str(row_num)].fill = fill
         
         # Fill 'Total' row with the specified color
-        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=42, max_row=42):
+        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=40, max_row=40):
             for cell in row:
                 cell.fill = fill
         # add border to the last row
-        for cell in ws['A42:B42'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['A40:B40'][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_up_down
-        for cell in ws['C42:N42'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['C40:N40'][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_all_medium  
 
-        cell_ranges = ['B6:N42']
+        cell_ranges = ['B6:N40']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -425,12 +434,12 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "A4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "A4:H4"},
+            {"cell": "C4", "value": "# of ELLs with IEPs with Bilingual Program Recommendations", "merge_cells": "C4:H4"},
             {"cell": "I4", "value": "# of ELLs with IEPs with BSE Recommendation Served in a Bilingual Class with a Bilingual Teacher", "merge_cells": "I4:N4"},            
 
         ]
 
-        column_widths = [15, 20, 10, 15, 15, 15, 15, 15, 10, 15, 15, 15, 15, 15]
+        column_widths = [30, 20, 10, 15, 15, 15, 15, 15, 10, 15, 15, 15, 15, 15]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         # fill subtitle_cells with color D0CECE

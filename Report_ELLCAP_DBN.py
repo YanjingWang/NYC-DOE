@@ -168,7 +168,8 @@ class Solution:
             ,[IsBilingualSETSS] AS BilingualSETSS
 
             INTO #BSEReg
-        From  [SEO_MART].[dbo].[RPT_ELLCAPBilingualPS]
+        From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
+		Where ProcessedDate = '02-12-2024'
 
 
 
@@ -215,10 +216,11 @@ class Solution:
             ,CAP.[ProcessedDateTime]
             ,case when loc.boroughcode = 'O' then 'Q' else loc.boroughcode end as boroughcode
         into #Register
-        FROM [SEO_MART].[dbo].[RPT_PSProvisioningStudent] as CAP
+        FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] as CAP
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
-        where CAP.ELLStatus = 'ELL'
+        where CAP.ELLStatus = 'ELL' 
+		and CAP.ProcessedDate = '02-12-2024'
         '''
         )
         return cursor
@@ -374,33 +376,41 @@ class Solution:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center', wrap_text=True)
-        for row in ws['F6':'Q1543']:
+                # add filter to the header from A5 to Q5
+                ws.auto_filter.ref = "A5:Q5"
+
+        for row in ws['F6':'Q1541']:
             for cell in row:
                 if cell.value is not None: 
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['B6':'B1543']:
+        for row in ws['B6':'B1541']:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['F6':'Q1542']:
+        for row in ws['F6':'Q1540']:
             for cell in row:
                 if cell.value is None:
                     cell.value = '-'  # Replace None with '-'
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['C6':'D1543']:
+        for row in ws['C6':'D1541']:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='left', vertical='center')
-        for row in ws['E6':'E1543']:
+        for row in ws['E6':'E1541']:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='right', vertical='center')
-        for row in ws['A6':'A1543']:
+        for row in ws['A6':'A1541']:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
         for row in ws['A1': 'Q1']:
             for cell in row:
                 cell.border = black_boarder_all
+                cell.font = Font(bold=True, size=12)
+
+        for row in ws['A1541':'Q1541']:
+            # make font bold
+            for cell in row:
                 cell.font = Font(bold=True, size=12)
 
         fill_color = "F2F2F2"  # Color for the Total columns and row
@@ -412,16 +422,16 @@ class Solution:
                 ws[col + str(row_num)].fill = fill
         
         # Fill 'Total' row with the specified color
-        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=1543, max_row=1543):
+        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=1541, max_row=1541):
             for cell in row:
                 cell.fill = fill
         # add border to the last row
-        for cell in ws['A1543:E1543'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['A1541:E1541'][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_up_down
-        for cell in ws['F1543:Q1543'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['F1541:Q1541'][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_all_medium
                 
-        cell_ranges = ['A6:Q1543']
+        cell_ranges = ['A6:Q1541']
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
