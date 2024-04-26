@@ -398,6 +398,10 @@ class Solution:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['C4':'H4'] + ws['I4':'N4']:
+            for cell in row:
+                cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center',wrap_text=True)
+
         ws.auto_filter.ref = "A5:N5"
 
         fill_color = "F2F2F2"  # Color for the Total columns and row

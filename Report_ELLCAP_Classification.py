@@ -421,6 +421,10 @@ class Solution:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
                             pass
+        for row in ws['C4':'H4'] + ws['I4':'N4']:
+            for cell in row:
+                cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center',wrap_text=True)
+
         # change the row height
         ws.row_dimensions[4].height = 40 
         # fill A6 as NULL

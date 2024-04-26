@@ -413,6 +413,10 @@ class Solution:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
+        for row in ws['F4':'K4'] + ws['L4':'Q4']:
+            for cell in row:
+                cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center',wrap_text=True)
+
         fill_color = "F2F2F2"  # Color for the Total columns and row
         fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
         
