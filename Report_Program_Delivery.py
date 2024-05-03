@@ -2,10 +2,13 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
-import pyodbc
+import pyodbc, time
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self, datestamp="04022024",date="April 2, 2024"):
+        self.datestamp = datestamp
+        self.date = date
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -129,12 +132,18 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_PSStudentR12_061523')
-        cursor.execute("[Mike].[USPCCTriannualReportPSCitywide]")
+        cursor.execute("EXEC [Mike].[USPCCTriannualReportPSCitywide]")
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_tab1(self,cursor):
         query_bytab1 = '''
-        Select * from ##PSCitywide Order By PrimaryProgramType
+        Select * 
+        from ##PSCitywide
+        Order By 
+        case when [PrimaryProgramType]='Total' then
+        'zzzzz'
+        End 
+        ,PrimaryProgramType
         '''  # the bytab12 SQL query goes here
         cursor.execute(query_bytab1)
         results_bytab1 = cursor.fetchall()
@@ -172,7 +181,10 @@ class Solution:
         for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
             for row_num in range(start_row, start_row + len(data)):
                 ws[col + str(row_num)].border = black_border_no_bottom
-
+        # bold A3: A6
+        for row in ws['A3':'A6']:
+            for cell in row:
+                cell.font = Font(bold=True, size=12)
         # Update alignment for range C6:N38
         for row in ws['B3':'G6']:
             for cell in row:
@@ -203,7 +215,7 @@ class Solution:
                         try:
                             cell.value = int(cell.value)
                             cell.number_format = '#,##0'  # Apply comma format
-                            print("Int converting")
+                            # print("Int converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
@@ -216,7 +228,7 @@ class Solution:
                         try:
                             cell.value = float(cell.value)
                             cell.number_format = '0%'  # Apply percentage format
-                            print("Float converting")
+                            # print("Float converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Float converting Error")
@@ -224,7 +236,7 @@ class Solution:
 
     def Report_Program_Delivery(self):
         title_cells = [
-            {"cell": "A1", "value": "October 31, 2023 Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:G1"},
+            {"cell": "A1", "value": self.date + " Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:G1"},
             
 
         ]
@@ -249,6 +261,8 @@ class Solution:
 
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted City Council Triennial Report_CW.xlsx'
+        # # save path ended with self.datestamp 04022024
+        # save_path = save_path[:-5] + self.datestamp + ".xlsx"
         wb.save(save_path)
 
 if __name__ == "__main__":

@@ -212,23 +212,23 @@ def R_Process():
     src_Charter = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\SY 22-23 Charter\MandatedServicesCharter_{0}'.format(date.today().strftime("%Y%m%d"))
 
 
-    # file1 = os.path.join(mylocalXLSfolder,'RS_Reports_2022_2023.R')
-    # os.startfile(file1)
-    # print('Click Run and it takes 35 mins')
-    # time.sleep(60*60)
+    file1 = os.path.join(mylocalXLSfolder,'RS_Reports_2022_2023.R')
+    os.startfile(file1)
+    print('Click Run and it takes 35 mins')
+    time.sleep(60*60)
 
     copyallfiles(src_CSD,dst_CSD_XLS)
     copyallfiles(dst_CSD_XLS,int_xlspath)  # copy PA_Distribution_XLS to archive?
     copyallfiles(dst_CSD_XLS,CSD_Archive)
     # copyallfiles(RSCompliance,RSDashboardSharepoint)
 
-    # file2 = os.path.join(mylocalXLSfolder,'RS_Reports_2022_2023_Charter.R')
-    # os.startfile(file2)
-    # print('Click Run and it takes 5 mins')
-    # time.sleep(5*60)
-    # createdir(src_Charter)
-    # createdir(Charter_Archive)  # really created?
-    # createdir(shareCharter)  # really created?
+    file2 = os.path.join(mylocalXLSfolder,'RS_Reports_2022_2023_Charter.R')
+    os.startfile(file2)
+    print('Click Run and it takes 5 mins')
+    time.sleep(5*60)
+    createdir(src_Charter)
+    createdir(Charter_Archive)  # really created?
+    createdir(shareCharter)  # really created?
     copyallfiles(src_Charter,shareCharter)
     copyallfiles(src_Charter,Charter_Archive)
 
@@ -328,7 +328,7 @@ def ms_send_outlook_email():
     # mailItem.Cc = 'gnutter@schools.nyc.gov;RMayilrajan@schools.nyc.gov' 
     mailItem.To = 'Van Biema Michael <MVanBiema@schools.nyc.gov>; Palladino Linette <LPalladino2@schools.nyc.gov>; Kaufman Helen <HKaufma@schools.nyc.gov>; Leo Maria <MLeo2@schools.nyc.gov>; \
     Elkayam Barry <BElkaya@schools.nyc.gov>; Shah Archana <AShah@schools.nyc.gov>; Stamm Charles <CStamm@schools.nyc.gov>; Leong Melanie <MLeong@schools.nyc.gov>; \
-    Han Louise <LHan@schools.nyc.gov>; Silverman Joy <JSilverman8@schools.nyc.gov>'
+    Han Louise <LHan@schools.nyc.gov>; Silverman Joy <JSilverman8@schools.nyc.gov>;Manish Patil <MPatil@schools.nyc.gov>;Laura Acros <Marcos2@schools.nyc.gov>'
     mailItem.Cc = 'Mayilrajan Rajamanickam <RMayilrajan@schools.nyc.gov>; ywang36@schools.nyc.gov; \
     Nutter Grace <GNutter@schools.nyc.gov>; Powers Alan <APowers3@schools.nyc.gov>' 
 

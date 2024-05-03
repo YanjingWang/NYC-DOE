@@ -6,6 +6,10 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self, datestamp="04022024",date="April 2, 2024"):
+        self.datestamp = datestamp
+        self.date = date
+        self.lastrow = 35
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -42,7 +46,7 @@ class Solution:
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
-        for row in ws.iter_rows(min_row=1, max_row=120, min_col=1, max_col=26):
+        for row in ws.iter_rows(min_row=1, max_row=self.lastrow, min_col=1, max_col=26):
             for cell in row:
                 cell.fill = white_fill
 
@@ -127,7 +131,7 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_PSStudentR12_061523')
-        cursor.execute("[Mike].[USPCCTriannualReportSTDistrictLevel]")
+        cursor.execute("EXEC [Mike].[USPCCTriannualReportSTDistrictLevel]")
         return cursor
 
     def fetch_data_by_tab9(self,cursor):
@@ -168,13 +172,13 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range 
-        for row in ws['A3':'A35']:
+        for row in ws['A3':'A'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:
                     cell.value = str(cell.value) + ''
                     cell.font = Font(bold=True, size=12)
                 cell.alignment = openpyxl.styles.Alignment(horizontal='left')
-        for row in ws['B3':'G35']:
+        for row in ws['B3':'G'+str(self.lastrow)]:  
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -185,7 +189,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A35':'G35']:
+        for row in ws['A'+str(self.lastrow):'G'+str(self.lastrow)]: 
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
@@ -195,7 +199,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
                 
-        cell_ranges = ['B3:B35', 'D3:D35', 'F3:F35']
+        cell_ranges = ['B3:B'+str(self.lastrow), 'D3:D'+str(self.lastrow), 'F3:F'+str(self.lastrow) ]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -208,7 +212,7 @@ class Solution:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
                             pass
-        cell_ranges = ['C3:C35', 'E3:E35','G3:G35']
+        cell_ranges = ['C3:C'+str(self.lastrow), 'E3:E'+str(self.lastrow),'G3:G'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -223,7 +227,7 @@ class Solution:
                             pass
     def Report_Transportation_by_District(self):
         title_cells = [
-            {"cell": "A1", "value": "October 31, 2022 Number & Percentage of Special Transportation Recommendations with Busing Assignment", "merge_cells": "A1:G1"},
+            {"cell": "A1", "value": self.date+ " Number & Percentage of Special Transportation Recommendations with Busing Assignment", "merge_cells": "A1:G1"},
             
 
         ]
@@ -246,6 +250,8 @@ class Solution:
 
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted City Council Triennial Report_CW.xlsx'
+        # # save path ended with self.datestamp 04022024
+        # save_path = save_path[:-5] + self.datestamp + ".xlsx"
         wb.save(save_path)
 
 if __name__ == "__main__":

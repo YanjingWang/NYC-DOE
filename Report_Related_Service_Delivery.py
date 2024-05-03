@@ -2,10 +2,13 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
-import pyodbc
+import pyodbc, time
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self, datestamp="04022024",date="April 2, 2024"):
+        self.datestamp = datestamp
+        self.date = date
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -127,14 +130,18 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_PSStudentR12_061523')
-        cursor.execute("[Mike].[USPCCTriannualReportRSCitywide]")
+        cursor.execute("EXEC [Mike].[USPCCTriannualReportRSCitywide]")
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_tab5(self,cursor):
         query_bytab5 = '''
         Select *
         from ##RSCitywide
-        Order By MandatesBilingual
+        Order By 
+        case when [MandatesBilingual]='Total' then
+        'zzzzz'
+        End 
+        ,MandatesBilingual
         '''  # the bytab12 SQL query goes here
         cursor.execute(query_bytab5)
         results_bytab5 = cursor.fetchall()
@@ -197,7 +204,7 @@ class Solution:
                         try:
                             cell.value = int(cell.value)
                             cell.number_format = '#,##0'  # Apply comma format
-                            print("Int converting")
+                            # print("Int converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
@@ -210,7 +217,7 @@ class Solution:
                         try:
                             cell.value = float(cell.value)
                             cell.number_format = '0%'  # Apply percentage format
-                            print("Float converting")
+                            # print("Float converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Float converting Error")
@@ -240,7 +247,7 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "A1", "value": "October 31, 2023 Number & Percentage of Related Service Recommendations with Encounter Recorded by Service Type", "merge_cells": "A1:G1"},
+            {"cell": "A1", "value": self.date +" Number & Percentage of Related Service Recommendations with Encounter Recorded by Service Type", "merge_cells": "A1:G1"},
             # {"cell": "A12", "value": "Local Law 900-A requires reporting on provision of assistive technology service. Assistive technology service is often provided through speech-language therapy or occupational therapy IEP recommendations. On 10/31/22 there were <=5 IEP recommendations specifically for assistive technology service all of which had been encountered. This data is not included in the tables because it would be subject to redaction. For SY 2022–23, 9,772 students in DOE schools were provided assistive technology devices, per IEP recommendations.", "merge_cells": "A12:G12"}            
         ]
 
@@ -260,6 +267,8 @@ class Solution:
 
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted City Council Triennial Report_CW.xlsx'
+        # # save path ended with self.datestamp 04022024
+        # save_path = save_path[:-5] + self.datestamp + ".xlsx"
         wb.save(save_path)
 
 if __name__ == "__main__":

@@ -2,12 +2,16 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
-import pyodbc
+import pyodbc,time
 import os
 from copy import copy
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self, datestamp="04022024",date="April 2, 2024"):
+        self.datestamp = datestamp
+        self.date = date
+        self.lastrow = 138 #136
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -44,7 +48,7 @@ class Solution:
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
-        for row in ws.iter_rows(min_row=1, max_row=150, min_col=1, max_col=26):
+        for row in ws.iter_rows(min_row=1, max_row=self.lastrow, min_col=1, max_col=26):
             for cell in row:
                 cell.fill = white_fill
 
@@ -136,7 +140,7 @@ class Solution:
         End
         ,Superintendent
         ,[Primary Program Type]
-        ,[School District] 
+        ,[School District]
         '''  # the byRace SQL query goes here
         cursor.execute(query_byRace)
         results_byRace = cursor.fetchall()
@@ -165,8 +169,8 @@ class Solution:
             for row_num in range(start_row, start_row + len(data)):
                 ws[col + str(row_num)].border = black_border_no_bottom
 
-        # Update alignment for range A3:C136 and make them bold
-        for row in ws['A3':'C136']:
+        # Update alignment for range A3:Cself.lastrow and make them bold
+        for row in ws['A3':'C'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -175,7 +179,7 @@ class Solution:
         
 
 
-        for row in ws['D3':'I136']:
+        for row in ws['D3':'I'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -187,7 +191,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A136': 'I136']:
+        for row in ws['A'+str(self.lastrow): 'I'+str(self.lastrow)]:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
@@ -197,7 +201,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        cell_ranges = ['D3:D136', 'F3:F136', 'H3:H136']
+        cell_ranges = ['D3:D'+str(self.lastrow), 'F3:F'+str(self.lastrow), 'H3:H'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -205,12 +209,12 @@ class Solution:
                         try:
                             cell.value = int(cell.value)
                             cell.number_format = '#,##0'  # Apply comma format
-                            print("Int converting")
+                            # print("Int converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Int converting Error")
                             pass
-        cell_ranges = ['E3:E136', 'G3:G136', 'I3:I136']
+        cell_ranges = ['E3:E'+str(self.lastrow), 'G3:G'+str(self.lastrow), 'I3:I'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -218,14 +222,14 @@ class Solution:
                         try:
                             cell.value = float(cell.value)
                             cell.number_format = '0%'  # Apply percentage format
-                            print("Float converting")
+                            # print("Float converting")
                         except ValueError:
                             # If the value cannot be converted to int, keep the original value
                             print("Float converting Error")
                             pass  
     def main_Program_Delivery_by_District_Supt(self):
         title_cells = [
-            {"cell": "A1", "value": "October 31, 2023 Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:I1"},
+            {"cell": "A1", "value": self.date +" Number & Percentage of Students Receiving Recommended Special Education Programs by Program Type", "merge_cells": "A1:I1"},
             
 
         ]
@@ -259,6 +263,8 @@ class Solution:
 
         # # Step 6: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted City Council Triennial Report_CW.xlsx'
+        # # save path ended with self.datestamp 04022024
+        # save_path = save_path[:-5] + self.datestamp + ".xlsx"
         wb.save(save_path)
 
         # Step 7: Close the database connection

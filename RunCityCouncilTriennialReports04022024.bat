@@ -1,0 +1,8 @@
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_ProgramDelivery.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_ProgramDelivery_byDistrict.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_ProgramDelivery_bySupt.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_ProgramDelivery_bySchool.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_RelatedServicesDelivery.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_RelatedServicesDelivery_byDistrict.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_RelatedServicesDelivery_bySupt.py"
+python "R:\SEO Analytics\Reporting\City Council\City Council SY24\City Council Python\Python Code 04022024\Report_RelatedServicesDelivery_bySchool.py"

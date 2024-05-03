@@ -38,13 +38,16 @@ for the bilingual recommendations the logic is the same as the program redaction
 import openpyxl
 import os, shutil
 from redaction_config_triennial_SY24 import TRIENNIAL_REPORTS_CONFIG_SY24
+from redaction_config_triennial_SY240402 import TRIENNIAL_REPORTS_CONFIG_SY240402
 class Solution:
     def copyonefile(src,dst):
         shutil.copy(src,dst)
         print('copying one file from {0} to {1} is compelte'.format(src,dst)) 
     mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx', mylocalCCfolder)
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\04.02.24 Triannual Report\Non-Redacted City Council Triennial Report_04022024.xlsx', mylocalCCfolder)
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\04.02.24 Triannual Report\Non-Redacted City Council Triennial Report_04022024.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     # percentage redaction including 0% to 100% redaction
     def is_percentage(self, cell):
         # Check if cell's format is for percentage
@@ -1148,18 +1151,39 @@ class Solution:
 # Call the function with your filename
 if __name__ == "__main__":
     processor = Solution()
-    #SY24
-    filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx'
-    unredacted_filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx'
-    for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
-        processor.mask_excel_file(filename_SY24, report, config, unredacted_filename_SY24)
-    redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx']
-    unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx']
-    for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
+    # #SY24
+    # filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx'
+    # unredacted_filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx'
+    # for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
+    #     processor.mask_excel_file(filename_SY24, report, config, unredacted_filename_SY24)
+    # redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx']
+    # unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx']
+    # for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
+    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
+
+    #     for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
+    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+    #             ws = redacted_wb[report]
+    #             unredacted_ws = unredacted_wb[report]
+    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+
+    #     # Save the redacted workbook after unmasking green cells
+    #     redacted_wb.save(redacted_file)
+    #     redacted_wb.close()
+
+    #SY24 04022024
+    filename_SY24_04022024 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report_04022024.xlsx'
+    unredacted_filename_SY24_04022024 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report_04022024.xlsx'
+    for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items(): 
+        processor.mask_excel_file(filename_SY24_04022024, report, config, unredacted_filename_SY24_04022024)
+    redacted_filenames_SY24_04022024 = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report_04022024.xlsx']
+    unredacted_filenames_SY24_04022024 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report_04022024.xlsx']
+    for redacted_file, unredacted_file in zip(redacted_filenames_SY24_04022024, unredacted_filenames_SY24_04022024):
         redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
         unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
-        for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
+        for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items():
             if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
                 ws = redacted_wb[report]
                 unredacted_ws = unredacted_wb[report]
