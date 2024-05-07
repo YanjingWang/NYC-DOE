@@ -421,7 +421,7 @@ class Solution:
 
     def mask_by_samecategory_byPS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
-            primary_type_col, full_receiving_col, percent_full_receiving_col = config
+            primary_type_col, full_receiving_col, percent_full_receiving_col,_,_,_,_ = config
 
         category_dict = {}
 
@@ -484,11 +484,62 @@ class Solution:
                 percent_original_value = unredacted_ws.cell(row=gt5_row, column=percent_full_receiving_col).value
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
                 # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
+        """
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        """
+        for config in cross_tab_config:
+            primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
 
+        category_dict = {}
+
+        for row in range(3, ws.max_row + 1):
+            category = ws.cell(row=row, column=primary_type_col).value
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+            partial_receiving_value = ws.cell(row=row, column=partial_receiving_col).value
+            no_receiving_value = ws.cell(row=row, column=no_receiving_col).value
+
+            if category is None:
+                continue
+
+            if category not in category_dict:
+                category_dict[category] = {'rows': [], 'full_values': [], 'partial_values': [], 'no_values': []}
+
+            category_dict[category]['rows'].append(row)
+            category_dict[category]['full_values'].append(full_receiving_value)
+            category_dict[category]['partial_values'].append(partial_receiving_value)
+            category_dict[category]['no_values'].append(no_receiving_value)
+
+        for category, info in category_dict.items():
+            full_receiving_indices = [index for index, value in enumerate(info['full_values']) if value not in ['<=5', '>5', None]]
+            partial_receiving_indices = [index for index, value in enumerate(info['partial_values']) if value in ['<=5', '>5']]
+            not_receiving_indices = [index for index, value in enumerate(info['no_values']) if value in ['<=5', '>5']]
+            # print(category, full_receiving_indices,partial_receiving_indices,not_receiving_indices)
+
+
+            # Check if there is only one index each for partial and no receiving that are redacted
+            if len(full_receiving_indices) >=1 and len(partial_receiving_indices) == 1 and len(not_receiving_indices) == 1:
+                full_receiving_index = partial_receiving_indices[0]
+                partial_receiving_index = partial_receiving_indices[0]
+                not_receiving_index = not_receiving_indices[0]
+                print(category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
+                    # row = info['rows'][full_receiving_index]
+                    # ws.cell(row=row, column=full_receiving_col).value = '<=5' if info['full_values'][full_receiving_index] <= 5 else '>5'
+                    # adjacent_percentage_cell = ws.cell(row=row, column=percent_full_receiving_col)
+                    # adjacent_percentage_cell.value = '*'
+                    # print(ws.title, f"Masking same category cell having one redacted number of partial receiving and one redacted number of no receiving in the same row {ws.cell(row=row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
+                    # Find smallest unredacted partial and not receiving values to redact
+                    min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
+                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
+                    for row_idx in info['rows']:
+                        if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
+                            ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
+                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
 
     def mask_by_samecategoryanddistrict_byPS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
-            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
+            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col,_,_,_,_ = config
 
         # Create a dictionary to hold categories, districts, and their respective rows and values
         category_district_dict = {}
@@ -537,7 +588,7 @@ class Solution:
                     adjacent_percentage_cell = ws.cell(row=smallest_row, column=percent_full_receiving_col)
                     adjacent_percentage_cell.value = '*'
                     # print(f"Masked {category} in district {district} on row {smallest_row} with value {'<=5' if smallest_unmasked_value <= 5 else '>5'}")
-                    print(ws.title, f"Masking same category and district non-zero cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                    # print(ws.title, f"Masking same category and district non-zero cell having other masked cell in the same row {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
                 else:
                     # mask the smallest non-zero value of the rest cell in that column
                     unmasked_values = [value for value in info['values'] if value not in ['<=5', '>5', None] and value != 0]
@@ -557,7 +608,55 @@ class Solution:
                 original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
                 print(f"Unmasked {category} in district {district} on row {gt5_row} to original value {original_value}")
-        
+        """
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        """
+        for config in cross_tab_config:
+            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
+
+        category_district_dict = {}
+
+        for row in range(3, ws.max_row + 1):
+            school_dbn = ws.cell(row=row, column=district_col).value
+            category = ws.cell(row=row, column=primary_type_col).value
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+            partial_receiving_value = ws.cell(row=row, column=partial_receiving_col).value
+            no_receiving_value = ws.cell(row=row, column=no_receiving_col).value
+
+            if school_dbn is None or category is None:
+                continue
+
+            district = school_dbn[:2]
+
+            key = (district, category)
+            if key not in category_district_dict:
+                category_district_dict[key] = {'rows': [], 'full_values': [], 'partial_values': [], 'no_values': []}
+
+            category_district_dict[key]['rows'].append(row)
+            category_district_dict[key]['full_values'].append(full_receiving_value)
+            category_district_dict[key]['partial_values'].append(partial_receiving_value)
+            category_district_dict[key]['no_values'].append(no_receiving_value)
+
+        for key, info in category_district_dict.items():
+            district, category = key
+            full_receiving_indices = [index for index, value in enumerate(info['full_values']) if value not in ['<=5', '>5', None]]
+            partial_receiving_indices = [index for index, value in enumerate(info['partial_values']) if value in ['<=5', '>5']]
+            not_receiving_indices = [index for index, value in enumerate(info['no_values']) if value in ['<=5', '>5']]
+            # print(district, category, full_receiving_indices,partial_receiving_indices,not_receiving_indices)
+            # Check if there is only one index each for partial and no receiving that are redacted
+            if len(full_receiving_indices) >=1 and len(partial_receiving_indices) == 1 and len(not_receiving_indices) == 1:
+                full_receiving_index = partial_receiving_indices[0]
+                partial_receiving_index = partial_receiving_indices[0]
+                not_receiving_index = not_receiving_indices[0]
+                print(district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
+                    min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
+                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
+                    for row_idx in info['rows']:
+                        if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
+                            ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
+                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'        
 
 
 
@@ -565,7 +664,7 @@ class Solution:
 
     def mask_by_samecategory_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
-            primary_type_col, full_receiving_col, percent_full_receiving_col = config
+            primary_type_col, full_receiving_col, percent_full_receiving_col,_,_,_,_ = config
 
         category_dict = {}
 
@@ -636,10 +735,57 @@ class Solution:
                 percent_original_value = unredacted_ws.cell(row=gt5_row, column=percent_full_receiving_col).value
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
                 # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
+        """
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        """
+        for config in cross_tab_config:
+            primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
+
+        category_dict = {}
+
+        for row in range(3, ws.max_row + 1):
+            category = ws.cell(row=row, column=primary_type_col).value
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+            partial_receiving_value = ws.cell(row=row, column=partial_receiving_col).value
+            no_receiving_value = ws.cell(row=row, column=no_receiving_col).value
+
+            if category is None:
+                continue
+
+            if category not in category_dict:
+                category_dict[category] = {'rows': [], 'full_values': [], 'partial_values': [], 'no_values': []}
+
+            category_dict[category]['rows'].append(row)
+            category_dict[category]['full_values'].append(full_receiving_value)
+            category_dict[category]['partial_values'].append(partial_receiving_value)
+            category_dict[category]['no_values'].append(no_receiving_value)
+
+        for category, info in category_dict.items():
+            full_receiving_indices = [index for index, value in enumerate(info['full_values']) if value not in ['<=5', '>5', None]]
+            partial_receiving_indices = [index for index, value in enumerate(info['partial_values']) if value in ['<=5', '>5']]
+            not_receiving_indices = [index for index, value in enumerate(info['no_values']) if value in ['<=5', '>5']]
+            # print(category, full_receiving_indices,partial_receiving_indices,not_receiving_indices)
+
+
+            # Check if there is only one index each for partial and no receiving that are redacted
+            if len(full_receiving_indices) >=1 and len(partial_receiving_indices) == 1 and len(not_receiving_indices) == 1:
+                full_receiving_index = partial_receiving_indices[0]
+                partial_receiving_index = partial_receiving_indices[0]
+                not_receiving_index = not_receiving_indices[0]
+                print(category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
+                    # Find smallest unredacted partial and not receiving values to redact
+                    min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
+                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
+                    for row_idx in info['rows']:
+                        if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
+                            ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
+                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
 
     def mask_by_samecategoryanddistrict_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
-            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col = config
+            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col,_,_,_,_ = config
 
         # Create a dictionary to hold categories, districts, and their respective rows and values
         category_district_dict = {}
@@ -715,6 +861,55 @@ class Solution:
                 original_value = unredacted_ws.cell(row=gt5_row, column=full_receiving_col).value
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
                 print(f"Unmasked {category} in district {district} on row {gt5_row} to original value {original_value}")
+        """
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        """
+        for config in cross_tab_config:
+            district_col, primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
+
+        category_district_dict = {}
+
+        for row in range(3, ws.max_row + 1):
+            school_dbn = ws.cell(row=row, column=district_col).value
+            category = ws.cell(row=row, column=primary_type_col).value
+            full_receiving_value = ws.cell(row=row, column=full_receiving_col).value
+            partial_receiving_value = ws.cell(row=row, column=partial_receiving_col).value
+            no_receiving_value = ws.cell(row=row, column=no_receiving_col).value
+
+            if school_dbn is None or category is None:
+                continue
+
+            district = school_dbn[:2]
+
+            key = (district, category)
+            if key not in category_district_dict:
+                category_district_dict[key] = {'rows': [], 'full_values': [], 'partial_values': [], 'no_values': []}
+
+            category_district_dict[key]['rows'].append(row)
+            category_district_dict[key]['full_values'].append(full_receiving_value)
+            category_district_dict[key]['partial_values'].append(partial_receiving_value)
+            category_district_dict[key]['no_values'].append(no_receiving_value)
+
+        for key, info in category_district_dict.items():
+            district, category = key
+            full_receiving_indices = [index for index, value in enumerate(info['full_values']) if value not in ['<=5', '>5', None]]
+            partial_receiving_indices = [index for index, value in enumerate(info['partial_values']) if value in ['<=5', '>5']]
+            not_receiving_indices = [index for index, value in enumerate(info['no_values']) if value in ['<=5', '>5']]
+            # print(district, category, full_receiving_indices,partial_receiving_indices,not_receiving_indices)
+            # Check if there is only one index each for partial and no receiving that are redacted
+            if len(full_receiving_indices) >=1 and len(partial_receiving_indices) == 1 and len(not_receiving_indices) == 1:
+                full_receiving_index = partial_receiving_indices[0]
+                partial_receiving_index = partial_receiving_indices[0]
+                not_receiving_index = not_receiving_indices[0]
+                print(district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
+                    min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
+                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
+                    for row_idx in info['rows']:
+                        if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
+                            ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
+                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
 
 
     def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
@@ -957,7 +1152,7 @@ class Solution:
                         original_value = unredacted_ws.cell(row=row_num, column=no_column).value
                         # Restore the original value
                         ws.cell(row=row_num, column=no_column).value = original_value
-                        print(ws.title, f"Unmasking no cell {ws.cell(row=row_num, column=no_column).coordinate} with original value {original_value}")
+                        # print(ws.title, f"Unmasking no cell {ws.cell(row=row_num, column=no_column).coordinate} with original value {original_value}")
 
 
     def mask_excel_file(self,filename,tab_name,configurations,unredacted_filename):
