@@ -485,7 +485,7 @@ class Solution:
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
                 # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
         """
-        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact the minimal partial receiving unredacted cell and its adjacent percentage and the no receiving cell with same row of minimal  partial receiving unredacted cell and its adjacent percentage cell to avoid back tracking.
         """
         for config in cross_tab_config:
             primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
@@ -521,21 +521,28 @@ class Solution:
                 full_receiving_index = partial_receiving_indices[0]
                 partial_receiving_index = partial_receiving_indices[0]
                 not_receiving_index = not_receiving_indices[0]
-                print(category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                print(ws.title,category,full_receiving_index,partial_receiving_index,partial_receiving_index)
                 if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
                     # row = info['rows'][full_receiving_index]
                     # ws.cell(row=row, column=full_receiving_col).value = '<=5' if info['full_values'][full_receiving_index] <= 5 else '>5'
                     # adjacent_percentage_cell = ws.cell(row=row, column=percent_full_receiving_col)
                     # adjacent_percentage_cell.value = '*'
                     # print(ws.title, f"Masking same category cell having one redacted number of partial receiving and one redacted number of no receiving in the same row {ws.cell(row=row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=row, column=full_receiving_col).value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
-                    # Find smallest unredacted partial and not receiving values to redact
+                    # Find smallest unredacted partial and not receiving values of the same row of min_partial to redact
                     min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
-                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
                     for row_idx in info['rows']:
                         if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
                             ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
-                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
-                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_partial_receiving_col).value = '*'
+                            # # redact no receiving value of the same row of min_partial
+                            print(ws.cell(row=row_idx, column=no_receiving_col).value)
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if ws.cell(row=row_idx, column=no_receiving_col).value <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_no_receiving_col).value = '*'
+
+
+
+                            
+
 
     def mask_by_samecategoryanddistrict_byPS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
@@ -600,7 +607,7 @@ class Solution:
                                 adjacent_percentage_cell = ws.cell(row=info['rows'][index], column=percent_full_receiving_col)
                                 adjacent_percentage_cell.value = '*'
                                 # print(f"Masked {category} in district {district} on row {info['rows'][index]} with value {'<=5' if min_val <= 5 else '>5'}")
-                                print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
+                                # print(ws.title, f"Masking same category and district non-zero cell {ws.cell(row=smallest_row, column=full_receiving_col).coordinate} as {'<=5' if ws.cell(row=smallest_row, column=full_receiving_col).value == '<=5' else '>5'}")
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -609,7 +616,7 @@ class Solution:
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
                 print(f"Unmasked {category} in district {district} on row {gt5_row} to original value {original_value}")
         """
-        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact the minimal partial receiving unredacted cell and its adjacent percentage and the no receiving cell with same row of minimal  partial receiving unredacted cell and its adjacent percentage cell to avoid back tracking.
         """
         for config in cross_tab_config:
             district_col, primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
@@ -648,15 +655,17 @@ class Solution:
                 full_receiving_index = partial_receiving_indices[0]
                 partial_receiving_index = partial_receiving_indices[0]
                 not_receiving_index = not_receiving_indices[0]
-                print(district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                print(ws.title,district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
                 if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
                     min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
-                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
                     for row_idx in info['rows']:
                         if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
                             ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
-                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
-                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'        
+                            ws.cell(row=row_idx, column=percent_partial_receiving_col).value = '*'
+                            # redact no receiving column of the same row of min_partial
+                            print(ws.title,ws.cell(row=row_idx, column=no_receiving_col).value)
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if ws.cell(row=row_idx, column=no_receiving_col).value <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_no_receiving_col).value = '*'
 
 
 
@@ -736,7 +745,7 @@ class Solution:
                 ws.cell(row=gt5_row, column=percent_full_receiving_col).value = percent_original_value
                 # print(ws.title, f"Unmasking cell {ws.cell(row=gt5_row, column=full_receiving_col).coordinate} with original value {numeric_original_value} and {adjacent_percentage_cell.coordinate} with original value {percent_original_value}")
         """
-        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact the minimal partial receiving unredacted cell and its adjacent percentage and the no receiving cell with same row of minimal  partial receiving unredacted cell and its adjacent percentage cell to avoid back tracking.
         """
         for config in cross_tab_config:
             primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
@@ -772,16 +781,18 @@ class Solution:
                 full_receiving_index = partial_receiving_indices[0]
                 partial_receiving_index = partial_receiving_indices[0]
                 not_receiving_index = not_receiving_indices[0]
-                print(category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                print(ws.title,category,full_receiving_index,partial_receiving_index,partial_receiving_index)
                 if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
                     # Find smallest unredacted partial and not receiving values to redact
                     min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
-                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
                     for row_idx in info['rows']:
                         if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
                             ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
-                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
-                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_partial_receiving_col).value = '*'
+                            # redact no receiving column of the same row of min_partial
+                            print(ws.title,ws.cell(row=row_idx, column=no_receiving_col).value)
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if ws.cell(row=row_idx, column=no_receiving_col).value <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_no_receiving_col).value = '*'
 
     def mask_by_samecategoryanddistrict_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
@@ -862,7 +873,7 @@ class Solution:
                 ws.cell(row=gt5_row, column=full_receiving_col).value = original_value
                 print(f"Unmasked {category} in district {district} on row {gt5_row} to original value {original_value}")
         """
-        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact full receiving number of the same row to avoid back tracking.
+        In the same category, if there are only one redacted number of partial receiving and only one redacted number of no receiving in the same row, we need to redact the minimal partial receiving unredacted cell and its adjacent percentage and the no receiving cell with same row of minimal  partial receiving unredacted cell and its adjacent percentage cell to avoid back tracking.
         """
         for config in cross_tab_config:
             district_col, primary_type_col, full_receiving_col, percent_full_receiving_col, partial_receiving_col,percent_partial_receiving_col, no_receiving_col,percent_no_receiving_col  = config
@@ -901,15 +912,18 @@ class Solution:
                 full_receiving_index = partial_receiving_indices[0]
                 partial_receiving_index = partial_receiving_indices[0]
                 not_receiving_index = not_receiving_indices[0]
-                print(district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
+                print(ws.title,district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
                 if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
                     min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
                     min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
                     for row_idx in info['rows']:
                         if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
                             ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'
-                        if ws.cell(row=row_idx, column=no_receiving_col).value == min_not_receiving:
-                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if min_not_receiving <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_partial_receiving_col).value = '*'
+                            # redact no receiving column of the same row of min_partial
+                            print(ws.title,ws.cell(row=row_idx, column=no_receiving_col).value)
+                            ws.cell(row=row_idx, column=no_receiving_col).value = '<=5' if ws.cell(row=row_idx, column=no_receiving_col).value <= 5 else '>5'
+                            ws.cell(row=row_idx, column=percent_no_receiving_col).value = '*'
 
 
     def highlight_overredaction(self, ws, groups, ranges, unredacted_ws):
