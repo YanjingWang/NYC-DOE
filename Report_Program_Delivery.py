@@ -132,6 +132,19 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_PSStudentR12_061523')
+        # Execute the DROP TABLE statements
+        drop_table_statements = '''
+        DROP TABLE IF EXISTS ##PSCitywide
+        DROP TABLE IF EXISTS ##PSDistrict
+        DROP TABLE IF EXISTS ##PSSchoolLevel
+        DROP TABLE IF EXISTS ##PSSuperintendent
+        DROP TABLE IF EXISTS ##RSCitywide
+        DROP TABLE IF EXISTS ##RSDistrict
+        DROP TABLE IF EXISTS ##RSSchoolLevel
+        DROP TABLE IF EXISTS ##RSSuperintendent
+        '''
+        cursor.execute(drop_table_statements)
+        # Execute the stored procedure
         cursor.execute("EXEC [dbo].[USPCCTriannualReportPSCitywide]")
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
