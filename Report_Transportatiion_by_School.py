@@ -9,7 +9,7 @@ class Solution:
     def __init__(self, datestamp="04022024",date="April 2, 2024"):
         self.datestamp = datestamp
         self.date = date
-        self.lastrow = 1544
+        self.lastrow = 1539 #1544
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -127,11 +127,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_PSStudentR12_061523')
-        cursor.execute("EXEC [Mike].[USPCCTriannualReportSTSchoolLevel]")
+        cursor.execute("EXEC [dbo].[USPCCTriannualReportSTSchoolLevel]")
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_tab10(self,cursor):

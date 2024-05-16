@@ -915,7 +915,6 @@ class Solution:
                 print(ws.title,district, category,full_receiving_index,partial_receiving_index,partial_receiving_index)
                 if full_receiving_index == partial_receiving_index and full_receiving_index == not_receiving_index:
                     min_partial = min([val for val in info['partial_values'] if val not in ['<=5', '>5']])
-                    min_not_receiving = min([val for val in info['no_values'] if val not in ['<=5', '>5']])
                     for row_idx in info['rows']:
                         if ws.cell(row=row_idx, column=partial_receiving_col).value == min_partial:
                             ws.cell(row=row_idx, column=partial_receiving_col).value = '<=5' if min_partial <= 5 else '>5'

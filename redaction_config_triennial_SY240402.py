@@ -161,7 +161,7 @@ TRIENNIAL_REPORTS_CONFIG_SY240402 = {
         'PS_flag': True
     },
      "Transportation by School" : {
-        "ranges": [(3, 2, 1544, 7)],
+        "ranges": [(3, 2, 1539, 7)],
         'numeric_percentage_pairs': [(2, 3), (4, 5), (6, 7)], # [(B,C), (D,E), (F,G)]
         '100_percentage_sum' : [(3,5,7)], # [(C,E,G)]
         'PS_flag': True

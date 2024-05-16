@@ -125,11 +125,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         # params = ('CC_InitialReferralsR19_SY23', 'INT_StudentDemographics_063023')
-        cursor.execute("EXEC [Mike].[USPCCTriannualReportRSDistrict]")
+        cursor.execute("EXEC [dbo].[USPCCTriannualReportRSDistrict]")
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_district(self,cursor):
