@@ -102,6 +102,50 @@ class Solution:
                         cell.value = '>5'
                         break
 
+    def final_mask(ws, start_row, start_col, end_row, end_col):
+        category_dict = {}
+
+        # Step 1: Collect all values for each category
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                category = ws.cell(row=start_row - 1, column=col).value  # Assuming categories are in the header row
+                value = ws.cell(row=row, column=col).value
+
+                if category not in category_dict:
+                    category_dict[category] = {'rows': [], 'values': [], 'coords': []}
+
+                category_dict[category]['rows'].append(row)
+                category_dict[category]['values'].append(value)
+                category_dict[category]['coords'].append((row, col))
+
+        # Step 2: Apply masking logic based on the collected data
+        for category, info in category_dict.items():
+            values = info['values']
+            coords = info['coords']
+            redacted_values = [i for i, v in enumerate(values) if v in ['<=5', '>5']]
+
+            if len(redacted_values) == 1:
+                index = redacted_values[0]
+                row, col = coords[index]
+                other_redacted_in_row = [ws.cell(row=row, column=c).value for c in range(start_col, end_col + 1) if c != col and ws.cell(row=row, column=c).value in ['<=5', '>5']]
+
+                if other_redacted_in_row:
+                    # Mask the value that has already been redacted in the same row
+                    for c in range(start_col, end_col + 1):
+                        if ws.cell(row=row, column=c).value not in ['<=5', '>5']:
+                            ws.cell(row=row, column=c).value = '<=5' if ws.cell(row=row, column=c).value <= 5 else '>5'
+                            print(ws.title, f"Masking unredacted cell in the same category column{ws.cell(row=r, column=c).coordinate} as {'<=5' if smallest_val <= 5 else '>5'}")
+                            
+                else:
+                    # Mask the smallest unredacted value and its adjacent values
+                    unredacted_values = [(r, c, v) for (r, c), v in zip(coords, values) if v not in ['<=5', '>5']]
+
+                    if unredacted_values:
+                        unredacted_values.sort(key=lambda x: x[2])
+                        smallest_val = unredacted_values[0][2]
+                        r, c = unredacted_values[0][:2]
+                        ws.cell(row=r, column=c).value = '<=5' if smallest_val <= 5 else '>5'
+                        print(ws.title, f"Masking unredacted cell in the same category column{ws.cell(row=r, column=c).coordinate} as {'<=5' if smallest_val <= 5 else '>5'}")
     def PS_column_masking(self,ws, start_row, start_col, end_row, end_col, numeric_percentage_pairs):
         """Full receiving: 1.case when fullyreceiving <> 0 and FullyReceiving <= 5 then '<=5';2.when (notreceiving <=5 and notreceiving <> 0 and FullyReceiving = 0 and PartiallyReceiving <> 0 and PartiallyReceiving >5) then '<=5';3.when (PartiallyReceiving <=5 and PartiallyReceiving <> 0 and FullyReceiving = 0 and NotReceiving <> 0 and NotReceiving >5) then '<=5';else fullyreceiving 
         #  Partial receiving: 1.case when Partiallyreceiving <> 0 and partiallyreceiving <= 5 then '<=5'; 2.when (Partiallyreceiving >5 and notreceiving <> 0 and notreceiving <=5 and fullyreceiving >5) then '>5'; 3.when (notreceiving <=5 and notreceiving <> 0 and PartiallyReceiving = 0 and FullyReceiving <> 0 and FullyReceiving >5) then '<=5'; 4.when (FullyReceiving <=5 and fullyreceiving <> 0 and PartiallyReceiving = 0 and NotReceiving <> 0 and NotReceiving >5) then '<=5' else partiallyreceiving 
@@ -673,7 +717,7 @@ class Solution:
 
     def mask_by_samecategory_byRS(self, ws, cross_tab_config, unredacted_ws):
         for config in cross_tab_config:
-            primary_type_col, full_receiving_col, percent_full_receiving_col,_,_,_,_ = config
+            primary_type_col, full_receiving_col, percent_full_receiving_col,partial_receiving_col,percent_partial_receiving_col,no_receiving_col,percent_no_receiving_col = config
 
         category_dict = {}
 
@@ -733,6 +777,13 @@ class Solution:
                                     # print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
                                 else:
                                     print(ws.title, f"Masking same category cell {ws.cell(row=info['rows'][index], column=full_receiving_col).coordinate} as {'<=5' if min_val <= 5 else '>5'}")
+                                    # mask the unredacted numeric cell in the same row
+                                    unredacted_cell = ws.cell(row=info['rows'][index], column=no_receiving_col)
+                                    ws.cell(row=info['rows'][index], column=no_receiving_col).value = '<=5' if unredacted_cell.value <= 5 else '>5'
+                                    print(ws.title, f"Masking same category cell having other masked cell in the same row {unredacted_cell.coordinate} as {'<=5' if unredacted_cell.value == '<=5' else '>5'}")
+
+
+
 
             elif masked_cells.count('>5') == 1:
                 gt5_index = info['values'].index('>5')
@@ -1270,6 +1321,10 @@ class Solution:
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
                 self.unmask_numeric_having0_and_100_percent_non_bilingual(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
+        # # 8. Apply final mask to tab 'Program Delivery by District', "Program Delivery by Supt","Program Delivery by School", "RS Delivery by District","RS Delivery by Supt","RS Delivery by School"
+        # for r in configurations['ranges']:
+        #     if 'Program Delivery by District' in configurations and  "Program Delivery by Supt" in configurations and "Program Delivery by School" in configurations and "RS Delivery by District" in configurations and "RS Delivery by Supt" in configurations and "RS Delivery by School" in configurations:
+        #         self.final_mask(ws, *r)
         # # Mask underredacted columns
         # for r in configurations['ranges']:
         #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
