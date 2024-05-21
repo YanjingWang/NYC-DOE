@@ -133,11 +133,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_PSStudentR12_061523')
-        cursor.execute("EXEC [dev].[USPCCAnnaulReport12] @tableNameCCPSStudentR12=?", params)
+        cursor.execute("EXEC [dbo].[USPCCAnnaulReport12] @tableNameCCPSStudentR12=?", params)
         # sleep 1 mins
         time.sleep(60*1)
         return cursor

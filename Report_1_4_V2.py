@@ -123,11 +123,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_InitialReferralsR19_SY23', 'INT_StudentDemographics_063023')
-        cursor.execute("EXEC [pratap].[USPCCAnnaulReport1to4] @tableNameCCInitialReferralsR19=?,  @tableNameINTStudentDemographics_0630=?", params)
+        cursor.execute("EXEC [dbo].[USPCCAnnaulReport1to4] @tableNameCCInitialReferralsR19=?,  @tableNameINTStudentDemographics_0630=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor,conn):
@@ -381,7 +381,7 @@ class Solution:
         cursor = self.connect_to_database()
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by Race"
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' 
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' 
         results_byRace = self.fetch_data_by_race(cursor,conn=pyodbc.connect(conn_str))
         self.write_data_to_excel(ws, results_byRace, start_row=41)
         

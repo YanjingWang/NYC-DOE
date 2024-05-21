@@ -4,14 +4,7 @@ from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
 import pyodbc
 class Solution:
-
-    # make variable V_English, V_Spanish, V_Chinese, V_Other font bold in excel sheet
-    def __init__(self):
-        self.V_English = 'English'
-        self.V_Spanish = 'Spanish'
-        self.V_Chinese = 'Chinese'
-        self.V_Other = 'Other'       
-
+    # Existing code...
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -83,8 +76,8 @@ class Solution:
             ws.column_dimensions[column_letter].width = width
 
         # Call the header formatting function for each header section
-        columns = ['Non-ELL with ' +self.V_English+ ' Language of Instruction', 'Non-ELL with ' +self.V_Spanish+ ' Language of Instruction',
-                'Non-ELL with '+self.V_Chinese+' Language of Instruction', 'Non-ELL with '+self.V_Other+' Language of Instruction', 'Total Non-ELL', 'ELL with '+self.V_English+' Language of Instruction','ELL with '+self.V_Spanish+' Language of Instruction','ELL with '+self.V_Chinese+' Language of Instruction','ELL with '+self.Other+' Language of Instruction','Total ELL','Total Register']
+        columns = ['Non-ELL with English Language of Instruction', 'Non-ELL with Spanish Language of Instruction',
+                'Non-ELL with Chinese Language of Instruction', 'Non-ELL with Other Language of Instruction', 'Total Non-ELL', 'ELL with English Language of Instruction','ELL with Spanish Language of Instruction','ELL with Chinese Language of Instruction','ELL with Other Language of Instruction','Total ELL','Total Register']
         column_letters = ['C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M']
         # You need to pass the correct parameters to the format_header function
         # For example, for the 'District' header starting at row 4
@@ -134,11 +127,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_StudentRegisterR814_061523')
-        cursor.execute("EXEC [dev].[USPCCAnnaulReport8] @tableNameCCStudentRegisterR814=?", params)
+        cursor.execute("EXEC [dbo].[USPCCAnnaulReport8] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):

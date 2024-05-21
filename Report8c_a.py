@@ -4,13 +4,13 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 import openpyxl
 
 # 1. Connect to the SQL Server database
-conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
 conn = pyodbc.connect(conn_str)
 cursor = conn.cursor()
 
 # 2. Execute the stored procedure and fetch results
 params = ('CC_StudentRegisterR814_061523', )
-cursor.execute("EXEC [dev].[USPCCAnnaulReport8c] @tableName=?", params)
+cursor.execute("EXEC [dbo].[USPCCAnnaulReport8c] @tableName=?", params)
 results = cursor.fetchall()
 
 # 3. Create and format the Excel report

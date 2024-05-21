@@ -35,67 +35,16 @@ class Solution:
             # ws[col + str(int(cell_number)-1)].border = border_style
             print(col + cell_number)
 
-    # Copy Notes and Report Requirments tabs from SY23 to SY24
-    def copy_tabs(self):
-        # Define the file paths
-        path_sy23 = 'R:/SEO Analytics/Reporting/City Council/City Council SY23/Annual Reports/Annual Special Education Data Report SY23.xlsx'
-        path_sy24 = 'C:/Users/Ywang36/OneDrive - NYCDOE/Desktop/Redacted Annual Special Education Data Report.xlsx'
 
-        # Load both workbooks
-        wb_sy23 = openpyxl.load_workbook(path_sy23)
-        # FileNotFoundError: [Errno 2] No such file or directory: 'C:/Users/Ywang36/OneDrive - NYCDOE/Desktop/Redacted Annual Special Education Data Report.xlsx'
-        # Create a new workbook if it doesn't exist
-        if not os.path.exists(path_sy24):
-            wb_sy24 = openpyxl.Workbook()
-            wb_sy24.save(path_sy24)
-        wb_sy24 = openpyxl.load_workbook(path_sy24)
-
-        # Names of the sheets to copy
-        sheets_to_copy = ['Notes', 'Report Requirements']
-
-        # Copy each sheet from SY23 to SY24
-        for sheet_name in sheets_to_copy:
-            # Check if the sheet exists in the source workbook
-            if sheet_name in wb_sy23.sheetnames:
-                # Get the sheet to copy from SY23
-                source = wb_sy23[sheet_name]
-                
-                # Create a new sheet in SY24 with the same name
-                target = wb_sy24.create_sheet(sheet_name)
-                
-                # Copy data and formatting from each cell
-                for row in source:
-                    for cell in row:
-                        new_cell = target.cell(row=cell.row, column=cell.col_idx,
-                                            value=cell.value)
-                        if cell.has_style:
-                            new_cell.font = copy(cell.font)
-                            new_cell.border = copy(cell.border)
-                            new_cell.fill = copy(cell.fill)
-                            new_cell.number_format = copy(cell.number_format)
-                            new_cell.protection = copy(cell.protection)
-                            new_cell.alignment = copy(cell.alignment)
-            else:
-                print(f"The sheet {sheet_name} does not exist in the source workbook.")
-
-        # Save the updated SY24 workbook
-        wb_sy24.save(path_sy24)
-        return wb_sy24
 
     # Create Excel Report Template
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
         # wb = openpyxl.Workbook()
         # ws = wb.active
         # ws.title = "Reports 1-4 = Initials"
-        # wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-        # ws = wb.create_sheet("Reports 1-4 = Initials")
-        file_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
-        if os.path.exists(file_path):
-            wb = openpyxl.load_workbook(file_path)
-        else:
-            print(f"File not found: {file_path}")
-            return None, None  # Return None or handle the error as needed
+        wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
         ws = wb.create_sheet("Reports 1-4 = Initials")
+
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
         for row in ws.iter_rows(min_row=1, max_row=120, min_col=1, max_col=26):
@@ -181,11 +130,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_InitialReferralsR19_SY23')
-        cursor.execute("EXEC [dev].[USPCCAnnaulReport1to4] @tableNameCCInitialReferralsR19=?", params)
+        cursor.execute("EXEC [dbo].[USPCCAnnaulReport1to4] @tableNameCCInitialReferralsR19=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):
@@ -396,7 +345,7 @@ class Solution:
                 
         # wrap text of B50 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
         ws['B50'].alignment = Alignment(wrap_text=True)
-                
+        
     def main_Reports_1_4_Initials(self):
         title_cells = [
             {"cell": "B1", "value": "Reports 1-4 Initial Referrals Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level; Temp Housing Satus and Foster Care Status.", "merge_cells": "B1:M1"},
@@ -419,9 +368,6 @@ class Solution:
         ]
 
         column_widths = [5, 30, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
-        # Step 0: Create a new Excel workbook and copy tabs
-        # self.create_new_workbook()
-        self.copy_tabs()
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         
@@ -448,7 +394,7 @@ class Solution:
 
         # Step 5: Fetch and write data for "Report 8b = IEP Service Recs by Meal Status"
         results_byMealStatus = self.fetch_data_by_mealstatus(cursor)
-        # replace Free or Reduced Price Meal to Eligible for the Free/Reduced Price Lunch Program 
+        # replace Free or Reduced Price Meal to Eligible for the Free/Reduced Price Lunch Program
         results_byMealStatus = [('Eligible for the Free/Reduced Price Lunch Program' if x[0] == 'Free or Reduced Price Meal' else x[0], *x[1:]) for x in results_byMealStatus]
         self.write_data_to_excel(ws, results_byMealStatus, start_row=50)
 
@@ -458,7 +404,7 @@ class Solution:
 
         # Step 7: Fetch and write data for "Report 8b = IEP Service Recs by ELL Status"
         results_byELLStatus = self.fetch_data_by_ellstatus(cursor)
-        # replace 'ELL' with 'Ell' and 'NOT ELL' with 'Non-Ell'
+        # replace 'ELL' with 'Ell' and 'NOT ELL' with 'Non-Ell' 
         results_byELLStatus = [('ELL' if x[0] == 'ELL' else ('NOT ELL' if x[0] == 'Non-Ell' else x[0]), *x[1:]) for x in results_byELLStatus]
         self.write_data_to_excel(ws, results_byELLStatus, start_row=63)
         
@@ -492,7 +438,7 @@ class Solution:
         # replace 'YES' with 'Yes' and 'NO' with 'No'
         results_byFosterCareStatus = [('Yes' if x[0] == 'Y' else ('No' if x[0] == 'N' else x[0]), *x[1:]) for x in results_byFosterCareStatus]
         self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=107)
-
+        
         # insert text from cell B75 to O75
         ws['B75'] = '''* The language of instruction recommended on the student's IEP is listed as "undetermined" if the student was determined to be ineligible for an IEP, the case was closed without an IEP meeting, or the case was open as of 6/30/2023.'''
         # # Step 12: Save the combined report
