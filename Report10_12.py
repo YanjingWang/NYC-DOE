@@ -134,7 +134,7 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_ReevalReferralsR510_SY23')
-        cursor.execute("[dbo].[USPCCAnnaulReport10] @tableNameCCReevalReferralsR510=?", params)
+        cursor.execute("[dbo].[USPCC_AnnaulReport10] @tableNameCCReevalReferralsR510=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):

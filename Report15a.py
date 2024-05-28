@@ -137,7 +137,7 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_SpecialTransportation_061523','CC_StudentRegisterR814_061523')
-        cursor.execute("EXEC [dbo].[USPCCAnnaulReport13st] @tableNameCCSpecialTransportation =?,@tableNameStudentRegisterR814 =?", params)
+        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport13st] @tableNameCCSpecialTransportation =?,@tableNameStudentRegisterR814 =?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_district(self,cursor):

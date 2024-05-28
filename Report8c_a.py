@@ -10,7 +10,7 @@ cursor = conn.cursor()
 
 # 2. Execute the stored procedure and fetch results
 params = ('CC_StudentRegisterR814_061523', )
-cursor.execute("EXEC [dbo].[USPCCAnnaulReport8c] @tableName=?", params)
+cursor.execute("EXEC [dbo].[USPCC_AnnaulReport8c] @tableName=?", params)
 results = cursor.fetchall()
 
 # 3. Create and format the Excel report

@@ -138,7 +138,7 @@ class Solution:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_StudentRegisterR814_061523')
-        cursor.execute("EXEC [dbo].[USPCCAnnaulReport14a] @tableNameCCStudentRegisterR814=?", params)
+        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport14a] @tableNameCCStudentRegisterR814=?", params)
         # sleep for 60 seconds
         time.sleep(60)
         return cursor
