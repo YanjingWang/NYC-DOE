@@ -4,8 +4,9 @@ from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
 import pyodbc
 class Solution:
-    def __init__(self, datestamp='02/12/2024'):
+    def __init__(self, datestamp='06/17/2024'):
         self.datestamp = datestamp
+        self.lastrow = 1543 #1541
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -169,7 +170,7 @@ class Solution:
 
             INTO #BSEReg
         From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
-		Where ProcessedDate = '02-12-2024'
+		Where ProcessedDate = '06-17-2024'
 
 
 
@@ -220,7 +221,7 @@ class Solution:
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
         where CAP.ELLStatus = 'ELL' 
-		and CAP.ProcessedDate = '02-12-2024'
+		and CAP.ProcessedDate = '06-17-2024'
         '''
         )
         return cursor
@@ -379,28 +380,28 @@ class Solution:
                 # add filter to the header from A5 to Q5
                 ws.auto_filter.ref = "A5:Q5"
 
-        for row in ws['F6':'Q1541']:
+        for row in ws['F6':'Q'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None: 
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['B6':'B1541']:
+        for row in ws['B6':'B'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['F6':'Q1540']:
+        for row in ws['F6':'Q'+str(self.lastrow-1)]:
             for cell in row:
                 if cell.value is None:
                     cell.value = '-'  # Replace None with '-'
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
-        for row in ws['C6':'D1541']:
+        for row in ws['C6':'D'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='left', vertical='center')
-        for row in ws['E6':'E1541']:
+        for row in ws['E6':'E'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='right', vertical='center')
-        for row in ws['A6':'A1541']:
+        for row in ws['A6':'A'+str(self.lastrow)]:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
         for row in ws['A1': 'Q1']:
@@ -408,7 +409,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A1541':'Q1541']:
+        for row in ws['A'+ str(self.lastrow):'Q'+ str(self.lastrow)]:
             # make font bold
             for cell in row:
                 cell.font = Font(bold=True, size=12)
@@ -426,16 +427,16 @@ class Solution:
                 ws[col + str(row_num)].fill = fill
         
         # Fill 'Total' row with the specified color
-        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=1541, max_row=1541):
+        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=self.lastrow, max_row=self.lastrow):
             for cell in row:
                 cell.fill = fill
         # add border to the last row
-        for cell in ws['A1541:E1541'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['A'+str(self.lastrow):'E'+str(self.lastrow)][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_up_down
-        for cell in ws['F1541:Q1541'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['F'+str(self.lastrow):'Q'+str(self.lastrow)][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_all_medium
                 
-        cell_ranges = ['A6:Q1541']
+        cell_ranges = ['A6:Q'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -495,7 +496,7 @@ class Solution:
         
 
         # Step 9: Save the combined report
-        save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_02-12-2024.xlsx'
+        save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_06-17-2024.xlsx'
         wb.save(save_path)
         cursor.close()
 

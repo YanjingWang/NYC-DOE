@@ -4,8 +4,9 @@ from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
 import pyodbc
 class Solution:
-    def __init__(self, datestamp='02/12/2024'):
+    def __init__(self, datestamp='06/17/2024'):
         self.datestamp = datestamp
+        self.lastrow = 42 #40
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -41,7 +42,7 @@ class Solution:
         # wb = openpyxl.Workbook()
         # ws = wb.active
         # ws.title = "Language"
-        wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_02-12-2024.xlsx')
+        wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_06-17-2024.xlsx')
         ws = wb.create_sheet("Language")
 
         # # Set fill color for cells from A1 to Zn to white
@@ -166,7 +167,7 @@ class Solution:
 
             INTO #BSEReg
         From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
-		Where ProcessedDate = '02-12-2024'
+		Where ProcessedDate = '06-17-2024'
 
 
 
@@ -217,7 +218,7 @@ class Solution:
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
         where CAP.ELLStatus = 'ELL' 
-		and CAP.ProcessedDate = '02-12-2024'
+		and CAP.ProcessedDate = '06-17-2024'
         '''
         )
         return cursor
@@ -375,7 +376,7 @@ class Solution:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['A6': 'A40']:
+        for row in ws['A6': 'A'+str(self.lastrow)]:
             for cell in row:
                 cell.font = Font(bold=True, size=12)
 
@@ -384,7 +385,7 @@ class Solution:
                 if cell.value is not None:
                     cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center', wrap_text=True)
         
-        for row in ws['A40':'N40']:
+        for row in ws['A'+str(self.lastrow):'N'+str(self.lastrow)]:
             # make font bold
             for cell in row:
                 cell.font = Font(bold=True, size=12)
@@ -400,16 +401,16 @@ class Solution:
                 ws[col + str(row_num)].fill = fill
         
         # Fill 'Total' row with the specified color
-        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=40, max_row=40):
+        for row in ws.iter_rows(min_col=1, max_col=ws.max_column, min_row=self.lastrow, max_row=self.lastrow):
             for cell in row:
                 cell.fill = fill
         # add border to the last row
-        for cell in ws['A40:B40'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['A'+str(self.lastrow):'B'+str(self.lastrow)][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_up_down
-        for cell in ws['C40:N40'][0]:  # Only one row, so it's safe to use [0]
+        for cell in ws['C'+str(self.lastrow):'N'+str(self.lastrow)][0]:  # Only one row, so it's safe to use [0]
             cell.border = black_border_all_medium  
 
-        cell_ranges = ['B6:N40']
+        cell_ranges = ['B6:N'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -473,7 +474,7 @@ class Solution:
         
 
         # Step 9: Save the combined report
-        save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_02-12-2024.xlsx'
+        save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_06-17-2024.xlsx'
         wb.save(save_path)
         cursor.close()
 
