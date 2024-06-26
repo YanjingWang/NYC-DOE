@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -198,7 +200,7 @@ class Solution:
     
     def fetch_data_by_tempstatus(self,cursor):
         query_bytempstatus = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort
+        select STHFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select STHFlagSort as sort , STHFlag,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by STHFlag, STHFlagSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort 
         '''
         cursor.execute(query_bytempstatus)
         results_bytempstatus = cursor.fetchall()

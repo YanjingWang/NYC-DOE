@@ -7,6 +7,8 @@ import os
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -195,7 +197,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,TotalRegister from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag,FORMAT(sum(Autism),'#,##0') as c1 ,FORMAT(sum(Deaf_Blind),'#,##0') as c2 ,FORMAT(sum(Deafness),'#,##0') as c3 ,FORMAT(sum(Emotional),'#,##0') as c4,FORMAT(sum(Hearing),'#,##0') as c5,FORMAT(sum(Intellectual),'#,##0') as c6,FORMAT(sum(Learning_disab),'#,##0') as c7,FORMAT(sum(Multiple_disab),'#,##0') as c8,FORMAT(sum(Orthopedic),'#,##0') as  c9,FORMAT(sum(Other_Health),'#,##0') as c10 ,FORMAT(sum(Speech_or_lang),'#,##0') as c11,FORMAT(sum(Traumatic),'#,##0') as  c12,FORMAT(sum(Visual_Impair),'#,##0') as c13,FORMAT(sum(Autism)+sum(Deaf_Blind)+sum(Deafness)+sum(Emotional)+sum(Hearing)+sum(Intellectual)+sum(Learning_disab)+sum(Multiple_disab)+sum(Orthopedic)+sum(Other_Health)+sum(Speech_or_lang)+sum(Traumatic)+sum(Visual_Impair),'#,##0') as TotalRegister FROM ##CCTotaltemp where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,TotalRegister from (  select * from  (  Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag,FORMAT(sum(Autism),'#,##0') as c1 ,FORMAT(sum(Deaf_Blind),'#,##0') as c2 ,FORMAT(sum(Deafness),'#,##0') as c3 ,FORMAT(sum(Emotional),'#,##0') as c4,FORMAT(sum(Hearing),'#,##0') as c5,FORMAT(sum(Intellectual),'#,##0') as c6,FORMAT(sum(Learning_disab),'#,##0') as c7,FORMAT(sum(Multiple_disab),'#,##0') as c8,FORMAT(sum(Orthopedic),'#,##0') as  c9,FORMAT(sum(Other_Health),'#,##0') as c10 ,FORMAT(sum(Speech_or_lang),'#,##0') as c11,FORMAT(sum(Traumatic),'#,##0') as  c12,FORMAT(sum(Visual_Impair),'#,##0') as c13,FORMAT(sum(Autism)+sum(Deaf_Blind)+sum(Deafness)+sum(Emotional)+sum(Hearing)+sum(Intellectual)+sum(Learning_disab)+sum(Multiple_disab)+sum(Orthopedic)+sum(Other_Health)+sum(Speech_or_lang)+sum(Traumatic)+sum(Visual_Impair),'#,##0') as TotalRegister FROM ##CCTotaltemp where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -349,15 +351,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Student Disability Classification by District", "merge_cells": "B3:P3"},
-            {"cell": "B39", "value": "SY 2022-23 Student Disability Classification by Race/Ethnicity", "merge_cells": "B39:P39"},
-            {"cell": "B48", "value": "SY 2022-23 Student Disability Classification by Meal Status", "merge_cells": "B48:P48"},
-            {"cell": "B54", "value": "SY 2022-23 Student Disability Classification by Gender", "merge_cells": "B54:P54"},
-            {"cell": "B61", "value": "SY 2022-23 Student Disability Classification by English Language Learner (ELL) Status ", "merge_cells": "B61:P61"},
-            {"cell": "B67", "value": "SY 2022-23 Student Disability Classification by Recommended Language of Instruction", "merge_cells": "B67:P67"},
-            {"cell": "B75", "value": "SY 2022-23 Student Disability Classification by Grade Level", "merge_cells": "B75:P75"},
-            {"cell": "B92", "value": "SY 2022-23 Student Disability Classification by Temporary Housing Status", "merge_cells": "B92:P92"},
-            {"cell": "B98", "value": "SY 2022-23 Student Disability Classification by Foster Care Status", "merge_cells": "B98:P98"},
+            {"cell": "B3", "value": self.schoolyear + " Student Disability Classification by District", "merge_cells": "B3:P3"},
+            {"cell": "B39", "value": self.schoolyear + " Student Disability Classification by Race/Ethnicity", "merge_cells": "B39:P39"},
+            {"cell": "B48", "value": self.schoolyear + " Student Disability Classification by Meal Status", "merge_cells": "B48:P48"},
+            {"cell": "B54", "value": self.schoolyear + " Student Disability Classification by Gender", "merge_cells": "B54:P54"},
+            {"cell": "B61", "value": self.schoolyear + " Student Disability Classification by English Language Learner (ELL) Status ", "merge_cells": "B61:P61"},
+            {"cell": "B67", "value": self.schoolyear + " Student Disability Classification by Recommended Language of Instruction", "merge_cells": "B67:P67"},
+            {"cell": "B75", "value": self.schoolyear + " Student Disability Classification by Grade Level", "merge_cells": "B75:P75"},
+            {"cell": "B92", "value": self.schoolyear + " Student Disability Classification by Temporary Housing Status", "merge_cells": "B92:P92"},
+            {"cell": "B98", "value": self.schoolyear + " Student Disability Classification by Foster Care Status", "merge_cells": "B98:P98"},
             
 
         ]

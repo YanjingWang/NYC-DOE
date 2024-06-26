@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -135,8 +137,8 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_RSMandateR13_061523')
-        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport13] @tableNameCCRSMandateR13=?", params)
+        params = ('CC_RSMandateR13_061523','CC_StudentRegisterR814_061523')
+        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport13] @tableNameCCRSMandateR13=?,@tableNameRptStudentRegister0615=? ", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_program(self,cursor):
@@ -206,7 +208,7 @@ class Solution:
     
     def fetch_data_by_tempstatus(self,cursor):
         query_bytempstatus = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(Sum(FullEncounter) , '#,##0') as c1 ,CONCAT(cast(Sum(FullEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c2 ,FORMAT(sum(PartialEncounter) , '#,##0') as c3 ,CONCAT(cast(Sum(PartialEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c4 ,FORMAT(sum(NoEncounter) , '#,##0') as c5 ,CONCAT(cast(Sum(NoEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c6  FROM ##CCTotaltemp13  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort13  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select STHFlagSort as sort , STHFlag,FORMAT(Sum(FullEncounter) , '#,##0') as c1 ,CONCAT(cast(Sum(FullEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c2 ,FORMAT(sum(PartialEncounter) , '#,##0') as c3 ,CONCAT(cast(Sum(PartialEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c4 ,FORMAT(sum(NoEncounter) , '#,##0') as c5 ,CONCAT(cast(Sum(NoEncounter)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%')  as c6  FROM ##CCTotaltemp13  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort13  ) a order by sort 
         '''
         cursor.execute(query_bytempstatus)
         results_bytempstatus = cursor.fetchall()
@@ -350,15 +352,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded", "merge_cells": "B3:H3"},
-            {"cell": "B15", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Race/Ethnicity", "merge_cells": "B15:H15"},    
-            {"cell": "B24", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Meal Status", "merge_cells": "B24:H24"}, 
-            {"cell": "B30", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Gender", "merge_cells": "B30:H30"},   
-            {"cell": "B37", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by English Language Learner (ELL) Status", "merge_cells": "B37:H37"}, 
-            {"cell": "B43", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Recommended Language of Instruction", "merge_cells": "B43:H43"}, 
-            {"cell": "B51", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Grade Level", "merge_cells": "B51:H51"}, 
-            {"cell": "B68", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Temporary Housing Status", "merge_cells": "B68:H68"}, 
-            {"cell": "B74", "value": "SY 2022-23 Number & Percentage of Related Service Recommendations with Encounter Recorded by Foster Care Status", "merge_cells": "B74:H74"}, 
+            {"cell": "B3", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded", "merge_cells": "B3:H3"},
+            {"cell": "B15", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Race/Ethnicity", "merge_cells": "B15:H15"},    
+            {"cell": "B24", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Meal Status", "merge_cells": "B24:H24"}, 
+            {"cell": "B30", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Gender", "merge_cells": "B30:H30"},   
+            {"cell": "B37", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by English Language Learner (ELL) Status", "merge_cells": "B37:H37"}, 
+            {"cell": "B43", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Recommended Language of Instruction", "merge_cells": "B43:H43"}, 
+            {"cell": "B51", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Grade Level", "merge_cells": "B51:H51"}, 
+            {"cell": "B68", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Temporary Housing Status", "merge_cells": "B68:H68"}, 
+            {"cell": "B74", "value": self.schoolyear + " Number & Percentage of Related Service Recommendations with Encounter Recorded by Foster Care Status", "merge_cells": "B74:H74"}, 
 
 
         ]

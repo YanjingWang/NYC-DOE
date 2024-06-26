@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -195,7 +197,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3 from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag 	 ,FORMAT(Count(ComplianceStatus), '#,##0') as c1         ,FORMAT(sum(Conduct_on_time), '#,##0') as c2        ,FORMAT(sum(Not_conducT_on_t), '#,##0') as c3  FROM ##Report_Final11  where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort  
+        select STHFlag, c1,c2,c3 from (  select * from  (  Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag 	 ,FORMAT(Count(ComplianceStatus), '#,##0') as c1         ,FORMAT(sum(Conduct_on_time), '#,##0') as c2        ,FORMAT(sum(Not_conducT_on_t), '#,##0') as c3  FROM ##Report_Final11  where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -344,15 +346,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B4", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by District", "merge_cells": "B4:E4"},
-            {"cell": "B40", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Race/Ethnicity", "merge_cells": "B40:E40"},
-            {"cell": "B49", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Meal Status", "merge_cells": "B49:E49"},
-            {"cell": "B55", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Gender", "merge_cells": "B55:E55"},
-            {"cell": "B62", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by English Language Learner (ELL) Status", "merge_cells": "B62:E62"},
-            {"cell": "B68", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Recommended Language of Instruction", "merge_cells": "B68:E68"},
-            {"cell": "B76", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Grade Level", "merge_cells": "B76:E76"},
-            {"cell": "B94", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Temporary Housing Status", "merge_cells": "B94:E94"},
-            {"cell": "B101", "value": "SY 2022-23 Timeliness of Three-Year Reevaluations by Foster Care Status", "merge_cells": "B101:E101"},
+            {"cell": "B4", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by District", "merge_cells": "B4:E4"},
+            {"cell": "B40", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Race/Ethnicity", "merge_cells": "B40:E40"},
+            {"cell": "B49", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Meal Status", "merge_cells": "B49:E49"},
+            {"cell": "B55", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Gender", "merge_cells": "B55:E55"},
+            {"cell": "B62", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by English Language Learner (ELL) Status", "merge_cells": "B62:E62"},
+            {"cell": "B68", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Recommended Language of Instruction", "merge_cells": "B68:E68"},
+            {"cell": "B76", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Grade Level", "merge_cells": "B76:E76"},
+            {"cell": "B94", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Temporary Housing Status", "merge_cells": "B94:E94"},
+            {"cell": "B101", "value": self.schoolyear + " Timeliness of Three-Year Reevaluations by Foster Care Status", "merge_cells": "B101:E101"},
             
 
         ]

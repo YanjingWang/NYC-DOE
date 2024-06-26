@@ -5,6 +5,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -148,8 +150,8 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_StudentRegisterR814_061523', 'RPT_StudentRegister_061523')
-        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport8b] @tableNameCCStudentRegisterR814=?, @tableNameRptStudentRegister0615=?", params)
+        params = ('CC_StudentRegisterR814_061523')
+        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport8b] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_race(self,cursor):
@@ -211,7 +213,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(sum(RSOnly), '#,##0') as c1 ,CONCAT(cast((sum(RSOnly)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c2 ,FORMAT(sum(SETSS), '#,##0') as c3 ,CONCAT(cast((sum(SETSS)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c4 ,FORMAT(sum(ICT), '#,##0') as c5 ,CONCAT(cast((sum(ICT)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c6 ,FORMAT(sum(SpecialClass), '#,##0') as c7 ,CONCAT(cast((sum(SpecialClass)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c8 ,FORMAT(sum(SpecialClassD75), '#,##0') as c9 ,CONCAT(cast((sum(SpecialClassD75)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c10 ,FORMAT(sum(SpecialClassNPS), '#,##0') as c11 ,CONCAT(cast((sum(SpecialClassNPS)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c12  FROM ##CCTotaltemp8b  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort8b  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 from (  select * from  ( Select STHFlagSort as sort , STHFlag,FORMAT(sum(RSOnly), '#,##0') as c1 ,CONCAT(cast((sum(RSOnly)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c2 ,FORMAT(sum(SETSS), '#,##0') as c3 ,CONCAT(cast((sum(SETSS)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c4 ,FORMAT(sum(ICT), '#,##0') as c5 ,CONCAT(cast((sum(ICT)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c6 ,FORMAT(sum(SpecialClass), '#,##0') as c7 ,CONCAT(cast((sum(SpecialClass)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c8 ,FORMAT(sum(SpecialClassD75), '#,##0') as c9 ,CONCAT(cast((sum(SpecialClassD75)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c10 ,FORMAT(sum(SpecialClassNPS), '#,##0') as c11 ,CONCAT(cast((sum(SpecialClassNPS)*1.0)/(nullif(Count(studentid),0))*100 as numeric(7)), '%') as c12  FROM ##CCTotaltemp8b  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort8b  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -381,16 +383,16 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by District", "merge_cells": "B3:N3"},
-            {"cell": "B40", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by Ethnicity", "merge_cells": "B40:N40"},
-            {"cell": "B50", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by Meal Status", "merge_cells": "B50:N50"},
-            {"cell": "B57", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by Gender", "merge_cells": "B57:N57"},
-            {"cell": "B65", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by ELL Status", "merge_cells": "B65:N65"},
-            {"cell": "B72", "value": "SY 2022-23 Students with IEP Recommended Programs and Services  by Recommended Language of Instruction", "merge_cells": "B72:N72"},
-            {"cell": "B81", "value": "SY 2022-23 Students with IEP Recommended Programs and Services  by Grade Level", "merge_cells": "B81:N81"},
-            {"cell": "B100", "value": "SY 2022-23 Students with IEP Recommended Programs and Services  by Disability Classification", "merge_cells": "B100:N100"},
-            {"cell": "B119", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by Temporary Housing Status", "merge_cells": "B119:N119"},            
-            {"cell": "B127", "value": "SY 2022-23 Students with IEP Recommended Programs and Services by Foster Care Status", "merge_cells": "B127:N127"},
+            {"cell": "B3", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by District", "merge_cells": "B3:N3"},
+            {"cell": "B40", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by Ethnicity", "merge_cells": "B40:N40"},
+            {"cell": "B50", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by Meal Status", "merge_cells": "B50:N50"},
+            {"cell": "B57", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by Gender", "merge_cells": "B57:N57"},
+            {"cell": "B65", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by ELL Status", "merge_cells": "B65:N65"},
+            {"cell": "B72", "value": self.schoolyear + " Students with IEP Recommended Programs and Services  by Recommended Language of Instruction", "merge_cells": "B72:N72"},
+            {"cell": "B81", "value": self.schoolyear + " Students with IEP Recommended Programs and Services  by Grade Level", "merge_cells": "B81:N81"},
+            {"cell": "B100", "value": self.schoolyear + " Students with IEP Recommended Programs and Services  by Disability Classification", "merge_cells": "B100:N100"},
+            {"cell": "B119", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by Temporary Housing Status", "merge_cells": "B119:N119"},            
+            {"cell": "B127", "value": self.schoolyear + " Students with IEP Recommended Programs and Services by Foster Care Status", "merge_cells": "B127:N127"},
             
 
         ]

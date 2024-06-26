@@ -7,6 +7,8 @@ import os
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -215,7 +217,7 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Inclusion of Students with IEPs", "merge_cells": "B3:D3"},           
+            {"cell": "B3", "value": self.schoolyear + " Inclusion of Students with IEPs", "merge_cells": "B3:D3"},           
 
         ]
 

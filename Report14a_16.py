@@ -7,6 +7,8 @@ import time
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -208,7 +210,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4 from (  select * from  ( Select STHFlagSort as sort , STHFlag,FORMAT(Sum(BIP) , '#,##0') as c1 ,concat(cast(Sum(BIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(NoBIP) , '#,##0') as c3 ,concat(cast(Sum(NoBIP)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4  FROM ##CCTotaltemp14a  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort14a  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -361,17 +363,17 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Primary IEP-Recommended Program", "merge_cells": "B3:F3"},
-            {"cell": "B11", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by District", "merge_cells": "B11:F11"},
-            {"cell": "B47", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Race/Ethnicity", "merge_cells": "B47:F47"},
-            {"cell": "B56", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Meal Status", "merge_cells": "B56:F56"},
-            {"cell": "B62", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Gender", "merge_cells": "B62:F62"},
-            {"cell": "B69", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by English Language Learner (ELL) Status", "merge_cells": "B69:F69"},
-            {"cell": "B75", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Recommended Language of Instruction", "merge_cells": "B75:F75"},
-            {"cell": "B83", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Grade Level", "merge_cells": "B83:F83"},
-            {"cell": "B100", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Temporary Housing Status", "merge_cells": "B100:F100"},
-            {"cell": "B106", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by Foster Care Status", "merge_cells": "B106:F106"},
-            {"cell": "B112", "value": "SY 2022-23 Number and Percentage of Students with a Behavioral Intervention Plan by School", "merge_cells": "B112:F112"},
+            {"cell": "B3", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Primary IEP-Recommended Program", "merge_cells": "B3:F3"},
+            {"cell": "B11", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by District", "merge_cells": "B11:F11"},
+            {"cell": "B47", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Race/Ethnicity", "merge_cells": "B47:F47"},
+            {"cell": "B56", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Meal Status", "merge_cells": "B56:F56"},
+            {"cell": "B62", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Gender", "merge_cells": "B62:F62"},
+            {"cell": "B69", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by English Language Learner (ELL) Status", "merge_cells": "B69:F69"},
+            {"cell": "B75", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Recommended Language of Instruction", "merge_cells": "B75:F75"},
+            {"cell": "B83", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Grade Level", "merge_cells": "B83:F83"},
+            {"cell": "B100", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Temporary Housing Status", "merge_cells": "B100:F100"},
+            {"cell": "B106", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by Foster Care Status", "merge_cells": "B106:F106"},
+            {"cell": "B112", "value": self.schoolyear + " Number and Percentage of Students with a Behavioral Intervention Plan by School", "merge_cells": "B112:F112"},
             
 
         ]

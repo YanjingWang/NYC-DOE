@@ -7,6 +7,8 @@ import time
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -210,7 +212,7 @@ class Solution:
     
     def fetch_data_by_tempstatus(self,cursor):
         query_bytempstatus = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select TempResFlagSort as sort , TempResFlag,FORMAT(Sum(FullyReceiving), '#,##0') as c1 ,CONCAT(cast(Sum(FullyReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(PartiallyReceiving) , '#,##0') as c3 ,CONCAT(cast(Sum(PartiallyReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(NotReceiving) , '#,##0') as c5 ,CONCAT(cast(Sum(NotReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp12  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort12  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select STHFlagSort as sort , STHFlag,FORMAT(Sum(FullyReceiving), '#,##0') as c1 ,CONCAT(cast(Sum(FullyReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(PartiallyReceiving) , '#,##0') as c3 ,CONCAT(cast(Sum(PartiallyReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(NotReceiving) , '#,##0') as c5 ,CONCAT(cast(Sum(NotReceiving)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp12  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort12  ) a order by sort  
         '''
         cursor.execute(query_bytempstatus)
         results_bytempstatus = cursor.fetchall()
@@ -354,15 +356,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Delivery of Special Education Programs by Primary IEP-Recommended Program", "merge_cells": "B3:H3"},
-            {"cell": "B10", "value": "SY 2022-23 Delivery of Special Education Programs by Race/Ethnicity", "merge_cells": "B10:H10"},    
-            {"cell": "B19", "value": "SY 2022-23 Delivery of Special Education Programs by Meal Status", "merge_cells": "B19:H19"}, 
-            {"cell": "B25", "value": "SY 2022-23 Delivery of Special Education Programs by Gender", "merge_cells": "B25:H25"},   
-            {"cell": "B32", "value": "SY 2022-23 Delivery of Special Education Programs by English Language Learner (ELL) Status", "merge_cells": "B32:H32"}, 
-            {"cell": "B38", "value": "SY 2022-23 Delivery of Special Education Programs by Recommended Language of Instruction", "merge_cells": "B38:H38"}, 
-            {"cell": "B46", "value": "SY 2022-23 Delivery of Special Education Programs by Grade Level", "merge_cells": "B46:H46"}, 
-            {"cell": "B63", "value": "SY 2022-23 Delivery of Special Education Programs by Temp House Status", "merge_cells": "B63:H63"}, 
-            {"cell": "B69", "value": "SY 2022-23 Delivery of Special Education Programs by Foster Care Status", "merge_cells": "B69:H69"}, 
+            {"cell": "B3", "value": self.schoolyear + " Delivery of Special Education Programs by Primary IEP-Recommended Program", "merge_cells": "B3:H3"},
+            {"cell": "B10", "value": self.schoolyear + " Delivery of Special Education Programs by Race/Ethnicity", "merge_cells": "B10:H10"},    
+            {"cell": "B19", "value": self.schoolyear + " Delivery of Special Education Programs by Meal Status", "merge_cells": "B19:H19"}, 
+            {"cell": "B25", "value": self.schoolyear + " Delivery of Special Education Programs by Gender", "merge_cells": "B25:H25"},   
+            {"cell": "B32", "value": self.schoolyear + " Delivery of Special Education Programs by English Language Learner (ELL) Status", "merge_cells": "B32:H32"}, 
+            {"cell": "B38", "value": self.schoolyear + " Delivery of Special Education Programs by Recommended Language of Instruction", "merge_cells": "B38:H38"}, 
+            {"cell": "B46", "value": self.schoolyear + " Delivery of Special Education Programs by Grade Level", "merge_cells": "B46:H46"}, 
+            {"cell": "B63", "value": self.schoolyear + " Delivery of Special Education Programs by Temp House Status", "merge_cells": "B63:H63"}, 
+            {"cell": "B69", "value": self.schoolyear + " Delivery of Special Education Programs by Foster Care Status", "merge_cells": "B69:H69"}, 
 
 
         ]

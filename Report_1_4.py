@@ -8,6 +8,8 @@ from copy import copy
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -197,7 +199,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11 from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag	,FORMAT(sum(STUDENTS_WITH_REF), '#,##0') as c1     ,FORMAT(sum(CLOSED_WITHOUT_IEP), '#,##0') as c2 	,FORMAT(sum(INELIGIBLE_LESS_60), '#,##0') as c3     ,FORMAT(sum(INELIGIBLE_MORE_60), '#,##0') as c4 	,FORMAT(sum(COALESCE(INELIGIBLE_LESS_60,0) + COALESCE(INELIGIBLE_MORE_60,0)), '#,##0') as c5     ,FORMAT(sum(CLASSIFIED_LESS_60), '#,##0') as c6     ,FORMAT(sum(CLASSIFIED_MORE_60), '#,##0') as c7     ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60), '#,##0') as C8 	,FORMAT(sum(COALESCE(INELIGIBLE_LESS_60,0) + COALESCE(INELIGIBLE_MORE_60,0) + COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0)), '#,##0') as c9 	,FORMAT(sum(TOTAL_AWAITING), '#,##0') as c10			,FORMAT(sum(TOTAL_OPEN), '#,##0') as c11  FROM ##Report_Final14  where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort  
+        select STHFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11 from (  select * from  (  Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag	,FORMAT(sum(STUDENTS_WITH_REF), '#,##0') as c1     ,FORMAT(sum(CLOSED_WITHOUT_IEP), '#,##0') as c2 	,FORMAT(sum(INELIGIBLE_LESS_60), '#,##0') as c3     ,FORMAT(sum(INELIGIBLE_MORE_60), '#,##0') as c4 	,FORMAT(sum(COALESCE(INELIGIBLE_LESS_60,0) + COALESCE(INELIGIBLE_MORE_60,0)), '#,##0') as c5     ,FORMAT(sum(CLASSIFIED_LESS_60), '#,##0') as c6     ,FORMAT(sum(CLASSIFIED_MORE_60), '#,##0') as c7     ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60), '#,##0') as C8 	,FORMAT(sum(COALESCE(INELIGIBLE_LESS_60,0) + COALESCE(INELIGIBLE_MORE_60,0) + COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0)), '#,##0') as c9 	,FORMAT(sum(TOTAL_AWAITING), '#,##0') as c10			,FORMAT(sum(TOTAL_OPEN), '#,##0') as c11  FROM ##Report_Final14  where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -354,15 +356,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with Initial Referrals by District", "merge_cells": "B3:M3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with Initial Referrals by Race/Ethnicity", "merge_cells": "B39:M39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with Initial Referrals by Meal Status", "merge_cells": "B48:M48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with Initial Referrals by Gender", "merge_cells": "B54:M54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with Initial Referrals by English Language Learner (ELL) Status", "merge_cells": "B61:M61"},
-            {"cell": "B67", "value": "SY 2022-23 Students with Initial Referrals by Recommended Language of Instruction", "merge_cells": "B67:M67"},
-            {"cell": "B77", "value": "SY 2022-23 Students with Initial Referrals by Grade Level", "merge_cells": "B77:M77"},
-            {"cell": "B97", "value": "SY 2022-23 Students with Initial Referrals by Temporary Housing Status", "merge_cells": "B97:M97"},
-            {"cell": "B105", "value": "SY 2022-23 Students with Initial Referrals by Foster Care Status", "merge_cells": "B105:M105"},
+            {"cell": "B3", "value": self.schoolyear + " Students with Initial Referrals by District", "merge_cells": "B3:M3"},
+            {"cell": "B39", "value": self.schoolyear + " Students with Initial Referrals by Race/Ethnicity", "merge_cells": "B39:M39"},
+            {"cell": "B48", "value": self.schoolyear + " Students with Initial Referrals by Meal Status", "merge_cells": "B48:M48"},
+            {"cell": "B54", "value": self.schoolyear + " Students with Initial Referrals by Gender", "merge_cells": "B54:M54"},
+            {"cell": "B61", "value": self.schoolyear + " Students with Initial Referrals by English Language Learner (ELL) Status", "merge_cells": "B61:M61"},
+            {"cell": "B67", "value": self.schoolyear + " Students with Initial Referrals by Recommended Language of Instruction", "merge_cells": "B67:M67"},
+            {"cell": "B77", "value": self.schoolyear + " Students with Initial Referrals by Grade Level", "merge_cells": "B77:M77"},
+            {"cell": "B97", "value": self.schoolyear + " Students with Initial Referrals by Temporary Housing Status", "merge_cells": "B97:M97"},
+            {"cell": "B105", "value": self.schoolyear + " Students with Initial Referrals by Foster Care Status", "merge_cells": "B105:M105"},
             
 
         ]

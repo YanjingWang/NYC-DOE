@@ -248,7 +248,7 @@ def RelatedServices():
     # # time.sleep(60)
     # now = datetime.datetime.now()
     # print('Click Run and wait for 50 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
-    # time.sleep(50*60)
+    # time.sleep(60*60)
     # print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
 
 

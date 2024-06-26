@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -210,9 +212,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4 from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag 	 ,FORMAT(sum(More_PPW_Special), '#,##0') as c1         ,FORMAT(sum(Fewer_PPW_Special), '#,##0') as c2        ,
-        FORMAT(sum(Move_to_D75), '#,##0') as c3  	  ,FORMAT(sum(Move_to_CSD), '#,##0') as c4  
-        FROM ##Report_Final_1  where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select STHFlag, c1,c2,c3,c4 from (  select * from  (  Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag 	 ,FORMAT(sum(More_PPW_Special), '#,##0') as c1         ,FORMAT(sum(Fewer_PPW_Special), '#,##0') as c2        ,FORMAT(sum(Move_to_D75), '#,##0') as c3  	  ,FORMAT(sum(Move_to_CSD), '#,##0') as c4  FROM ##Report_Final_1  where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -379,15 +379,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B4", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by District", "merge_cells": "B4:F4"},
-            {"cell": "B40", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Race/Ethnicity", "merge_cells": "B40:F40"},
-            {"cell": "B49", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Meal Status", "merge_cells": "B49:F49"},
-            {"cell": "B55", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Gender", "merge_cells": "B55:D55"},
-            {"cell": "B62", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by English Language Learner (ELL) Status", "merge_cells": "B62:F62"},
-            {"cell": "B68", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Recommended Language of Instruction", "merge_cells": "B68:F68"},
-            {"cell": "B76", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Grade Level", "merge_cells": "B76:F76"},
-            {"cell": "B94", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Temporary Housing Status", "merge_cells": "B94:F94"},
-            {"cell": "B101", "value": "SY 2022-23 Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Foster Care Status", "merge_cells": "B101:F101"},
+            {"cell": "B4", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by District", "merge_cells": "B4:F4"},
+            {"cell": "B40", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Race/Ethnicity", "merge_cells": "B40:F40"},
+            {"cell": "B49", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Meal Status", "merge_cells": "B49:F49"},
+            {"cell": "B55", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Gender", "merge_cells": "B55:D55"},
+            {"cell": "B62", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by English Language Learner (ELL) Status", "merge_cells": "B62:F62"},
+            {"cell": "B68", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Recommended Language of Instruction", "merge_cells": "B68:F68"},
+            {"cell": "B76", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Grade Level", "merge_cells": "B76:F76"},
+            {"cell": "B94", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Temporary Housing Status", "merge_cells": "B94:F94"},
+            {"cell": "B101", "value": self.schoolyear + " Students with Reevaluations Resulting in IEP Recommendations for More/Less Restrictive Environments by Foster Care Status", "merge_cells": "B101:F101"},
             
 
         ]

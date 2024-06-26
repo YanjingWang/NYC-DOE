@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -193,7 +195,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8 where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 ,  TotalRegister from (  select * from  (  Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag ,FORMAT(sum(Non_ELL_English), '#,##0') as c1 ,FORMAT(sum(Non_ELL_Spanish), '#,##0') as c2 ,FORMAT(sum(Non_ELL_Chinese), '#,##0') as c3 ,FORMAT(sum(Non_ELL_Other), '#,##0') as c4 ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other), '#,##0') as c5  ,FORMAT(sum(ELL_English), '#,##0') as c6 ,FORMAT(sum(ELL_Spanish), '#,##0') as c7 ,FORMAT(sum(ELL_Chinese), '#,##0') as c8 ,FORMAT(sum(ELL_Other), '#,##0') as  c9 ,FORMAT(sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other), '#,##0') as c10  ,FORMAT(sum(Non_ELL_English + Non_ELL_Spanish + Non_ELL_Chinese + Non_ELL_Other) + sum(ELL_English + ELL_Spanish + ELL_Chinese + ELL_Other) , '#,##0') as TotalRegister  FROM ##CCTotaltemp8 where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort  ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -349,14 +351,14 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with IEPs by District", "merge_cells": "B3:M3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with IEPs by Race/Ethnicity", "merge_cells": "B39:M39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with IEPs by Meal Status", "merge_cells": "B48:M48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with IEPs by Gender", "merge_cells": "B54:M54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with IEPs by Grade Level", "merge_cells": "B61:M61"},
-            {"cell": "B78", "value": "SY 2022-23 Students with IEPs by Disability Classification", "merge_cells": "B78:M78"},
-            {"cell": "B95", "value": "SY 2022-23 Students with IEPs by Temporary Housing Status", "merge_cells": "B95:M95"},
-            {"cell": "B102", "value": "SY 2022-23 Students with IEPs by Foster Care Status", "merge_cells": "B102:M102"},
+            {"cell": "B3", "value": self.schoolyear + " Students with IEPs by District", "merge_cells": "B3:M3"},
+            {"cell": "B39", "value": self.schoolyear + " Students with IEPs by Race/Ethnicity", "merge_cells": "B39:M39"},
+            {"cell": "B48", "value": self.schoolyear + " Students with IEPs by Meal Status", "merge_cells": "B48:M48"},
+            {"cell": "B54", "value": self.schoolyear + " Students with IEPs by Gender", "merge_cells": "B54:M54"},
+            {"cell": "B61", "value": self.schoolyear + " Students with IEPs by Grade Level", "merge_cells": "B61:M61"},
+            {"cell": "B78", "value": self.schoolyear + " Students with IEPs by Disability Classification", "merge_cells": "B78:M78"},
+            {"cell": "B95", "value": self.schoolyear + " Students with IEPs by Temporary Housing Status", "merge_cells": "B95:M95"},
+            {"cell": "B102", "value": self.schoolyear + " Students with IEPs by Foster Care Status", "merge_cells": "B102:M102"},
             
 
         ]

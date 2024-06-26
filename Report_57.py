@@ -6,6 +6,8 @@ import os
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -191,7 +193,7 @@ class Solution:
     
     def fetch_data_by_tempResFlag(self,cursor):
         query_byTempResFlag = '''
-        select TempResFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   TempResFlagSort as sort ,  case when TempResFlag = 'Y' then 'Yes' else 'No'  end as TempResFlag ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57  where TempResFlag in ('Y', 'N')  group by TempResFlag, TempResFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
+        select STHFlag, c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 from (  select * from  ( Select   STHFlagSort as sort ,  case when STHFlag = 'Y' then 'Yes' else 'No'  end as STHFlag ,FORMAT(sum(STUDENTS_WITH_REF),'#,##0') as c1 ,FORMAT(sum(CLOSED_WITHOUT_IEP),'#,##0') as c2 ,FORMAT(sum(Declass_LESS_60),'#,##0') as c3  ,FORMAT(sum(Declass_MORE_60),'#,##0') as c4 ,FORMAT(sum(COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c5  ,FORMAT(sum(CLASSIFIED_LESS_60),'#,##0') as c6  ,FORMAT(sum(CLASSIFIED_MORE_60),'#,##0') as c7 ,FORMAT(sum(CLASSIFIED_LESS_60 + CLASSIFIED_MORE_60),'#,##0') as  c8  ,FORMAT(sum(COALESCE(CLASSIFIED_LESS_60,0) + COALESCE(CLASSIFIED_MORE_60,0) + COALESCE(Declass_LESS_60,0) + COALESCE(Declass_MORE_60,0)),'#,##0') as c9   ,FORMAT(sum(TOTAL_OPEN),'#,##0') as c10     FROM ##Report_Final57  where STHFlag in ('Y', 'N')  group by STHFlag, STHFlagSort ) a  union all  select * from ##TotalRow_Sort ) a order by sort 
         '''
         cursor.execute(query_byTempResFlag)
         results_byTempResFlag = cursor.fetchall()
@@ -347,15 +349,15 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Students with Reevaluation Referrals by District", "merge_cells": "B3:L3"},
-            {"cell": "B39", "value": "SY 2022-23 Students with Reevaluation Referrals by Race/Ethnicity", "merge_cells": "B39:L39"},
-            {"cell": "B48", "value": "SY 2022-23 Students with Reevaluation Referrals by Meal Status", "merge_cells": "B48:L48"},
-            {"cell": "B54", "value": "SY 2022-23 Students with Reevaluation Referrals by Gender", "merge_cells": "B54:L54"},
-            {"cell": "B61", "value": "SY 2022-23 Students with Reevaluation Referrals by English Language Learner (ELL) Status", "merge_cells": "B61:L61"},
-            {"cell": "B67", "value": "SY 2022-23 Students with Reevaluation Referrals by Recommended Language of Instruction", "merge_cells": "B67:L67"},
-            {"cell": "B75", "value": "SY 2022-23 Students with Reevaluation Referrals by Grade Level", "merge_cells": "B75:L75"},
-            {"cell": "B93", "value": "SY 2022-23 Students with Reevaluation Referrals by Temporary Housing Status", "merge_cells": "B93:L93"},
-            {"cell": "B100", "value": "SY 2022-23 Students with Reevaluation Referrals by Foster Care Status", "merge_cells": "B100:L100"},
+            {"cell": "B3", "value": self.schoolyear + " Students with Reevaluation Referrals by District", "merge_cells": "B3:L3"},
+            {"cell": "B39", "value": self.schoolyear + " Students with Reevaluation Referrals by Race/Ethnicity", "merge_cells": "B39:L39"},
+            {"cell": "B48", "value": self.schoolyear + " Students with Reevaluation Referrals by Meal Status", "merge_cells": "B48:L48"},
+            {"cell": "B54", "value": self.schoolyear + " Students with Reevaluation Referrals by Gender", "merge_cells": "B54:L54"},
+            {"cell": "B61", "value": self.schoolyear + " Students with Reevaluation Referrals by English Language Learner (ELL) Status", "merge_cells": "B61:L61"},
+            {"cell": "B67", "value": self.schoolyear + " Students with Reevaluation Referrals by Recommended Language of Instruction", "merge_cells": "B67:L67"},
+            {"cell": "B75", "value": self.schoolyear + " Students with Reevaluation Referrals by Grade Level", "merge_cells": "B75:L75"},
+            {"cell": "B93", "value": self.schoolyear + " Students with Reevaluation Referrals by Temporary Housing Status", "merge_cells": "B93:L93"},
+            {"cell": "B100", "value": self.schoolyear + " Students with Reevaluation Referrals by Foster Care Status", "merge_cells": "B100:L100"},
             
 
         ]

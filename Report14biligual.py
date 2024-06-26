@@ -6,6 +6,8 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
+    def __init__(self):
+        self.schoolyear = 'SY 2022-23'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -214,7 +216,7 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-23 Delivery of Bilingual Special Education Programs by Primary IEP-Recommended Program ", "merge_cells": "B3:H3"}, 
+            {"cell": "B3", "value": self.schoolyear + " Delivery of Bilingual Special Education Programs by Primary IEP-Recommended Program ", "merge_cells": "B3:H3"}, 
 
         ]
 

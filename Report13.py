@@ -124,11 +124,11 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_Mart' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         params = ('CC_RSMandateR13_061523')
-        cursor.execute("[dev].[USPCCAnnaulReport13] @tableNameCCRSMandateR13=?", params)
+        cursor.execute("[dbo].[USPCC_AnnaulReport13] @tableNameCCRSMandateR13=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_tab13(self,cursor):
