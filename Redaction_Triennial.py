@@ -40,15 +40,23 @@ import os, shutil
 from redaction_config_triennial_SY24 import TRIENNIAL_REPORTS_CONFIG_SY24
 from redaction_config_triennial_SY240402 import TRIENNIAL_REPORTS_CONFIG_SY240402
 class Solution:
-    def copyonefile(src,dst):
-        shutil.copy(src,dst)
-        print('copying one file from {0} to {1} is compelte'.format(src,dst)) 
-    mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\04.02.24 Triannual Report\Non-Redacted City Council Triennial Report_04022024.xlsx', mylocalCCfolder)
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Triennial Reports\Non-Redacted City Council Triennial Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\04.02.24 Triannual Report\Non-Redacted City Council Triennial Report_04022024.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    # percentage redaction including 0% to 100% redaction
+    def __init__(self, datestamp="06152024",date="06.15.24"):
+        self.datestamp = datestamp
+        self.date = date
+    def copyonefile(self, src, dst):
+        shutil.copy(src, dst)
+        print('copying one file from {0} to {1} is complete'.format(src, dst))
+
+    def execute_copy(self):
+        mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'
+        self.copyonefile(
+            fr'R:\SEO Analytics\Reporting\City Council\City Council SY24\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            mylocalCCfolder
+        )
+        self.copyonefile(
+            fr'R:\SEO Analytics\Reporting\City Council\City Council SY24\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop'
+        )
     def is_percentage(self, cell):
         # Check if cell's format is for percentage
         if '%' in cell.number_format:
@@ -185,7 +193,7 @@ class Solution:
             elif fully_receiving_cell.value <= 5 and fully_receiving_cell.value != 0 and not_receiving_cell.value == 0 and partial_receiving_cell.value != 0 and partial_receiving_cell.value > 5:
                 not_receiving_cell.value = '<=5'
 
-    def RS_column_masking(self,ws, start_row, start_col, end_row, end_col, numeric_percentage_pairs):
+    def RS_column_masking(self, ws, start_row, start_col, end_row, end_col, numeric_percentage_pairs, report):
         """ Full encounter: 
              1.case when (FullEncounter <> 0 and FullEncounter <= 5) then '<=5'; 
              2. when (recommendation_type_cell.value in ('Counseling Services Bilingual','Speech-Language Therapy Bilingual') and (NoEncounter <=5 and NoEncounter <> 0 and FullEncounter = 0 and PartialEncounter <> 0 and PartialEncounter >5)) then '<=5'; 
@@ -329,7 +337,7 @@ class Solution:
                         # print(ws.title, f"Masking non-full column cell {cell.coordinate} as {'<=5' if cell.value == '<=5' else '>5'} and {adjacent_percentage_cell.coordinate} as '*'")
 
 
-    def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs):
+    def mask_smallest_numeric_and_percentage_byRS(self, ws, start_row, end_row,numeric_percentage_pairs, report):
         for row_num in range(start_row, end_row + 1):
             if report == 'RS Delivery by Supt':
                 recommendation_type_cell = ws.cell(row=row_num, column=3) # Assuming column C contains the recommendation type
@@ -1219,49 +1227,30 @@ class Solution:
                         # print(ws.title, f"Unmasking no cell {ws.cell(row=row_num, column=no_column).coordinate} with original value {original_value}")
 
 
-    def mask_excel_file(self,filename,tab_name,configurations,unredacted_filename):
-        # Load the workbooks
+    def mask_excel_file(self, filename, tab_name, configurations, unredacted_filename):
         wb = openpyxl.load_workbook(filename)
         unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
-        # Load the workbook
-        wb = openpyxl.load_workbook(filename)
         try:
             ws = wb[tab_name]
-            unredacted_ws = unredacted_wb[tab_name]  # Define unredacted_ws here
+            unredacted_ws = unredacted_wb[tab_name]
         except KeyError:
-            print(f"Warning: Worksheet {tab_name} does not exist in the file {filename}. Skipping...") #SWDs by School is not in SY23
+            print(f"Warning: Worksheet {tab_name} does not exist in the file {filename}. Skipping...")
             return
 
-        # # Convert string to int where possible
-        # for r in configurations['ranges']:
-        #     for row in ws.iter_rows(min_row=r[0], max_row=r[2], min_col=r[1], max_col=r[3]):
-        #         for cell in row:
-        #             if isinstance(cell.value, str):
-        #                 try:
-        #                     cell.value = int(cell.value)
-        #                 except ValueError:
-        #                     # If the value cannot be converted to int, keep the original value
-        #                     pass
-                        
-        # 1. Mask data for the specific ranges
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
                 self.PS_column_masking(ws, *r, numeric_percentage_pairs)
             if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
-                self.RS_column_masking(ws, *r, numeric_percentage_pairs)
+                self.RS_column_masking(ws, *r, numeric_percentage_pairs, tab_name)
 
         for r in configurations['ranges']:
             self.initial_mask(ws, *r)
 
-        # 2. Apply N/A redaction based on new configuration if the key exists
         if 'NA_Partcial_Encounter_Redaction' in configurations:
             self.apply_na_redaction(ws, configurations, configurations)
 
-
-                                   
-        # 3. Apply the percentage redaction based on configuration if the key exists for PS reports
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
                 self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
@@ -1269,68 +1258,47 @@ class Solution:
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
                 for row_num in range(r[0], r[2] + 1):
-                    if report == 'RS Delivery by Supt':
+                    if tab_name == 'RS Delivery by Supt':
                         recommendation_type_cell = ws.cell(row=row_num, column=3)
-                        # print(f'RS Delivery by Supt Row {row_num} - Recommendation Type: {recommendation_type_cell.value}')
-                    elif report == 'RS Delivery by District' or report == 'RS Delivery by School':
+                    elif tab_name == 'RS Delivery by District' or tab_name == 'RS Delivery by School':
                         recommendation_type_cell = ws.cell(row=row_num, column=2)
-                    
-                    # Now we check the value of recommendation_type_cell
+
                     if recommendation_type_cell.value:
                         if "Bilingual" in recommendation_type_cell.value:
-                            # self.apply_percentage_redaction_byPS(ws, configurations, r[0], r[2])
-                            # print(f"Applying {ws.title} for row {row_num} percentage redaction")
                             pass
 
-
-        # 4. Apply the 100% percentage sum redaction based on configuration if the key exists
         for r in configurations['ranges']:
             if '100_percentage_sum' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
-                # Retrieve the correct numeric_percentage_pairs for the current tab
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
-                # Call the function with the correct pairs
                 self.mask_smallest_numeric_and_percentage_byPS(ws, r[0], r[2], numeric_percentage_pairs)
             if '100_percentage_sum' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
-                # Retrieve the correct numeric_percentage_pairs for the current tab
                 numeric_percentage_pairs = configurations['numeric_percentage_pairs']
-                # Call the function with the correct pairs
-                self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs)  
-    
-        # 5. Apply mask by category redaction based on new configuration if the key exists
+                self.mask_smallest_numeric_and_percentage_byRS(ws, r[0], r[2], numeric_percentage_pairs, tab_name)
+
         if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
             self.mask_by_samecategory_byPS(ws, configurations['mask_by_category'], unredacted_ws)
 
-        # 6. Apply mask by district redaction based on new configuration if the key exists
         if 'mask_by_district' in configurations and 'mask_by_category' in configurations and 'PS_flag' in configurations and configurations['PS_flag'] == True:
             self.mask_by_samecategoryanddistrict_byPS(ws, configurations['mask_by_district'], unredacted_ws)
 
-        # Apply mask by category redaction based on new configuration if the key exists
         if 'mask_by_category' in configurations and 'mask_by_district' not in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
             self.mask_by_samecategory_byRS(ws, configurations['mask_by_category'], unredacted_ws)
 
-        # Apply mask by category and district redaction based on new configuration if the key exists
         if 'mask_by_category' in configurations and 'mask_by_district' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
             self.mask_by_samecategoryanddistrict_byRS(ws, configurations['mask_by_district'], unredacted_ws)
 
-        # 7. unmask the adjacent percentage cells
         for r in configurations['ranges']:
-            self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws) 
+            self.restore_percentage_cells_if_excessive_redaction(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
             self.mask_0_percent_in_full(ws, configurations['numeric_percentage_pairs'])
             self.mask_percent_having0_and_100_percent(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
             self.overredaction_0(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
         for r in configurations['ranges']:
             if 'numeric_percentage_pairs' in configurations and 'RS_flag' in configurations and configurations['RS_flag'] == True:
                 self.unmask_numeric_having0_and_100_percent_non_bilingual(ws, configurations['numeric_percentage_pairs'], unredacted_ws)
-        # # 8. Apply final mask to tab 'Program Delivery by District', "Program Delivery by Supt","Program Delivery by School", "RS Delivery by District","RS Delivery by Supt","RS Delivery by School"
-        # for r in configurations['ranges']:
-        #     if 'Program Delivery by District' in configurations and  "Program Delivery by Supt" in configurations and "Program Delivery by School" in configurations and "RS Delivery by District" in configurations and "RS Delivery by Supt" in configurations and "RS Delivery by School" in configurations:
-        #         self.final_mask(ws, *r)
-        # # Mask underredacted columns
-        # for r in configurations['ranges']:
-        #     self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
-        # Save the modified workbook
-        wb.save(filename) # Adjust the range if necessary
+
+        wb.save(filename)
         wb.close()
+
     def unmask_green_cells(self, redacted_filename, unredacted_filename, tab_name):
         # Load both workbooks
         redacted_wb = openpyxl.load_workbook(redacted_filename, data_only=True)
@@ -1408,50 +1376,32 @@ class Solution:
                 # self.yellow_cell(smallest_unmasked_cell)
                 print(ws.title,f"Underredaction: Masking cell {smallest_unmasked_cell.coordinate} with {'<=5' if smallest_unmasked_cell.value == '<=5' else '>5'}")
 
+    def process_reports(self):
+        filename_SY24_04022024 = fr'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx'
+        unredacted_filename_SY24_04022024 = fr'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx'
+        
+        for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items(): 
+            self.mask_excel_file(filename_SY24_04022024, report, config, unredacted_filename_SY24_04022024)
+        
+        redacted_filenames_SY24_04022024 = [fr'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx']
+        unredacted_filenames_SY24_04022024 = [fr'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx']
+        
+        for redacted_file, unredacted_file in zip(redacted_filenames_SY24_04022024, unredacted_filenames_SY24_04022024):
+            redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+            unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
+            for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items():
+                if 'groups' in config and 'ranges' in config:
+                    ws = redacted_wb[report]
+                    unredacted_ws = unredacted_wb[report]
+                    self.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+
+            redacted_wb.save(redacted_file)
+            redacted_wb.close()
 
 
 # Call the function with your filename
 if __name__ == "__main__":
     processor = Solution()
-    # #SY24
-    # filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx'
-    # unredacted_filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx'
-    # for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
-    #     processor.mask_excel_file(filename_SY24, report, config, unredacted_filename_SY24)
-    # redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report SY24.xlsx']
-    # unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report SY24.xlsx']
-    # for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
-    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
-
-    #     for report, config in TRIENNIAL_REPORTS_CONFIG_SY24.items():
-    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-    #             ws = redacted_wb[report]
-    #             unredacted_ws = unredacted_wb[report]
-    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
-
-    #     # Save the redacted workbook after unmasking green cells
-    #     redacted_wb.save(redacted_file)
-    #     redacted_wb.close()
-
-    #SY24 04022024
-    filename_SY24_04022024 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report_04022024.xlsx'
-    unredacted_filename_SY24_04022024 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report_04022024.xlsx'
-    for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items(): 
-        processor.mask_excel_file(filename_SY24_04022024, report, config, unredacted_filename_SY24_04022024)
-    redacted_filenames_SY24_04022024 = ['C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted City Council Triennial Report_04022024.xlsx']
-    unredacted_filenames_SY24_04022024 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted City Council Triennial Report_04022024.xlsx']
-    for redacted_file, unredacted_file in zip(redacted_filenames_SY24_04022024, unredacted_filenames_SY24_04022024):
-        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
-
-        for report, config in TRIENNIAL_REPORTS_CONFIG_SY240402.items():
-            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-                ws = redacted_wb[report]
-                unredacted_ws = unredacted_wb[report]
-                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
-
-        # Save the redacted workbook after unmasking green cells
-        redacted_wb.save(redacted_file)
-        redacted_wb.close()
+    processor.execute_copy()
+    processor.process_reports()
