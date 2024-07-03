@@ -43,6 +43,7 @@ class Solution:
     def __init__(self, datestamp="06152024",date="06.15.24"):
         self.datestamp = datestamp
         self.date = date
+        self.schoolyear = 'SY24'
     def copyonefile(self, src, dst):
         shutil.copy(src, dst)
         print('copying one file from {0} to {1} is complete'.format(src, dst))
@@ -50,11 +51,11 @@ class Solution:
     def execute_copy(self):
         mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'
         self.copyonefile(
-            fr'R:\SEO Analytics\Reporting\City Council\City Council SY24\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            fr'R:\SEO Analytics\Reporting\City Council\City Council {self.schoolyear}\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
             mylocalCCfolder
         )
         self.copyonefile(
-            fr'R:\SEO Analytics\Reporting\City Council\City Council SY24\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            fr'R:\SEO Analytics\Reporting\City Council\City Council {self.schoolyear}\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
             r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop'
         )
     def is_percentage(self, cell):

@@ -15,10 +15,11 @@ import requests
 from requests_ntlm import HttpNtlmAuth
 # from datetime import datetime, timedelta
 # from rpy2 import robjects
-class Automation_SY23_24:
-    def __init__(self, schoolyear="SY23-24", folderSY="SY 23-24"):
+class Automation_SY24_25:
+    def __init__(self, schoolyear="SY24-25", folderSY="SY 24-25", RfileSY="2024_2025"):
         self.schoolyear = schoolyear
         self.folderSY = folderSY
+        self.RfileSY = RfileSY
     def createdir(self,path):
         # Check whether the specified path exists or not
         isExist = os.path.exists(path)
@@ -225,8 +226,8 @@ class Automation_SY23_24:
         self.createdir(Charter_Archive)  # really created?
         self.createdir(shareCharter)  # really created?
         self.createdir(mylocalXLSfolder)
-        self.createdir(currentdateCSDfolder)
-        self.createdir(currentdateCharterfolder)
+        # self.createdir(currentdateCSDfolder)
+        # self.createdir(currentdateCharterfolder)
 
         # # 2.1): delete previous week XLS and PDF files 
         for f in os.listdir(dst_CSD_PDF):
@@ -286,11 +287,11 @@ class Automation_SY23_24:
         src_CSD ='\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
         src_Charter = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0} Charter\MandatedServicesCharter_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
 
-        file1 = os.path.join(MDSY23_24,'RS_Reports_2023_2024.R')
+        file1 = os.path.join(MDSY23_24,'RS_Reports_{0}.R'.format(self.RfileSY))
         self.copyonefile(file1,mylocalXLSfolder)  
-        file2 = os.path.join(MDSY23_24,'RS_Reports_2023_2024_Charter.R')
+        file2 = os.path.join(MDSY23_24,'RS_Reports_{0}_Charter.R'.format(self.RfileSY))
         self.copyonefile(file2,mylocalXLSfolder)
-        newfile2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
+        newfile2 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}_Charter.R'.format(self.RfileSY))
         file3 = os.path.join(MDSY23_24,'RS_Template_new.xlsx')
         self.copyonefile(file3,mylocalXLSfolder)
         newfile3 = os.path.join(mylocalXLSfolder,'RS_Template_new.xlsx')
@@ -300,7 +301,7 @@ class Automation_SY23_24:
 
 
 
-        file1 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024.R')
+        file1 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}.R'.format(self.RfileSY))
         os.startfile(file1)
         print('Click Run and it takes 35 mins')
         time.sleep(45*60)
@@ -310,7 +311,7 @@ class Automation_SY23_24:
         self.copyallfiles(dst_CSD_XLS,CSD_Archive)
         # # copyallfiles(RSCompliance,RSDashboardSharepoint)
 
-        file2 = os.path.join(mylocalXLSfolder,'RS_Reports_2023_2024_Charter.R')
+        file2 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}_Charter.R'.format(self.RfileSY))
         os.startfile(file2)
         print('Click Run and it takes 5 mins')
         time.sleep(10*60)
@@ -572,7 +573,7 @@ class Automation_SY23_24:
         self.copy_files_byfilename(source_folder, destination_folder, file_names_to_copy)
 
 if __name__ == '__main__':
-    processor = Automation_SY23_24()
+    processor = Automation_SY24_25()
     processor.RelatedServices()
     processor.R_Process()
     processor.rerun_R() 
