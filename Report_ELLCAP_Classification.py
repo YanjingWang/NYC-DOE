@@ -7,6 +7,7 @@ class Solution:
     def __init__(self, datestamp='06/17/2024'):
         self.datestamp = datestamp
         self.lastrow = 20 #19
+        self.ProcessedDate = '06-17-2024'
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -133,7 +134,7 @@ class Solution:
 
         return black_border, black_border_thick, black_border_medium, black_border_no_bottom, black_boarder_all
 
-    # Step 2: Connect to the database
+    # Step 2: Connect to the database and use self.ProcessedDate to filter the data
     def connect_to_database(self):
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
@@ -167,7 +168,7 @@ class Solution:
 
             INTO #BSEReg
         From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
-		Where ProcessedDate = '06-17-2024'
+		Where ProcessedDate = '{self.ProcessedDate}
 
 
 
@@ -218,7 +219,7 @@ class Solution:
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
         where CAP.ELLStatus = 'ELL' 
-		and CAP.ProcessedDate = '06-17-2024'
+		and CAP.ProcessedDate = '{self.ProcessedDate}'
         '''
         )
         return cursor

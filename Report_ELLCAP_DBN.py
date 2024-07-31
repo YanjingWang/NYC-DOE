@@ -7,6 +7,7 @@ class Solution:
     def __init__(self, datestamp='06/17/2024'):
         self.datestamp = datestamp
         self.lastrow = 1543 #1541
+        self.ProcessedDate = '06-17-2024'
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -170,7 +171,7 @@ class Solution:
 
             INTO #BSEReg
         From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
-		Where ProcessedDate = '06-17-2024'
+		Where ProcessedDate = '{self.ProcessedDate}'
 
 
 
@@ -221,7 +222,7 @@ class Solution:
         left join #BSEReg as NEWCAP on CAP.StudentID = NEWCAP.StudentID
         left join [SEO_MART].[dbo].[RPT_Locations] as loc on cap.enrolleddbn = loc.schooldbn 
         where CAP.ELLStatus = 'ELL' 
-		and CAP.ProcessedDate = '06-17-2024'
+		and CAP.ProcessedDate = '{self.ProcessedDate}'
         '''
         )
         return cursor
