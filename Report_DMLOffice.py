@@ -4,11 +4,12 @@ import urllib
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 class DMLOfficeRport1:
-    def __init__(self, lastrow=186933, sqlschoolstartdate='2023-09-07', schoolyear='SY 2023-2024',datestamp='6.30.24'):
+    def __init__(self, lastrow=186933, sqlschoolstartdate='2023-09-07', schoolyear='SY 2023-2024',datestamp='6.30.24',sqlimplementationdate='06-30-2024'):
         self.lastrow = lastrow
         self.sqldate = sqlschoolstartdate
         self.schoolyear = schoolyear
         self.datestamp = datestamp
+        self.sqlimplementationdate = sqlimplementationdate
     def create_excel_report(self):
         # Database connection details
         server = 'ES00VPADOSQL180,51433'
@@ -43,12 +44,16 @@ class DMLOfficeRport1:
         FROM [SEO_REPORTING].[dbo].[FinalELLDataetSY24] E
         LEFT JOIN [SEO_MART].[dbo].[RPT_SESISActiveIEP] I
         ON I.StudentID = E.[Student ID] AND (I.InactiveDate IS NULL OR I.InactiveDate > '""" + self.sqldate + """')
+        AND ProjectedIEPImplementationDate <= '""" + self.sqlimplementationdate + """'
         """
 
         # Establish a connection
         with engine.connect() as connection:
             # Load data into pandas DataFrame
             df = pd.read_sql(text(query), connection)
+
+        # Convert the InactiveDate column to the desired format
+        df['InactiveDate'] = pd.to_datetime(df['InactiveDate']).dt.strftime('%d/%m/%Y')
 
         # Specify the path for the output file
         output_file = self.schoolyear+'_Final_ELL_Dataset_SEO.xlsx'
@@ -181,12 +186,12 @@ class DMLOfficeRport1:
             cell = sheet['H' + str(row)]
             if cell.value is None or cell.value == '':
                 cell.value = 'NULL'
-            elif '2023' in cell.value:
-                cell.value = '2023'
-            elif '2024' in cell.value:
-                cell.value = '2024'
-            else:
-                cell.value = 'NULL'
+            # elif '2023' in cell.value:
+            #     cell.value = '2023'
+            # elif '2024' in cell.value:
+            #     cell.value = '2024'
+            # else:
+            #     cell.value = 'NULL'
 
         # Add the filter for column A to H
         sheet.auto_filter.ref = 'A1:H'+str(self.lastrow + 1)
