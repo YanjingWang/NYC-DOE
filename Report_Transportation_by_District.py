@@ -6,7 +6,7 @@ import pyodbc
 class Solution:
     # Existing code...
     # Function to format headers
-    def __init__(self, datestamp="04022024",date="April 2, 2024"):
+    def __init__(self, datestamp="06152024",date="June 15, 2024"):
         self.datestamp = datestamp
         self.date = date
         self.lastrow = 35
