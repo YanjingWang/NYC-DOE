@@ -168,7 +168,7 @@ class Solution:
 
             INTO #BSEReg
         From  [SEO_MART].[arch].[RPT_ELLCAPBilingualPS]
-		Where ProcessedDate = '{self.ProcessedDate}
+		Where ProcessedDate = '{self.ProcessedDate}'
 
 
 
