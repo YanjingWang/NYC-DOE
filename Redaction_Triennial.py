@@ -44,6 +44,7 @@ class Solution:
         self.datestamp = datestamp
         self.date = date
         self.schoolyear = 'SY24'
+        self.folderpath = fr'R:\\' # fr is a prefix that designates a string as a "raw string". Python raw strings are used to treat backslashes (\) as literal characters. This is useful when we want to have a string that contains backslash and don't want it to be treated as an escape character.
     def copyonefile(self, src, dst):
         shutil.copy(src, dst)
         print('copying one file from {0} to {1} is complete'.format(src, dst))
@@ -51,11 +52,11 @@ class Solution:
     def execute_copy(self):
         mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'
         self.copyonefile(
-            fr'R:\SEO Analytics\Reporting\City Council\City Council {self.schoolyear}\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            os.path.join(self.folderpath, f'SEO Analytics\\Reporting\\City Council\\City Council {self.schoolyear}\\{self.date} Triannual Report\\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx'),
             mylocalCCfolder
         )
         self.copyonefile(
-            fr'R:\SEO Analytics\Reporting\City Council\City Council {self.schoolyear}\{self.date} Triannual Report\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx',
+            os.path.join(self.folderpath, f'SEO Analytics\\Reporting\\City Council\\City Council {self.schoolyear}\\{self.date} Triannual Report\\Non-Redacted City Council Triennial Report_{self.datestamp}.xlsx'),
             r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop'
         )
     def is_percentage(self, cell):

@@ -20,6 +20,7 @@ class Automation_SY24_25:
         self.schoolyear = schoolyear
         self.folderSY = folderSY
         self.RfileSY = RfileSY
+        self.folderpath = "R:\\" 
     def createdir(self,path):
         # Check whether the specified path exists or not
         isExist = os.path.exists(path)
@@ -207,16 +208,25 @@ class Automation_SY24_25:
         int_xlspath = 'C:\PA_Distribution_XLS'  # never been used
         int_charterpdf = 'C:\PA_DISTRIBUTION_PDF_Charter'
         int_charterxls = 'C:\PA_DISTRIBUTION_XLS_Charter'  # never been used
-        CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
-        Charter_Archive = 'R:\SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d"))
-        dst_CSD_PDF = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
-        dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
-        shareCharter = 'R:\SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d"))
-        currentdateCSDfolder = 'R:\\SEO Analytics\\Reporting\\Related Services\\Output Files\\{0}\\MandatedServices_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d"))
-        currentdateCharterfolder = 'R:\\SEO Analytics\\Reporting\\Related Services\\Output Files\\{0} Charter\\MandatedServicesCharter_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d"))
+        # CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
+        # Charter_Archive = 'R:\SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d"))
+        # dst_CSD_PDF = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
+        # dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
+        # shareCharter = 'R:\SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d"))
+        # currentdateCSDfolder = 'R:\\SEO Analytics\\Reporting\\Related Services\\Output Files\\{0}\\MandatedServices_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d"))
+        # currentdateCharterfolder = 'R:\\SEO Analytics\\Reporting\\Related Services\\Output Files\\{0} Charter\\MandatedServicesCharter_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d"))
+        # mylocalXLSfolder = 'C:\Template'
+        # RSCompliance = 'R:\SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d"))
+        # RSDashboardSharepoint = 'https://nycdoe.sharepoint.com/:f:/r/sites/RelatedServicesDashboard/Shared%20Documents/RS%20Compliance?csf=1&web=1&e=52Kaaq'
+        CSD_Archive = os.path.join(self.folderpath, 'SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d")))
+        Charter_Archive = os.path.join(self.folderpath, 'SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d")))
+        dst_CSD_PDF = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_PDF')
+        dst_CSD_XLS = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_XLS')
+        shareCharter = os.path.join(self.folderpath, 'SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d")))
+        currentdateCSDfolder = os.path.join(self.folderpath, 'SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d")))
+        currentdateCharterfolder = os.path.join(self.folderpath, 'SEO Analytics\Reporting\Related Services\Output Files\{0} Charter\MandatedServicesCharter_{1}'.format(self.folderSY, date.today().strftime("%Y-%m-%d")))
         mylocalXLSfolder = 'C:\Template'
-        RSCompliance = 'R:\SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d"))
-        RSDashboardSharepoint = 'https://nycdoe.sharepoint.com/:f:/r/sites/RelatedServicesDashboard/Shared%20Documents/RS%20Compliance?csf=1&web=1&e=52Kaaq'
+        RSCompliance = os.path.join(self.folderpath, 'SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d")))
 
         self.createdir(int_pdfpath)
         self.createdir(int_xlspath)
@@ -276,14 +286,24 @@ class Automation_SY24_25:
         int_xlspath = 'C:\PA_Distribution_XLS'  # never been used
         int_charterpdf = 'C:\PA_DISTRIBUTION_PDF_Charter'
         int_charterxls = 'C:\PA_DISTRIBUTION_XLS_Charter'  # never been used
-        CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
-        Charter_Archive = 'R:\SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d"))
-        dst_CSD_PDF = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
-        dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
-        shareCharter = 'R:\SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d"))
+        # CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
+        # Charter_Archive = 'R:\SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d"))
+        # dst_CSD_PDF = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
+        # dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
+        # shareCharter = 'R:\SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d"))
+        # mylocalXLSfolder = 'C:\Template'
+        # RSCompliance = 'R:\SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d"))
+        # RSDashboardSharepoint = 'https://nycdoe.sharepoint.com/:f:/r/sites/RelatedServicesDashboard/Shared%20Documents/RS%20Compliance?csf=1&web=1&e=52Kaaq'
+        CSD_Archive = os.path.join(self.folderpath, 'SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d")))
+        Charter_Archive = os.path.join(self.folderpath, 'SEO Analytics\Reporting\CharterArchive\{0}'.format(date.today().strftime("%Y%m%d")))
+        dst_CSD_PDF = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_PDF')
+        dst_CSD_XLS = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_XLS')
+        shareCharter = os.path.join(self.folderpath, 'SEO Analytics\Share\Charter\{0}'.format(date.today().strftime("%Y%m%d")))
         mylocalXLSfolder = 'C:\Template'
-        RSCompliance = 'R:\SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d"))
-        RSDashboardSharepoint = 'https://nycdoe.sharepoint.com/:f:/r/sites/RelatedServicesDashboard/Shared%20Documents/RS%20Compliance?csf=1&web=1&e=52Kaaq'
+        RSCompliance = os.path.join(self.folderpath, 'SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d")))
+
+        src_CSD = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
+        src_Charter = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0} Charter\MandatedServicesCharter_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
         src_CSD ='\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
         src_Charter = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0} Charter\MandatedServicesCharter_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
 
@@ -322,20 +342,33 @@ class Automation_SY24_25:
         self.copyallfiles(src_Charter,Charter_Archive)
 
     def rerun_R(self):
-        pdf_count = self.countfiles('R:\All Central Offices\Special Ed Data\PA_Distribution_PDF')
-        xls_count = self.countfiles('R:\All Central Offices\Special Ed Data\PA_Distribution_XLS')
-        src_CSD ='\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
-        dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
+        # pdf_count = self.countfiles('R:\All Central Offices\Special Ed Data\PA_Distribution_PDF')
+        # xls_count = self.countfiles('R:\All Central Offices\Special Ed Data\PA_Distribution_XLS')
+        # src_CSD ='\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
+        # dst_CSD_XLS = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
+        # int_xlspath = 'C:\PA_Distribution_XLS'
+        # # yesterday = datetime.today() - timedelta(days=1) #date.today()
+        # CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
+        # Charter_Archive = "R:\SEO Analytics\Reporting\CharterArchive\{0}".format(date.today().strftime("%Y%m%d"))
+        # CSD_Archive_count = self.countfiles(CSD_Archive)
+        # Charter_Archive_count = self.countfiles(Charter_Archive)
+        # # find the missing files
+        # folder1_path = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
+        # folder2_path = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
+        # folder3_path = "R:\SEO Analytics\Share\Charter\{0}".format(date.today().strftime("%Y%m%d"))
+        # folder4_path = r"C:\PA_DISTRIBUTION_PDF_Charter"
+        pdf_count = self.countfiles(os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_PDF'))
+        xls_count = self.countfiles(os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_XLS'))
+        src_CSD = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\Related Services\Output Files\{0}\MandatedServices_{1}'.format(self.folderSY,date.today().strftime("%Y%m%d"))
+        dst_CSD_XLS = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_XLS')
         int_xlspath = 'C:\PA_Distribution_XLS'
-        # yesterday = datetime.today() - timedelta(days=1) #date.today()
-        CSD_Archive = 'R:\SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d"))
-        Charter_Archive = "R:\SEO Analytics\Reporting\CharterArchive\{0}".format(date.today().strftime("%Y%m%d"))
+        CSD_Archive = os.path.join(self.folderpath, 'SEO Analytics\Processing\Data Mart Files\Archives\Backup_{0}'.format(date.today().strftime("%Y-%m-%d")))
+        Charter_Archive = os.path.join(self.folderpath, "SEO Analytics\Reporting\CharterArchive\{0}".format(date.today().strftime("%Y%m%d")))
         CSD_Archive_count = self.countfiles(CSD_Archive)
         Charter_Archive_count = self.countfiles(Charter_Archive)
-        # find the missing files
-        folder1_path = 'R:\All Central Offices\Special Ed Data\PA_Distribution_PDF'
-        folder2_path = 'R:\All Central Offices\Special Ed Data\PA_Distribution_XLS'
-        folder3_path = "R:\SEO Analytics\Share\Charter\{0}".format(date.today().strftime("%Y%m%d"))
+        folder1_path = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_PDF')
+        folder2_path = os.path.join(self.folderpath, 'All Central Offices\Special Ed Data\PA_Distribution_XLS')
+        folder3_path = os.path.join(self.folderpath, "SEO Analytics\Share\Charter\{0}".format(date.today().strftime("%Y%m%d")))
         folder4_path = r"C:\PA_DISTRIBUTION_PDF_Charter"
         folder1_prefixes = self.extract_first_six_chars(folder1_path)
         folder2_prefixes = self.extract_first_six_chars(folder2_path)
@@ -372,20 +405,28 @@ class Automation_SY24_25:
             print('PDF has less files than XLS')
         
     def MandatedServices(self):
-        os.startfile(r'R:\SEO Analytics\Reporting\Critical Processes\Related Services\{0}'.format(self.schoolyear))
-        #mylocalMandate = r'C:\Users\YWang36\Desktop\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
-        file = 'R:\SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
+        # os.startfile(r'R:\SEO Analytics\Reporting\Critical Processes\Related Services\{0}'.format(self.schoolyear))
+        # #mylocalMandate = r'C:\Users\YWang36\Desktop\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
+        # file = 'R:\SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
+        # os.popen(file, 'r')
+        # print("Click Enable Enable in the ribbon-->Developer tab: Click Macros button-->Click Run-->Wait for 4 mins")
+        # time.sleep(5*60)
+        os.startfile(os.path.join(self.folderpath, 'SEO Analytics\Reporting\Critical Processes\Related Services\{0}'.format(self.schoolyear)))
+        file = os.path.join(self.folderpath, 'SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear))
         os.popen(file, 'r')
         print("Click Enable Enable in the ribbon-->Developer tab: Click Macros button-->Click Run-->Wait for 4 mins")
         time.sleep(5*60)
 
     def MandatedServicesAuto(self):
-        # specify path to your Excel file
-        # excel_file_path = 'C:\Users\YWang36\Desktop\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
-        excel_file_path = 'R:\SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
-        # open the Excel file
+        # # specify path to your Excel file
+        # # excel_file_path = 'C:\Users\YWang36\Desktop\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
+        # excel_file_path = 'R:\SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear)
+        # # open the Excel file
+        # app = xw.App(visible=True)
+        # # os.startfile(excel_file_path)
+        # wb = app.books.open(excel_file_path)
+        excel_file_path = os.path.join(self.folderpath, 'SEO Analytics\Processing\Data Mart Files\Templates\SESIS Mandated Services Report\SESIS Mandated Services Report - AUTOMATED - {0}.xlsm'.format(self.schoolyear))
         app = xw.App(visible=True)
-        # os.startfile(excel_file_path)
         wb = app.books.open(excel_file_path)
 
         # specify the name of your macro
@@ -565,9 +606,15 @@ class Automation_SY24_25:
 
 
     def archive_rs_borough(self):
+        # source_folder = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard'
+        # destination_folder = 'R:\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard Archive\{0}'.format(
+        #     date.today().strftime("%Y%m%d"))
+        # file_names_to_copy = ['Access Schools.xlsx', 'Bronx.xlsx', 'Brooklyn North.xlsx', 'Brooklyn South.xlsx', 'Citywide.xlsx',
+        #                     'Citywide RS Powerpoint.pptm', 'D75.xlsx', 'Manhattan.xlsx', 'Queens North.xlsx', 'Queens South.xlsx', 'Stanten Island.xlsx']
+        # self.copy_files_byfilename(source_folder, destination_folder, file_names_to_copy)
         source_folder = '\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard'
-        destination_folder = 'R:\SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard Archive\{0}'.format(
-            date.today().strftime("%Y%m%d"))
+        destination_folder = os.path.join(self.folderpath, 'SEO Analytics\Reporting\RS Dashboard\Weekly RS Dashboard Archive\{0}'.format(
+            date.today().strftime("%Y%m%d")))
         file_names_to_copy = ['Access Schools.xlsx', 'Bronx.xlsx', 'Brooklyn North.xlsx', 'Brooklyn South.xlsx', 'Citywide.xlsx',
                             'Citywide RS Powerpoint.pptm', 'D75.xlsx', 'Manhattan.xlsx', 'Queens North.xlsx', 'Queens South.xlsx', 'Stanten Island.xlsx']
         self.copy_files_byfilename(source_folder, destination_folder, file_names_to_copy)
