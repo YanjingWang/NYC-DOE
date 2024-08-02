@@ -4,12 +4,14 @@ import urllib
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 class DMLOfficeRport1:
-    def __init__(self, lastrow=186933, sqlschoolstartdate='2023-09-07', schoolyear='SY 2023-2024',datestamp='6.30.24',sqlimplementationdate='06-30-2024'):
+    def __init__(self, lastrow=186933, sqlschoolstartdate='2023-09-07', sqlschoolenddate='2024-07-01', schoolyear='SY 2023-2024',datestamp='6.30.24',sqlimplementationdate='06-30-2024',sqlprocesseddate='2024-06-30'):
         self.lastrow = lastrow
-        self.sqldate = sqlschoolstartdate
+        self.sqlschoolstartdate = sqlschoolstartdate
         self.schoolyear = schoolyear
         self.datestamp = datestamp
         self.sqlimplementationdate = sqlimplementationdate
+        self.sqlprocesseddate = sqlprocesseddate
+        self.sqlschoolenddate = sqlschoolenddate
     def create_excel_report(self):
         # Database connection details
         server = 'ES00VPADOSQL180,51433'
@@ -31,20 +33,24 @@ class DMLOfficeRport1:
         engine = create_engine(f'mssql+pyodbc:///?odbc_connect={params}')
 
         # SQL query
-        query = """
-        SELECT 
-            E.[Student ID]
-            ,E.[First Name]
-            ,E.[Last Name]
-            ,E.[Grade Level]
-            ,E.[IEP Flag (ATS)]
-            ,I.[Classification]
-            ,I.[OutcomeDocumentType]
-            ,I.[InactiveDate]
-        FROM [SEO_REPORTING].[dbo].[FinalELLDataetSY24] E
-        LEFT JOIN [SEO_MART].[dbo].[RPT_SESISActiveIEP] I
-        ON I.StudentID = E.[Student ID] AND (I.InactiveDate IS NULL OR I.InactiveDate > '""" + self.sqldate + """')
-        AND ProjectedIEPImplementationDate <= '""" + self.sqlimplementationdate + """'
+        query= """
+            SELECT 
+                E.[Student ID],
+                E.[First Name],
+                E.[Last Name],
+                E.[Grade Level],
+                E.[IEP Flag (ATS)],
+                CASE 
+                    WHEN I.Classification IS NULL AND I.OutcomeDocumentType = 'CSP' THEN 'CSP Awaiting'
+                    ELSE I.Classification
+                END AS Classification,
+                I.OutcomeDocumentType,
+                I.InactiveDate
+            FROM [SEO_REPORTING].[dbo].[FinalELLDataetSY24] E
+            LEFT JOIN [SEO_MART].[snap].[RPT_SESISActiveIEP_063024] I
+                ON I.StudentID = E.[Student ID]
+                --AND I.ProjectedIEPImplementationDate = '2024-06-30'
+                AND (I.InactiveDate IS NULL OR ('"""+self.sqlschoolstartdate+"""' <= I.InactiveDate AND I.InactiveDate <= '"""+self.sqlschoolenddate+"""'))
         """
 
         # Establish a connection
