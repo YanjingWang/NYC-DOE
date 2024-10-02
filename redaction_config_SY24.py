@@ -1,3 +1,11 @@
+from Report8a import Solution as Report8a
+from Report15a import Solution as Report15a
+from Report16 import Solution as Report16
+# Create instances
+report8a_instance = Report8a()
+report15a_instance = Report15a()
+report16_instance = Report16()
+
 REPORTS_CONFIG_SY24 = {
     'Reports 1-4 = Initials': {
         'ranges': [(5, 3, 37, 13), (41, 3, 46, 13), (50, 3, 52, 13), (56, 3, 59, 13), (63, 3, 65, 13), (69, 3, 74, 13),(79, 3, 92, 13), (99, 3, 101, 13),(107, 3, 109, 13)],#Adjust accordingly
@@ -26,7 +34,7 @@ REPORTS_CONFIG_SY24 = {
         'groups':[(3,4,5,6,7),(8,9,10,11,12),(7,12,13)]
     },
     "Report 8a = SWDs by School" : {
-        "ranges": [(4, 3, 1606, 3)]
+        "ranges": [(4, 3, report8a_instance.lastrow, 3)]
     },
     "Report 9 = Disability class" : {
         "ranges": [(5,  3, 37, 16),(41, 3, 46, 16),(50, 3, 52, 16),(56, 3, 59, 16),(63, 3, 65, 16),(69, 3, 73, 16),(77, 3, 90, 16),(94, 3, 96, 16),(100, 3, 102, 16)],
@@ -112,7 +120,7 @@ REPORTS_CONFIG_SY24 = {
         (77, 3, 90, 8),  # C77 to H90
         (94, 3, 96, 8),  # C94 to H96
         (100, 3, 102, 8),# C100 to H102
-        (106, 3, 1614, 8)# C106 to H1614
+        (106, 3, report15a_instance.lastrow, 8)# C106 to H1614
     ],
     'numeric_percentage_pairs': [(3, 4), (5, 6), (7, 8)],
     '100_percentage_sum' : [(4,6,8)],
@@ -129,9 +137,9 @@ REPORTS_CONFIG_SY24 = {
         (85, 3, 98, 6),  # C85 to F98
         (102, 3, 104, 6),# C102 to F104
         (108, 3, 110, 6),# C108 to F110
-        (114, 3, 1717, 6)# C114 to F1717
+        (114, 3, report16_instance.lastrow, 6)# C114 to F1717
     ],
-        'secondary_mask': (5, 1717),
+        'secondary_mask': (5, report16_instance.lastrow),
         'secondary_mask_kwargs': {'groups': [(3, 5)]},
     # 'numeric_percentage_pairs': [(3, 4), (5, 6)], #don't have to redact percentage 
     # '100_percentage_sum' : [(4,6)],
