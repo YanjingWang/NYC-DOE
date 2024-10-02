@@ -53,12 +53,12 @@ class Solution:
         shutil.copy(src,dst)
         print('copying one file from {0} to {1} is compelte'.format(src,dst)) 
     mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx', mylocalCCfolder)
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx', mylocalCCfolder)
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx', mylocalCCfolder)
+    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', mylocalCCfolder)
     copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
     def is_percentage(self, cell):
@@ -284,6 +284,58 @@ class Solution:
                     adjacent_percentage_cell.value = '*'
 
 
+    """
+    for tab `Report 8a = SWDs by School` if there is only one redatced cell in the row of the same district, then mask the smallest value of the rest unmasked data in the same column in the same district of this redacted cell, district column is B,redatced column is C, to find the same district, the first two number of the district 
+    """
+
+    def tab8a_redact_additional_row_for_same_district(self, ws, start_row, end_row, district_column, redacted_column):
+        # Dictionary to track redacted rows per district
+        redacted_rows_per_district = {}
+
+        for row in range(start_row, end_row + 1):  # Loop through the specified range
+            district_value = ws.cell(row=row, column=district_column).value
+            redacted_value = ws.cell(row=row, column=redacted_column).value
+
+            # Check if redacted value is <=5 or >5
+            if redacted_value in ['<=5', '>5']:
+                # Extract the district number (first two characters of the district value)
+                district_number = district_value[:2]
+                print(f"Redacted row {row} in district {district_number}")
+
+                # Track the redacted rows per district
+                if district_number not in redacted_rows_per_district:
+                    redacted_rows_per_district[district_number] = []
+                redacted_rows_per_district[district_number].append(row)
+
+        # Now redact additional rows if there's only one redacted row in a district
+        for district, rows in redacted_rows_per_district.items():
+            if len(rows) == 1:
+                smallest_row = None
+                smallest_value = float('inf')
+
+                # Find the smallest unredacted value in the same district
+                for row in range(start_row, end_row + 1):
+                    district_value = ws.cell(row=row, column=district_column).value
+                    redacted_value = ws.cell(row=row, column=redacted_column).value
+
+                    if district_value.startswith(district) and isinstance(redacted_value, (int, float)):
+                        if redacted_value < smallest_value:
+                            smallest_value = redacted_value
+                            smallest_row = row
+
+                # Redact the smallest value found in the same district
+                if smallest_row:
+                    ws.cell(row=smallest_row, column=redacted_column).value = '>5' if smallest_value > 5 else '<=5'
+
+                    print("Additional redaction completed.")
+
+# Usage example based on the config:
+# Assuming `ws` is your worksheet object and 'Report 8a = SWDs by School' config:
+# report8a_config = REPORTS_CONFIG_SY24["Report 8a = SWDs by School"]
+# ranges = report8a_config["ranges"][0]  # Extract the start_row and end_row from the config
+# redact_additional_row(ws, start_row=ranges[0], end_row=ranges[2], district_column=3, redacted_column=2)
+
+
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
@@ -339,6 +391,12 @@ class Solution:
         # Mask underredacted columns
         for r in configurations['ranges']:
             self.check_and_mask_underredacted_columns(ws, r[0], r[2], r[1], r[3])
+
+        # if tab_name == "Report 8a = SWDs by School" then apply yo function tab8a_redact_additional_row_for_same_district:
+        if tab_name == "Report 8a = SWDs by School":
+            for r in configurations['ranges']:
+                self.tab8a_redact_additional_row_for_same_district(ws,r[0],r[2],r[1]-1,r[3])
+            
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
@@ -379,11 +437,11 @@ class Solution:
                 print(f"Cell {cell.coordinate} - Value: {cell.value} - Type: {type(cell.value)} - Format: {cell.number_format}")
 
     # Example usage
-    print_cell_formats(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', 'Reports 5-7 = Reevaluations', 'C5:M37')
+    # print_cell_formats(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', 'Reports 5-7 = Reevaluations', 'C5:M37')
 
 
 
-    def check_and_mask_underredacted_columns(self, ws, start_row, end_row, start_col, end_col):
+    def check_and_mask_underredacted_columns(self, ws, start_row, start_col, end_row, end_col):
         # Iterate over columns within the specified range
         for col_index in range(start_col, end_col + 1):
             column_cells = [ws.cell(row=row_index, column=col_index) for row_index in range(start_row, end_row + 1)]
@@ -409,58 +467,58 @@ class Solution:
 # Call the function with your filename
 if __name__ == "__main__":
     processor = Solution()
-    ##SY21 and SY22
-    filenames = [
-        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
-        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    ]
+    # ##SY21 and SY22
+    # filenames = [
+    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
+    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
+    # ]
     
-    for fname in filenames:
-        for report, config in REPORTS_CONFIG.items():
-            processor.mask_excel_file(fname, report, config)
+    # for fname in filenames:
+    #     for report, config in REPORTS_CONFIG.items():
+    #         processor.mask_excel_file(fname, report, config)
 
-    redacted_filenames = [
-        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
-        'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    ]
-    unredacted_filenames = [
-        'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\CCUnredacted\\Annual Special Education Data Report Unredacted SY21.xlsx',
-        'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    ]
+    # redacted_filenames = [
+    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
+    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
+    # ]
+    # unredacted_filenames = [
+    #     'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\CCUnredacted\\Annual Special Education Data Report Unredacted SY21.xlsx',
+    #     'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
+    # ]
 
-    for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
-        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
+    # for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
+    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
-        for report, config in REPORTS_CONFIG.items():
-            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-                ws = redacted_wb[report]
-                unredacted_ws = unredacted_wb[report]
-                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+    #     for report, config in REPORTS_CONFIG.items():
+    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+    #             ws = redacted_wb[report]
+    #             unredacted_ws = unredacted_wb[report]
+    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
 
-        # Save the redacted workbook after unmasking green cells
-        redacted_wb.save(redacted_file)
-        redacted_wb.close()
-    ##SY23
-    filename_SY23 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx'
-    for report, config in REPORTS_CONFIG_SY23.items():
-        processor.mask_excel_file(filename_SY23, report, config)
+    #     # Save the redacted workbook after unmasking green cells
+    #     redacted_wb.save(redacted_file)
+    #     redacted_wb.close()
+    # ##SY23
+    # filename_SY23 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx'
+    # for report, config in REPORTS_CONFIG_SY23.items():
+    #     processor.mask_excel_file(filename_SY23, report, config)
 
-    redacted_filenames_SY23 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    unredacted_filenames_SY23 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    for redacted_file, unredacted_file in zip(redacted_filenames_SY23, unredacted_filenames_SY23):
-        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
+    # redacted_filenames_SY23 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    # unredacted_filenames_SY23 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
+    # for redacted_file, unredacted_file in zip(redacted_filenames_SY23, unredacted_filenames_SY23):
+    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
+    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
-        for report, config in REPORTS_CONFIG_SY23.items():
-            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-                ws = redacted_wb[report]
-                unredacted_ws = unredacted_wb[report]
-                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+    #     for report, config in REPORTS_CONFIG_SY23.items():
+    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+    #             ws = redacted_wb[report]
+    #             unredacted_ws = unredacted_wb[report]
+    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
 
-        # Save the redacted workbook after unmasking green cells
-        redacted_wb.save(redacted_file)
-        redacted_wb.close()
+    #     # Save the redacted workbook after unmasking green cells
+    #     redacted_wb.save(redacted_file)
+    #     redacted_wb.close()
     #SY24
     filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx'
     for report, config in REPORTS_CONFIG_SY24.items():
@@ -472,10 +530,14 @@ if __name__ == "__main__":
         unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
 
         for report, config in REPORTS_CONFIG_SY24.items():
-            if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-                ws = redacted_wb[report]
-                unredacted_ws = unredacted_wb[report]
-                processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+            try:
+                if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
+                    ws = redacted_wb[report]
+                    unredacted_ws = unredacted_wb[report]
+                    processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
+            except KeyError:
+                print(f"Warning: Worksheet {report} does not exist in the file {redacted_file}. Skipping...")
+                continue
 
         # Save the redacted workbook after unmasking green cells
         redacted_wb.save(redacted_file)
