@@ -375,6 +375,46 @@ class Solution:
 
         return backtrackable_cells
     
+    def detect_and_unmask_overredaction(self, ws, unredacted_ws, groups, ranges):
+        """
+        This function detects overredaction when:
+        - There is one `<5` cell, and two or more redacted cells (`<=5` or `>5`) in its column of its range.
+        - The cell next to it in the same row and the same group is also `>5` and there are two or more redacted cells in its column.
+        """
+        for group in groups:
+            for (start_row, start_col, end_row, end_col) in ranges:  # Extracting the range from the tuple
+                for row_num in range(start_row, end_row + 1):
+                    for col_index in group:  # For each group of columns (E, F, G, etc.)
+                        cell = ws.cell(row=row_num, column=col_index)
+
+                        # Check if the current cell is `>5`
+                        if cell.value == '>5':
+                            # Get all redacted cells in the same column within the range
+                            redacted_cells_in_column = [
+                                ws.cell(row=r, column=col_index)
+                                for r in range(start_row, end_row + 1)
+                                if ws.cell(row=r, column=col_index).value in ['<=5', '>5']
+                            ]
+                            if len(redacted_cells_in_column) > 2:  # If there are two or more redacted cells in this column
+                                # Check the adjacent cell in the same row and group
+                                adjacent_cell = ws.cell(row=row_num, column=col_index + 1)  # Next cell in the group
+                                if adjacent_cell.value == '>5':
+                                    # Check if there are also two or more redacted cells in the adjacent cell's column
+                                    redacted_cells_in_adjacent_column = [
+                                        ws.cell(row=r, column=col_index + 1)
+                                        for r in range(start_row, end_row + 1)
+                                        if ws.cell(row=r, column=col_index + 1).value in ['<=5', '>5']
+                                    ]
+                                    if len(redacted_cells_in_adjacent_column) > 2:
+                                        # This is an overredaction, unmask both cells
+                                        original_value = unredacted_ws.cell(row=row_num, column=col_index).value
+                                        cell.value = original_value
+                                        print(ws.title, f"Unmasking overredacted cell {cell.coordinate} with value {original_value}")
+
+                                        original_value_adjacent = unredacted_ws.cell(row=row_num, column=col_index + 1).value
+                                        adjacent_cell.value = original_value_adjacent
+                                        print(ws.title, f"Unmasking overredacted adjacent cell {adjacent_cell.coordinate} with value {original_value_adjacent}")
+    
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
@@ -436,11 +476,20 @@ class Solution:
             unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
             unredacted_ws = unredacted_wb[tab_name]
             self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'], unredacted_ws)
+
         # apply detect_backtrackable_cells function
         for r in configurations['ranges']:
             backtrackable_cells = self.detect_backtrackable_cells(ws, r[0], r[1], r[2], r[3])
             for cell in backtrackable_cells:
                 print(ws.title, f"Backtrackable cell found: {cell.coordinate}")
+                # unmask the backtrackable cell
+                cell.value = unredacted_ws[cell.coordinate].value
+                print(ws.title, f"Unmasking backtrackable cell {cell.coordinate} with original value")
+
+        # Detect and unmask overredaction
+        if 'groups' in configurations and 'ranges' in configurations:
+            self.detect_and_unmask_overredaction(ws, unredacted_ws, configurations['groups'], configurations['ranges'])
+            
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
