@@ -116,20 +116,49 @@ class Solution:
         for group in groups:
             for row_num in range(start_row, end_row + 1):
                 masked_vals = [col for col in group if ws.cell(row=row_num, column=col).value in ['<=5', '>5']]
-                if len(masked_vals) == 1:  # If only one value in the group is masked
-                    numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
-                    if numeric_vals:  # Ensure there are numeric values
-                        min_val = min(numeric_vals)
-                        for col in group:
-                            if ws.cell(row=row_num, column=col).value == min_val:
-                                if min_val == 0:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_zero(min_val)
-                                else:
-                                    ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
-                                break
+                
+                # If only one value in the group is masked
+                if len(masked_vals) == 1:  
+                    candidate_cols = []
+                    for col in group:
+                        col_values = [ws.cell(row=r, column=col).value for r in range(start_row, end_row + 1)]
+                        if col_values.count('<=5') + col_values.count('>5') > 1:
+                            # Prioritize this column if there are already masked values
+                            candidate_cols.append(col)
+
+                    if candidate_cols:
+                        # If multiple candidate columns, choose the one with the smallest value in that row
+                        min_val = float('inf')
+                        selected_col = None
+                        for col in candidate_cols:
+                            cell_value = ws.cell(row=row_num, column=col).value
+                            if isinstance(cell_value, (int, float)) and cell_value < min_val:
+                                min_val = cell_value
+                                selected_col = col
+
+                        # Redact the cell in the selected column
+                        if selected_col is not None:
+                            if min_val == 0:
+                                ws.cell(row=row_num, column=selected_col).value = self.mask_value_zero(min_val)
+                            else:
+                                ws.cell(row=row_num, column=selected_col).value = self.mask_value_secondary(min_val)
+
+                    else:
+                        # No columns with existing redacted cells, redact smallest value in the row
+                        numeric_vals = [ws.cell(row=row_num, column=col).value for col in group if isinstance(ws.cell(row=row_num, column=col).value, (int, float)) and not self.is_percentage(ws.cell(row=row_num, column=col))]
+                        if numeric_vals: # Ensure there are numeric values
+                            min_val = min(numeric_vals)
+                            for col in group:
+                                if ws.cell(row=row_num, column=col).value == min_val:
+                                    if min_val == 0:
+                                        ws.cell(row=row_num, column=col).value = self.mask_value_zero(min_val)
+                                    else:
+                                        ws.cell(row=row_num, column=col).value = self.mask_value_secondary(min_val)
+                                    break
 
                 elif len(masked_vals) >= 2: # Two or more values are already masked, no action needed
                     continue
+
 
 
     # Step 3: Masking based on Subtotals        
@@ -283,7 +312,6 @@ class Solution:
                     adjacent_percentage_cell = ws.cell(row=row_num, column=smallest_numeric_cell.column + 1)
                     adjacent_percentage_cell.value = '*'
 
-
     """
     for tab `Report 8a = SWDs by School` if there is only one redatced cell in the row of the same district, then mask the smallest value of the rest unmasked data in the same column in the same district of this redacted cell, district column is B,redatced column is C, to find the same district, the first two number of the district 
     """
@@ -328,14 +356,25 @@ class Solution:
                     ws.cell(row=smallest_row, column=redacted_column).value = '>5' if smallest_value > 5 else '<=5'
 
                     print("Additional redaction completed.")
+                    
+    def detect_backtrackable_cells(self, ws, start_row, start_col, end_row, end_col):
+        """
+        Function to detect cells that can be backtracked. 
+        A backtrackable cell is the only redacted cell in its column within the specified range.
+        """
+        backtrackable_cells = []
 
-# Usage example based on the config:
-# Assuming `ws` is your worksheet object and 'Report 8a = SWDs by School' config:
-# report8a_config = REPORTS_CONFIG_SY24["Report 8a = SWDs by School"]
-# ranges = report8a_config["ranges"][0]  # Extract the start_row and end_row from the config
-# redact_additional_row(ws, start_row=ranges[0], end_row=ranges[2], district_column=3, redacted_column=2)
+        # Iterate through each column within the specified range
+        for col in range(start_col, end_col + 1):
+            redacted_cells = [ws.cell(row=row, column=col) for row in range(start_row, end_row + 1)
+                            if ws.cell(row=row, column=col).value in ['<=5', '>5']]
 
+            # If there is only one redacted cell in this column, it's backtrackable
+            if len(redacted_cells) == 1:
+                backtrackable_cells.append(redacted_cells[0])
 
+        return backtrackable_cells
+    
     def mask_excel_file(self,filename,tab_name,configurations):
         # Load the workbook
         wb = openpyxl.load_workbook(filename)
@@ -367,15 +406,9 @@ class Solution:
         # Conditionally invoke third masking if present in configurations
         if 'third_mask' in configurations and 'third_mask_kwargs' in configurations:
             self.third_mask(ws, *configurations['third_mask'], **configurations['third_mask_kwargs'])
-        # print('all masking is done, now highlight overredaction')
-        # if 'total_col_indexes' in configurations and 'groups' in configurations:
-        #     start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
-        #     self.highlight_overredaction(ws, configurations['total_col_indexes'], start_row, end_row, configurations['groups'])
-        #     self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
+
         if 'total_col_indexes' in configurations and 'groups' in configurations and 'ranges' in configurations:
             start_row, end_row = configurations['secondary_mask']  # Assuming secondary_mask defines the row range
-            # self.highlight_overredaction(ws, start_row, end_row, configurations['groups'], configurations['ranges'])
-            # self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'])
             self.highlight_underredaction(ws, start_row, end_row, configurations['groups'])
         # print('highlight overredaction is done')
             
@@ -396,7 +429,18 @@ class Solution:
         if tab_name == "Report 8a = SWDs by School":
             for r in configurations['ranges']:
                 self.tab8a_redact_additional_row_for_same_district(ws,r[0],r[2],r[1]-1,r[3])
-            
+
+        # Apply highlight_overredaction after redaction processing
+        if 'groups' in configurations and 'ranges' in configurations:
+            unredacted_filename = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted\Non-Redacted Annual Special Education Data Report SY24.xlsx'
+            unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
+            unredacted_ws = unredacted_wb[tab_name]
+            self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'], unredacted_ws)
+        # apply detect_backtrackable_cells function
+        for r in configurations['ranges']:
+            backtrackable_cells = self.detect_backtrackable_cells(ws, r[0], r[1], r[2], r[3])
+            for cell in backtrackable_cells:
+                print(ws.title, f"Backtrackable cell found: {cell.coordinate}")
         # Save the modified workbook
         wb.save(filename) # Adjust the range if necessary
         wb.close()
@@ -441,7 +485,7 @@ class Solution:
 
 
 
-    def check_and_mask_underredacted_columns(self, ws, start_row, start_col, end_row, end_col):
+    def check_and_mask_underredacted_columns(self, ws, start_row, end_row, start_col, end_col):
         # Iterate over columns within the specified range
         for col_index in range(start_col, end_col + 1):
             column_cells = [ws.cell(row=row_index, column=col_index) for row_index in range(start_row, end_row + 1)]
@@ -477,68 +521,13 @@ if __name__ == "__main__":
     #     for report, config in REPORTS_CONFIG.items():
     #         processor.mask_excel_file(fname, report, config)
 
-    # redacted_filenames = [
-    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
-    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    # ]
-    # unredacted_filenames = [
-    #     'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\CCUnredacted\\Annual Special Education Data Report Unredacted SY21.xlsx',
-    #     'C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    # ]
-
-    # for redacted_file, unredacted_file in zip(redacted_filenames, unredacted_filenames):
-    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
-
-    #     for report, config in REPORTS_CONFIG.items():
-    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-    #             ws = redacted_wb[report]
-    #             unredacted_ws = unredacted_wb[report]
-    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
-
-    #     # Save the redacted workbook after unmasking green cells
-    #     redacted_wb.save(redacted_file)
-    #     redacted_wb.close()
     # ##SY23
     # filename_SY23 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx'
     # for report, config in REPORTS_CONFIG_SY23.items():
     #     processor.mask_excel_file(filename_SY23, report, config)
 
-    # redacted_filenames_SY23 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    # unredacted_filenames_SY23 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY23.xlsx']
-    # for redacted_file, unredacted_file in zip(redacted_filenames_SY23, unredacted_filenames_SY23):
-    #     redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-    #     unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
-
-    #     for report, config in REPORTS_CONFIG_SY23.items():
-    #         if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-    #             ws = redacted_wb[report]
-    #             unredacted_ws = unredacted_wb[report]
-    #             processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
-
-    #     # Save the redacted workbook after unmasking green cells
-    #     redacted_wb.save(redacted_file)
-    #     redacted_wb.close()
     #SY24
     filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx'
     for report, config in REPORTS_CONFIG_SY24.items():
         processor.mask_excel_file(filename_SY24, report, config)
-    redacted_filenames_SY24 = [ 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx']
-    unredacted_filenames_SY24 = ['C:\\Users\\Ywang36\OneDrive - NYCDOE\\Desktop\\CityCouncil\\CCUnredacted\\Non-Redacted Annual Special Education Data Report SY24.xlsx']
-    for redacted_file, unredacted_file in zip(redacted_filenames_SY24, unredacted_filenames_SY24):
-        redacted_wb = openpyxl.load_workbook(redacted_file, data_only=True)
-        unredacted_wb = openpyxl.load_workbook(unredacted_file, data_only=True)
-
-        for report, config in REPORTS_CONFIG_SY24.items():
-            try:
-                if 'groups' in config and 'ranges' in config:  # Ensure both 'groups' and 'ranges' keys exist
-                    ws = redacted_wb[report]
-                    unredacted_ws = unredacted_wb[report]
-                    processor.highlight_overredaction(ws, config['groups'], config['ranges'], unredacted_ws)
-            except KeyError:
-                print(f"Warning: Worksheet {report} does not exist in the file {redacted_file}. Skipping...")
-                continue
-
-        # Save the redacted workbook after unmasking green cells
-        redacted_wb.save(redacted_file)
-        redacted_wb.close()
+    
