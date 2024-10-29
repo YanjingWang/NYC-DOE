@@ -8,7 +8,8 @@ class Solution:
     # Existing code...
     # Function to format headers
     def __init__(self):
-        self.schoolyear = 'SY 2022-23'
+        self.schoolyear = 'SY 2024-25'
+        self.sqlsnapshottableschoolyear = '24'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -134,7 +135,7 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_StudentRegisterR814_061523')
+        params = ('CC_StudentRegisterR814_0615'+self.sqlsnapshottableschoolyear,)
         cursor.execute("EXEC [dbo].[USPCC_AnnaulReport8A] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"

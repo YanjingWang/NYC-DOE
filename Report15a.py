@@ -2,12 +2,15 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
-import pyodbc
+import pyodbc, time
 class Solution:
     # Existing code...
     # Function to format headers
     def __init__(self):
-        self.schoolyear = 'SY 2022-23'
+        self.schoolyear = 'SY 2024-25'
+        self.sqlsnapshottableschoolyear = '24'
+        self.lastschoolyear = 'SY 2023-2024'
+        self.lastrow = 1637 #1614
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -47,7 +50,7 @@ class Solution:
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
-        for row in ws.iter_rows(min_row=1, max_row=1615, min_col=1, max_col=26):
+        for row in ws.iter_rows(min_row=1, max_row=self.lastrow, min_col=1, max_col=26):
             for cell in row:
                 cell.fill = white_fill
 
@@ -138,13 +141,15 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_SpecialTransportation_061523','CC_StudentRegisterR814_061523')
+        params = ('CC_SpecialTransportation_0615'+self.sqlsnapshottableschoolyear,'CC_StudentRegisterR814_0615'+self.sqlsnapshottableschoolyear)
         cursor.execute("EXEC [dbo].[USPCC_AnnaulReport13st] @tableNameCCSpecialTransportation =?,@tableNameStudentRegisterR814 =?", params)
+        # sleep for 60 seconds
+        time.sleep(30)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
     def fetch_data_by_district(self,cursor):
         query_bydistrict = '''
-        select * from  ( Select  ReportingDistrict as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by ReportingDistrict  ) a  union all select 99 as  total, c1,c2,c3,c4,c5,c6 from ##totalRow13st order by sort 
+        select * from  ( Select  ReportingDistrict as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by ReportingDistrict  ) a  union all select 99 as  total, c1,c2,c3,c4,c5,c6 from ##totalRow13st order by sort
         '''  # the bytab12 SQL query goes here
         cursor.execute(query_bydistrict)
         results_bydistrict = cursor.fetchall()
@@ -152,7 +157,7 @@ class Solution:
     
     def fetch_data_by_race(self,cursor):
         query_byrace = '''
-        select EthnicityGroupCC, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select Ethnicity_sort as sort , EthnicityGroupCC,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by EthnicityGroupCC, Ethnicity_sort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort 
+        select EthnicityGroupCC, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select Ethnicity_sort as sort , EthnicityGroupCC,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by EthnicityGroupCC, Ethnicity_sort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort  
         '''
         cursor.execute(query_byrace)
         results_byrace = cursor.fetchall()
@@ -160,7 +165,7 @@ class Solution:
     
     def fetch_data_by_mealstatus(self,cursor):
         query_bymealstatus = '''
-        select * from  ( Select  MealStatusGrouping as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by MealStatusGrouping  ) a  union all select * from ##totalRow13st  order by sort 
+        select * from  ( Select  MealStatusGrouping as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by MealStatusGrouping  ) a  union all select * from ##totalRow13st  order by sort
         '''
         cursor.execute(query_bymealstatus)
         results_bymealstatus = cursor.fetchall()
@@ -176,7 +181,7 @@ class Solution:
         
     def fetch_data_by_gradelevel(self,cursor):
         query_bygradelevel = ''' 
-        select GradeLevel, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select GradeSort as sort , GradeLevel,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by GradeLevel, GradeSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort
+        select GradeLevel, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select GradeSort as sort , GradeLevel,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by GradeLevel, GradeSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort 
         '''
         cursor.execute(query_bygradelevel)
         results_bygradelevel = cursor.fetchall()
@@ -192,7 +197,7 @@ class Solution:
     
     def fetch_data_by_ellstatus(self,cursor):
         query_byellstatus = '''
-        select * from  ( Select  ELLStatus as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by ELLStatus  ) a  union all select * from ##totalRow13st  order by sort 
+        select * from  ( Select  ELLStatus as sort ,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by ELLStatus  ) a  union all select * from ##totalRow13st  order by sort
         '''
         cursor.execute(query_byellstatus)
         results_byellstatus = cursor.fetchall()
@@ -208,7 +213,7 @@ class Solution:
     
     def fetch_data_by_fostercarestaus(self,cursor):
         query_byfostercarestaus = '''
-        select FostercareFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select FosterCareFlagSort as sort , FostercareFlag,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by FostercareFlag, FosterCareFlagSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort 
+        select FostercareFlag, c1,c2,c3,c4,c5,c6 from (  select * from  ( Select FosterCareFlagSort as sort , FostercareFlag,FORMAT(Sum(CurbtoSchool) , '#,##0') as c1 ,concat(cast(Sum(CurbtoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c2 ,FORMAT(sum(StoptoSchool) , '#,##0') as c3 ,concat(cast(Sum(StoptoSchool)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c4 ,FORMAT(sum(Unassigned) , '#,##0') as c5 ,concat(cast(Sum(Unassigned)*1.0/nullif(Count(studentid),0)*100 as numeric(7)), '%') as c6  FROM ##CCTotaltemp13st  group by FostercareFlag, FosterCareFlagSort ) a  union all  select * from ##totalRow_Sort13st  ) a order by sort
         '''
         cursor.execute(query_byfostercarestaus)
         results_byfostercarestaus = cursor.fetchall()
@@ -247,7 +252,7 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'H37'] + ws['C41':'H46'] + ws['C50':'H52'] + ws['C56':'H59'] + ws['C63':'H65'] + ws['C69':'H73'] + ws['C77':'H90'] + ws['C94':'H96'] + ws['C100':'H102'] + ws['C106':'H1614']:
+        for row in ws['C5':'H37'] + ws['C41':'H46'] + ws['C50':'H52'] + ws['C56':'H59'] + ws['C63':'H65'] + ws['C69':'H73'] + ws['C77':'H90'] + ws['C94':'H96'] + ws['C100':'H102'] + ws['C106':'H'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -267,7 +272,7 @@ class Solution:
                 return False
 
         # Formatting specific cell ranges
-        cell_ranges = ['C5:H37', 'C41:H46', 'C50:H52', 'C56:H59', 'C63:H65', 'C69:H73', 'C77:H90', 'C94:H96', 'C100:H102', 'C106:H1614']
+        cell_ranges = ['C5:H37', 'C41:H46', 'C50:H52', 'C56:H59', 'C63:H65', 'C69:H73', 'C77:H90', 'C94:H96', 'C100:H102', 'C106:H'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -330,7 +335,7 @@ class Solution:
         #             cell.value = str(cell.value) + ''
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')      
 
-        # for row in ws['C106':'H1614']:
+        # for row in ws['C106':'H'+str(self.lastrow)]:
         #     for cell in row:
         #         if cell.value is not None:
         #             cell.value = str(cell.value) + ''
@@ -341,7 +346,7 @@ class Solution:
                 cell.border = black_border
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B37':'H37'] + ws['B46':'H46'] + ws['B52':'H52'] + ws['B59':'H59'] + ws['B65':'H65'] + ws['B73':'H73'] + ws['B90':'H90'] + ws['B96':'H96'] + ws['B102':'H102'] + ws['B1614':'H1614']:
+        for row in ws['B37':'H37'] + ws['B46':'H46'] + ws['B52':'H52'] + ws['B59':'H59'] + ws['B65':'H65'] + ws['B73':'H73'] + ws['B90':'H90'] + ws['B96':'H96'] + ws['B102':'H102'] + ws['B'+str(self.lastrow):'H'+str(self.lastrow)]:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)
@@ -363,16 +368,16 @@ class Solution:
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by District", "merge_cells": "B3:H3"},
-            {"cell": "B39", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Race/Ethnicity", "merge_cells": "B39:H39"},    
-            {"cell": "B48", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Meal Status", "merge_cells": "B48:H48"}, 
-            {"cell": "B54", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Gender", "merge_cells": "B54:H54"},   
-            {"cell": "B61", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by English Language Learner (ELL) Status", "merge_cells": "B61:H61"}, 
-            {"cell": "B67", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Recommended Language of Instruction", "merge_cells": "B67:H67"}, 
-            {"cell": "B75", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Grade Level", "merge_cells": "B75:H75"}, 
-            {"cell": "B92", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Temporary Housing Status", "merge_cells": "B92:H92"}, 
-            {"cell": "B98", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by Foster Care Status", "merge_cells": "B98:H98"}, 
-            {"cell": "B104", "value": "SY 2022-2023 Number & Percentage of Special Transportation Recommendations with Busing Assignment by School", "merge_cells": "B104:H104"}, 
+            {"cell": "B3", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by District", "merge_cells": "B3:H3"},
+            {"cell": "B39", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Race/Ethnicity", "merge_cells": "B39:H39"},    
+            {"cell": "B48", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Meal Status", "merge_cells": "B48:H48"}, 
+            {"cell": "B54", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Gender", "merge_cells": "B54:H54"},   
+            {"cell": "B61", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by English Language Learner (ELL) Status", "merge_cells": "B61:H61"}, 
+            {"cell": "B67", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Recommended Language of Instruction", "merge_cells": "B67:H67"}, 
+            {"cell": "B75", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Grade Level", "merge_cells": "B75:H75"}, 
+            {"cell": "B92", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Temporary Housing Status", "merge_cells": "B92:H92"}, 
+            {"cell": "B98", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by Foster Care Status", "merge_cells": "B98:H98"}, 
+            {"cell": "B104", "value": f"{self.lastschoolyear} Number & Percentage of Special Transportation Recommendations with Busing Assignment by School", "merge_cells": "B104:H104"}, 
 
 
         ]
@@ -412,7 +417,7 @@ class Solution:
         self.write_data_to_excel(ws, results_bylanguage, start_row=69)
 
         results_bygradelevel = self.fetch_data_by_gradelevel(cursor)
-        results_bygradelevel = [(x[0].replace('0K', 'KG'), *x[1:]) for x in results_bygradelevel]
+        results_bygradelevel = [(x[0].replace('0K', 'KG'), *x[1:]) for x in results_bygradelevel] 
         results_bygradelevel = [(x[0].replace('01', '1'), *x[1:]) for x in results_bygradelevel]
         results_bygradelevel = [(x[0].replace('02', '2'), *x[1:]) for x in results_bygradelevel]
         results_bygradelevel = [(x[0].replace('03', '3'), *x[1:]) for x in results_bygradelevel]
@@ -421,7 +426,13 @@ class Solution:
         results_bygradelevel = [(x[0].replace('06', '6'), *x[1:]) for x in results_bygradelevel]
         results_bygradelevel = [(x[0].replace('07', '7'), *x[1:]) for x in results_bygradelevel]
         results_bygradelevel = [(x[0].replace('08', '8'), *x[1:]) for x in results_bygradelevel]
-        results_bygradelevel = [(x[0].replace('09', '9'), *x[1:]) for x in results_bygradelevel]   
+        results_bygradelevel = [(x[0].replace('09', '9'), *x[1:]) for x in results_bygradelevel] 
+        results_bygradelevel = [(x[0].replace('10', '10'), *x[1:]) for x in results_bygradelevel]
+        results_bygradelevel = [(x[0].replace('11', '11'), *x[1:]) for x in results_bygradelevel]
+        results_bygradelevel = [(x[0].replace('12', '12'), *x[1:]) for x in results_bygradelevel]
+        results_bygradelevel = [('Total' if x[0] == 'Total' else x[0], *x[1:]) for x in results_bygradelevel]  
+        # sort the results by grade level by the order from KG,1,2,3,4,5,6,7,8,9,10,11,12 to Total
+        results_bygradelevel = sorted(results_bygradelevel, key=lambda x: (x[0] != 'KG', x[0] != '1', x[0] != '2', x[0] != '3', x[0] != '4', x[0] != '5', x[0] != '6', x[0] != '7', x[0] != '8', x[0] != '9', x[0] != '10', x[0] != '11', x[0] != '12', x[0] != 'Total'))
         self.write_data_to_excel(ws, results_bygradelevel, start_row=77)
 
         results_bytempstatus = self.fetch_data_by_tempstatus(cursor)

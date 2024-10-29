@@ -8,7 +8,9 @@ class Solution:
     # Existing code...
     # Function to format headers
     def __init__(self):
-        self.schoolyear = 'SY 2022-23'
+        self.schoolyear = 'SY 2024-25'
+        self.sqlsnapshottableschoolyear = '24'
+        self.lastrow = 1719 # 1717
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -48,7 +50,7 @@ class Solution:
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
-        for row in ws.iter_rows(min_row=1, max_row=1718, min_col=1, max_col=26):
+        for row in ws.iter_rows(min_row=1, max_row=self.lastrow, min_col=1, max_col=26):
             for cell in row:
                 cell.fill = white_fill
 
@@ -139,7 +141,7 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_StudentRegisterR814_061523')
+        params = ('CC_StudentRegisterR814_0615'+self.sqlsnapshottableschoolyear,)
         cursor.execute("EXEC [dbo].[USPCC_AnnaulReport14a] @tableNameCCStudentRegisterR814=?", params)
         # sleep for 60 seconds
         time.sleep(60)
@@ -256,7 +258,7 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'F9'] + ws['C13':'F45'] + ws['C49':'F54'] + ws['C58':'F60'] + ws['C64':'F67'] + ws['C71':'F73'] + ws['C77':'F81'] + ws['C85':'F98'] + ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F1717']:
+        for row in ws['C5':'F9'] + ws['C13':'F45'] + ws['C49':'F54'] + ws['C58':'F60'] + ws['C64':'F67'] + ws['C71':'F73'] + ws['C77':'F81'] + ws['C85':'F98'] + ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F'+str(self.lastrow)]:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -276,7 +278,7 @@ class Solution:
                 return False
 
         # Formatting specific cell ranges
-        cell_ranges = ['C5:F9', 'C13:F45', 'C49:F54', 'C58:F60', 'C64:F67', 'C71:F73', 'C77:F81', 'C85:F98', 'C102:F104', 'C108:F110', 'C114:F1717']
+        cell_ranges = ['C5:F9', 'C13:F45', 'C49:F54', 'C58:F60', 'C64:F67', 'C71:F73', 'C77:F81', 'C85:F98', 'C102:F104', 'C108:F110', 'C114:F'+str(self.lastrow)]
         for cell_range in cell_ranges:
             for row in ws[cell_range]:
                 for cell in row:
@@ -327,7 +329,7 @@ class Solution:
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
         #         cell.alignment = openpyxl.styles.Alignment(horizontal='right')
 
-        # for row in ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F1717']:
+        # for row in ws['C102':'F104'] + ws['C108':'F110'] + ws['C114':'F'+str(self.lastrow)]:
         #     for cell in row:
         #         if cell.value is not None:  # Ensure there is a value in the cell
         #             cell.value = str(cell.value) + ''  # Prepend space to the value
@@ -339,7 +341,7 @@ class Solution:
                 cell.border = black_border
                 cell.font = Font(bold=True, size=12)
 
-        for row in ws['B9':'F9'] + ws['B45':'F45'] + ws['B54':'F54'] + ws['B60':'F60'] + ws['B67':'F67'] + ws['B73':'F73'] + ws['B81':'F81'] + ws['B98':'F98'] + ws['B104':'F104'] + ws['B110':'F110'] + ws['B1717':'F1717']:
+        for row in ws['B9':'F9'] + ws['B45':'F45'] + ws['B54':'F54'] + ws['B60':'F60'] + ws['B67':'F67'] + ws['B73':'F73'] + ws['B81':'F81'] + ws['B98':'F98'] + ws['B104':'F104'] + ws['B110':'F110'] + ws['B'+str(self.lastrow):'F'+str(self.lastrow)]:
             for cell in row:
                 cell.border = black_boarder_all
                 cell.font = Font(bold=True, size=12)

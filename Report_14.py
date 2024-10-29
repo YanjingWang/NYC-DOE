@@ -7,9 +7,6 @@ import os
 class Solution:
     # Existing code...
     # Function to format headers
-    def __init__(self):
-        self.schoolyear = 'SY 2024-25'
-        self.sqlsnapshottableschoolyear = '24'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -43,9 +40,9 @@ class Solution:
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
         # wb = openpyxl.Workbook()
         # ws = wb.active
-        # ws.title = "Report 14 = BIP Citywide"
+        # ws.title = "Report 14 = Inclusion"
         wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx')
-        ws = wb.create_sheet("Report 17 = Inclusion")
+        ws = wb.create_sheet("Report 14 = Inclusion")
 
         # Set fill color for cells from A1 to Zn to white
         white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -81,7 +78,7 @@ class Solution:
 
         # Call the header formatting function for each header section
         columns = ['Number of Students',
-                'Percentage of All Students with IEP']
+                'Percentage of All Students with IEPs']
         column_letters = ['C', 'D']
         # You need to pass the correct parameters to the format_header function
         # For example, for the 'District' header starting at row 4
@@ -124,20 +121,22 @@ class Solution:
 
     # Step 2: Connect to the database
     def connect_to_database(self):
-        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
+        conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_REPORTING' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_StudentRegisterR814_0615'+self.sqlsnapshottableschoolyear,)
-        cursor.execute("EXEC [dbo].[USPCC_AnnaulReport14] @tableNameCCStudentRegisterR814=?", params)
+        params = ('CC_StudentRegisterR814_061523')
+        cursor.execute("[DEV].[USPCCAnnaulReport14] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
-    def fetch_data_by_tab17(self,cursor):
-        query_bytab17 = """
-        select LREMetric,Students,Perc AS 'Percent' from (  select  [LRE_Sort] , case when [LREMetric] = '>=80%' then '80% or More' when [LREMetric] = '40-79%' then '40-79%' when [LREMetric] = '<40%' then 'Less Than 40%' end as[LREMetric] ,FORMAT(count([StudentID]), '#,##0') as 'Students'  ,CONCAT(CAST((COUNT(StudentID)*1.0/(SELECT COUNT(StudentID) FROM [SEO_MART].[snap].CC_StudentRegisterR814_061523 WHERE [GradeLevel] <> 'AD'  AND [EnrolledDBN] <> '02M972'))*100 AS DECIMAL(10,1)), '%') AS Perc   from ##CCInclusiontemp group by [LRE_Sort], [LREMetric] union all  select * from ##totalRow_Sort  ) a  order by LRE_Sort, LREMetric
-        """  # the bytab17 SQL query goes here
-        cursor.execute(query_bytab17)
-        results_bytab17 = cursor.fetchall()
-        return results_bytab17
+    def fetch_data_by_tab14(self,cursor):
+        query_bytab14 = '''
+        select LREMetric,Students,Perc AS 'Percent' from (  select  [LRE_Sort] , case when [LREMetric] = '>=80%' then '80% or More' when [LREMetric] = '40-79%' then '40-79%' when [LREMetric] = '<40%' then 'Less Than 40%' end as[LREMetric] ,
+        FORMAT(count([StudentID]), '#,##0') as 'Students'  ,CONCAT(CAST((COUNT(StudentID)*1.0/(SELECT COUNT(StudentID) FROM [SEO_MART].[snap].CC_StudentRegisterR814_061523 WHERE [GradeLevel] <> 'AD'  AND [EnrolledDBN] <> '02M972'))*100 AS DECIMAL(10,1)), '%') AS Perc   
+        from ##CCInclusiontemp group by [LRE_Sort], [LREMetric] union all  select * from ##totalRow_Sort  ) a  order by LRE_Sort, LREMetric 
+        '''  # the bytab12 SQL query goes here
+        cursor.execute(query_bytab14)
+        results_bytab13 = cursor.fetchall()
+        return results_bytab13
 
     
     # Step 3: Write data to Excel for "Report 8b = IEP Service Recs by Race"
@@ -164,35 +163,12 @@ class Solution:
                 ws[col + str(row_num)].border = black_border_no_bottom
 
         # Update alignment for range C6:N38
-        for row in ws['C5':'D8']:
+        for row in ws['C5':'H13']:
             for cell in row:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.value = str(cell.value) + ''  # Prepend space to the value
-                cell.alignment = openpyxl.styles.Alignment(horizontal='right')
-                if isinstance(cell.value, str):
-                    try:
-                        cell.value = int(cell.value)
-                    except ValueError:
-                        # If the value cannot be converted to int, keep the original value
-                        pass
-        # Function to check if a string represents a valid number
-        def is_number(s):
-            try:
-                float(s.replace(',', ''))  # Try converting after removing commas
-                return True
-            except ValueError:
-                return False
+                cell.alignment = openpyxl.styles.Alignment(horizontal='center')
 
-        # Formatting specific cell ranges
-        cell_ranges = ['C5:D8']
-        for cell_range in cell_ranges:
-            for row in ws[cell_range]:
-                for cell in row:
-                    if isinstance(cell.value, str) and is_number(cell.value):
-                        # Convert to float after removing commas
-                        cell.value = float(cell.value.replace(',', ''))
-                        # Apply number format with commas (optional)
-                        cell.number_format = '#,##0'
         for row in ws['B1': 'D1']:
             for cell in row:
                 cell.border = black_border
@@ -207,22 +183,19 @@ class Solution:
             for cell in row:
                 cell.border = black_border_thick
                 cell.font = Font(bold=True, size=12)
-        # wrap text in cell D4 and B4
-        ws['B4'].alignment = Alignment(wrap_text=True)
-        ws['D4'].alignment = Alignment(wrap_text=True)
-    def Report_17_Inclusion(self):
+    def Report_14_Inclusion(self):
         title_cells = [
-            {"cell": "B1", "value": "Report 17 Inclusion", "merge_cells": "B1:D1"},
+            {"cell": "B1", "value": "Report 14 Inclusion", "merge_cells": "B1:D1"},
             
 
         ]
 
         subtitle_cells = [
-            {"cell": "B3", "value": self.schoolyear + " Inclusion of Students with IEPs", "merge_cells": "B3:D3"},           
+            {"cell": "B3", "value": "SY 2022-23 Inclusion of Students with IEPs", "merge_cells": "B3:D3"},           
 
         ]
 
-        column_widths = [5,50, 30, 30]
+        column_widths = [5, 70, 30, 30]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         
@@ -230,8 +203,8 @@ class Solution:
         cursor = self.connect_to_database()
         
         # Step 3: Fetch and write data for "Report 8b = IEP Service Recs by tab13"
-        results_bytab17= self.fetch_data_by_tab17(cursor)
-        self.write_data_to_excel(ws, results_bytab17, start_row=5)
+        results_bytab14= self.fetch_data_by_tab14(cursor)
+        self.write_data_to_excel(ws, results_bytab14, start_row=5)
 
         # Step 9: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
@@ -259,5 +232,6 @@ class Solution:
         book.save(save_path)
 
 if __name__ == "__main__":
-        Tab14a = Solution()
-        Tab14a.Report_17_Inclusion()     
+        Tab14 = Solution()
+        Tab14.Report_14_Inclusion()  
+ 

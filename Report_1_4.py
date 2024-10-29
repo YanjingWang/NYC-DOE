@@ -9,7 +9,9 @@ class Solution:
     # Existing code...
     # Function to format headers
     def __init__(self):
-        self.schoolyear = 'SY 2022-23'
+        self.schoolyear = 'SY 2024-25'
+        self.sqlsnapshottableschoolyear = '24'
+        self.lastyear = '2023'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
     def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
@@ -80,8 +82,8 @@ class Solution:
             ws.column_dimensions[column_letter].width = width
 
         # Call the header formatting function for each header section
-        columns = ['Total Students with Initial Referrals 7/1/2022 - 06/30/2023', 'Closed without IEP Meeting',
-                'Student Determined Ineligible. IEP Meeting <= 60 Calendar Days from Date of Consent', 'Student Determined Ineligible. IEP Meeting > 60 Calendar Days from Date of Consent', 'Total Ineligible', 'Student Classified. IEP Meeting <= 60 Calendar Days from Date of Consent','Student Classified. IEP Meeting > 60 Calendar Days from Date of Consent','Total Classified','Total IEP Meetings Held (Ineligible + Classified)','Open and Awaiting Parental Consent as of 06/30/2023','Open and Parental Consent Received as of 06/30/2023']
+        columns = [f'Total Students with Initial Referrals 7/1/{self.lastyear} - 06/30/20{self.sqlsnapshottableschoolyear}', 'Closed without IEP Meeting',
+                'Student Determined Ineligible. IEP Meeting <= 60 Calendar Days from Date of Consent', 'Student Determined Ineligible. IEP Meeting > 60 Calendar Days from Date of Consent', 'Total Ineligible', 'Student Classified. IEP Meeting <= 60 Calendar Days from Date of Consent','Student Classified. IEP Meeting > 60 Calendar Days from Date of Consent','Total Classified','Total IEP Meetings Held (Ineligible + Classified)',f'Open and Awaiting Parental Consent as of 06/30/20{self.sqlsnapshottableschoolyear}',f'Open and Parental Consent Received as of 06/30/20{self.sqlsnapshottableschoolyear}']
         column_letters = ['C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M']
         # You need to pass the correct parameters to the format_header function
         # For example, for the 'District' header starting at row 4
@@ -135,7 +137,7 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_InitialReferralsR19_SY23')
+        params = ('CC_InitialReferralsR19_SY'+self.sqlsnapshottableschoolyear)
         cursor.execute("EXEC [dbo].[USPCC_AnnaulReport1to4] @tableNameCCInitialReferralsR19=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
@@ -442,7 +444,7 @@ class Solution:
         self.write_data_to_excel(ws, results_byFosterCareStatus, start_row=107)
         
         # insert text from cell B75 to O75
-        ws['B75'] = '''* The language of instruction recommended on the student's IEP is listed as "undetermined" if the student was determined to be ineligible for an IEP, the case was closed without an IEP meeting, or the case was open as of 6/30/2023.'''
+        ws['B75'] = f'''* The language of instruction recommended on the student's IEP is listed as "undetermined" if the student was determined to be ineligible for an IEP, the case was closed without an IEP meeting, or the case was open as of 6/30/20{self.sqlsnapshottableschoolyear}.'''
         # # Step 12: Save the combined report
         save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\Non-Redacted Annual Special Education Data Report.xlsx'
         wb.save(save_path)

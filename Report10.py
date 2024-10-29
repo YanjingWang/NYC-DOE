@@ -6,57 +6,113 @@ class Solution:
     # Existing code...
     # Function to format headers
     def __init__(self):
-        self.schoolyear = 'SY 2022-23'
+        self.schoolyear = 'SY 2024-25'
+        self.sqlsnapshottableschoolyear = '24'
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
-    def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
-        # Set title, font, border, alignment, fill, row dimensions, and merge cells for the main header
+    # def format_header(self,ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style):
+    #     # Set title, font, border, alignment, fill, row dimensions, and merge cells for the main header
+    #     ws[header_start_cell] = header_title
+    #     ws[header_start_cell].font = font_style
+    #     ws[header_start_cell].border = border_style
+    #     ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center')  
+    #     ws[header_start_cell].fill = PatternFill(start_color=header_fill_color, end_color=header_fill_color, fill_type="solid")
+    #     ws.row_dimensions[int(header_start_cell[1:])].height = row_height
+    #     # ws.merge_cells(header_start_cell + ':' + chr(ord(column_letters[-1]) + 1) + str(int(header_start_cell[1:])+1))
+    #     # Merge the header_start_cell with the cell directly below it
+    #     ws.merge_cells(start_row=ws[header_start_cell].row,
+    #                 start_column=ws[header_start_cell].column,
+    #                 end_row=ws[header_start_cell].row + 1,
+    #                 end_column=ws[header_start_cell].column)
+
+    #     print('headercell:'+header_start_cell)
+    #     print('mergecell:'+ header_start_cell + ':' +str(int(header_start_cell[1:])+1))
+        
+    #     # Apply formatting to the sub headers
+    #     for col, title in zip(column_letters, columns):
+    #         cell_number = str(int(header_start_cell[1:])) #don't +3 here
+    #         ws[col + cell_number] = title
+    #         ws[col + cell_number].font = font_style
+    #         ws[col + cell_number].border = border_style
+    #         ws[col + cell_number].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    #         ws[col + cell_number].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+    #         ws[col + str(int(cell_number)+1)] = '#'
+    #         ws[col + str(int(cell_number)+1)].font = font_style
+    #         ws[col + str(int(cell_number)+1)].border = border_style
+    #         ws[col + str(int(cell_number)+1)].alignment = Alignment(horizontal='center', vertical='center',wrap_text=True) 
+    #         ws[col + str(int(cell_number)+1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+    #         ws[chr(ord(col) + 1) + str(int(cell_number)+1)] = '%'
+    #         ws[chr(ord(col) + 1) + str(int(cell_number)+1)].font = font_style
+    #         ws[chr(ord(col) + 1) + str(int(cell_number)+1)].border = border_style
+    #         ws[chr(ord(col) + 1) + str(int(cell_number)+1)].alignment = Alignment(horizontal='center', vertical='center')
+    #         ws[chr(ord(col) + 1) + str(int(cell_number)+1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+    #         # Merge header cells for '%' and '#' under each main column
+    #         ws.merge_cells(col + cell_number + ':' + chr(ord(col) + 1) + cell_number)
+    #         print('col: '+col)
+    #         print('col+cell_number: '+col + cell_number) 
+    #         print('#: '+ col + str(int(cell_number)+1))
+    #         print('%: '+chr(ord(col) + 1) + str(int(cell_number)+1))
+    #         print('Sub mergecell:'+ col + cell_number + ':' + chr(ord(col) + 1) + cell_number)
+
+    #     # Apply borders to all the cells in the header
+    #     for col in [header_start_cell[0]] + column_letters + [chr(ord(c) + 1) for c in column_letters]:
+    #         ws[col + cell_number].border = border_style
+    #         ws[col + str(int(cell_number)+1)].border = border_style
+
+
+    def format_header(self, ws, header_start_cell, header_title, columns, column_letters, row_height, header_fill_color, column_fill_color, border_style, font_style, merge_columns):
+        # Set title, font, border, alignment, fill, row dimensions, and header cells for the main header
         ws[header_start_cell] = header_title
         ws[header_start_cell].font = font_style
         ws[header_start_cell].border = border_style
-        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center')  
+        ws[header_start_cell].alignment = Alignment(horizontal='center', vertical='center')
         ws[header_start_cell].fill = PatternFill(start_color=header_fill_color, end_color=header_fill_color, fill_type="solid")
         ws.row_dimensions[int(header_start_cell[1:])].height = row_height
-        # ws.merge_cells(header_start_cell + ':' + chr(ord(column_letters[-1]) + 1) + str(int(header_start_cell[1:])+1))
-        # Merge the header_start_cell with the cell directly below it
-        ws.merge_cells(start_row=ws[header_start_cell].row,
-                    start_column=ws[header_start_cell].column,
-                    end_row=ws[header_start_cell].row + 1,
-                    end_column=ws[header_start_cell].column)
 
-        print('headercell:'+header_start_cell)
-        print('mergecell:'+ header_start_cell + ':' +str(int(header_start_cell[1:])+1))
+        # Merge main header (if needed)
+        if header_start_cell in merge_columns:
+            # merge the header_start_cell with the cell directly below it eg. B4:B5
+            print(f"{header_start_cell}:{chr(ord(header_start_cell[0]))}{int(header_start_cell[1:]) + 1}")
+            ws.merge_cells(f"{header_start_cell}:{chr(ord(header_start_cell[0]))}{int(header_start_cell[1:]) + 1}")
+        else:
+            print(f"Header {header_title} does not merge")
         
-        # Apply formatting to the sub headers
+        # Apply formatting to the sub headers (no merging, repeat the titles in adjacent columns)
         for col, title in zip(column_letters, columns):
-            cell_number = str(int(header_start_cell[1:])) #don't +3 here
+            cell_number = str(int(header_start_cell[1:]))  # Reference the correct header row number
+            
+            # Set column titles and repeat them for adjacent cells
             ws[col + cell_number] = title
             ws[col + cell_number].font = font_style
             ws[col + cell_number].border = border_style
             ws[col + cell_number].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
             ws[col + cell_number].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
-            ws[col + str(int(cell_number)+1)] = '#'
-            ws[col + str(int(cell_number)+1)].font = font_style
-            ws[col + str(int(cell_number)+1)].border = border_style
-            ws[col + str(int(cell_number)+1)].alignment = Alignment(horizontal='center', vertical='center',wrap_text=True) 
-            ws[col + str(int(cell_number)+1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
-            ws[chr(ord(col) + 1) + str(int(cell_number)+1)] = '%'
-            ws[chr(ord(col) + 1) + str(int(cell_number)+1)].font = font_style
-            ws[chr(ord(col) + 1) + str(int(cell_number)+1)].border = border_style
-            ws[chr(ord(col) + 1) + str(int(cell_number)+1)].alignment = Alignment(horizontal='center', vertical='center')
-            ws[chr(ord(col) + 1) + str(int(cell_number)+1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
-            # Merge header cells for '%' and '#' under each main column
-            ws.merge_cells(col + cell_number + ':' + chr(ord(col) + 1) + cell_number)
-            print('col: '+col)
-            print('col+cell_number: '+col + cell_number) 
-            print('#: '+ col + str(int(cell_number)+1))
-            print('%: '+chr(ord(col) + 1) + str(int(cell_number)+1))
-            print('Sub mergecell:'+ col + cell_number + ':' + chr(ord(col) + 1) + cell_number)
+            
+            # Place repeated titles in the adjacent columns
+            next_col = chr(ord(col) + 1)
+            ws[next_col + cell_number] = title
+            ws[next_col + cell_number].font = font_style
+            ws[next_col + cell_number].border = border_style
+            ws[next_col + cell_number].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            ws[next_col + cell_number].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+
+            # Set headers for '%' and '#'
+            ws[col + str(int(cell_number) + 1)] = '#'
+            ws[col + str(int(cell_number) + 1)].font = font_style
+            ws[col + str(int(cell_number) + 1)].border = border_style
+            ws[col + str(int(cell_number) + 1)].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            ws[col + str(int(cell_number) + 1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
+
+            ws[next_col + str(int(cell_number) + 1)] = '%'
+            ws[next_col + str(int(cell_number) + 1)].font = font_style
+            ws[next_col + str(int(cell_number) + 1)].border = border_style
+            ws[next_col + str(int(cell_number) + 1)].alignment = Alignment(horizontal='center', vertical='center')
+            ws[next_col + str(int(cell_number) + 1)].fill = PatternFill(start_color=column_fill_color, end_color=column_fill_color, fill_type="solid")
 
         # Apply borders to all the cells in the header
         for col in [header_start_cell[0]] + column_letters + [chr(ord(c) + 1) for c in column_letters]:
             ws[col + cell_number].border = border_style
-            ws[col + str(int(cell_number)+1)].border = border_style
+            ws[col + str(int(cell_number) + 1)].border = border_style
 
 
 
@@ -114,16 +170,41 @@ class Solution:
         border_bottom_thin = Border(bottom=Side(style='thin'))
         header_fill_color = "B8CCE4"
         column_fill_color = "E0F0F8"
-        self.format_header(ws, 'B4', 'District', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B41', 'Ethnicity', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B51', 'Meal Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B58', 'Gender', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B66', 'ELL Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B73', 'Language of Instruction', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B82', 'Grade Level', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B101', 'Disability Classification', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B120', 'Temporary Housing Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
-        self.format_header(ws, 'B128', 'Foster Care Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B4', 'District', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B41', 'Ethnicity', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B51', 'Meal Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B58', 'Gender', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B66', 'ELL Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B73', 'Language of Instruction', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B82', 'Grade Level', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B101', 'Disability Classification', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B120', 'Temporary Housing Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        # self.format_header(ws, 'B128', 'Foster Care Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font)
+        
+        # Adjust this list as per your headers that need merging
+        merge_columns_district = ['B4', 'B4:B5']
+        merge_columns_ethnicity = ['B41', 'B41:B42']
+        merge_columns_mealstatus = ['B51', 'B51:B52']
+        merge_columns_gender = ['B58', 'B58:B59']
+        merge_columns_ellstatus = ['B66', 'B66:B67']
+        merge_columns_language = ['B73', 'B73:B74']
+        merge_columns_gradelevel = ['B82', 'B82:B83']
+        merge_columns_disability = ['B101', 'B101:B102']
+        merge_columns_temp_housing = ['B120', 'B120:B121']
+        merge_columns_foster_care = ['B128', 'B128:B129']
+
+        # Example of calling the function with the merge_columns argument
+        self.format_header(ws, 'B4', 'District', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_district)
+        self.format_header(ws, 'B41', 'Ethnicity', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_ethnicity)
+        self.format_header(ws, 'B51', 'Meal Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_mealstatus)
+        self.format_header(ws, 'B58', 'Gender', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_gender)
+        self.format_header(ws, 'B66', 'ELL Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_ellstatus)
+        self.format_header(ws, 'B73', 'Language of Instruction', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_language)
+        self.format_header(ws, 'B82', 'Grade Level', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_gradelevel)
+        self.format_header(ws, 'B101', 'Disability Classification', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_disability)
+        self.format_header(ws, 'B120', 'Temporary Housing Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_temp_housing)
+        self.format_header(ws, 'B128', 'Foster Care Status', columns, column_letters, 30, header_fill_color, column_fill_color, border_bottom_thin, header_font, merge_columns_foster_care)
+
 
         
         # Deleting the default created sheet
@@ -150,7 +231,7 @@ class Solution:
         conn_str = 'DRIVER=SQL SERVER;SERVER=ES00VPADOSQL180,51433;DATABASE=SEO_MART' #;UID=your_username;PWD=your_password
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-        params = ('CC_StudentRegisterR814_061523')
+        params = ('CC_StudentRegisterR814_0615'+self.sqlsnapshottableschoolyear,)
         cursor.execute("EXEC [dbo].[USPCC_AnnaulReport8b] @tableNameCCStudentRegisterR814=?", params)
         return cursor
     # Fetch data for "Report 8b = IEP Service Recs by Race"
@@ -397,7 +478,7 @@ class Solution:
 
         ]
 
-        column_widths = [5, 30, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+        column_widths = [5, 30, 15, 15, 30, 30, 25, 25, 25, 25, 25, 25, 30, 30]
         # Step 1: Create Excel Report Template
         wb, ws = self.create_excel_report_template(title_cells, subtitle_cells, column_widths)
         
