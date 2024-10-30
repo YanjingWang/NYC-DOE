@@ -648,29 +648,29 @@ class Solution:
         self.write_data_to_excel(wb['UntimelyPNI'], results_by_report4, (1, 2))  # A2:BH6953
         print('Report 4 done')
 
-        # # refresh all pivot tables
-        # # Start an instance of Excel
-        # excel_app = win32.Dispatch('Excel.Application')
+        # refresh all pivot tables
+        # Start an instance of Excel
+        excel_app = win32.Dispatch('Excel.Application')
 
-        # # Optional: Make Excel visible if you want to see what's happening
-        # # excel_app.Visible = True
+        # Optional: Make Excel visible if you want to see what's happening
+        # excel_app.Visible = True
 
-        # # Open the workbook
-        # workbook = excel_app.Workbooks.Open(self.filepath)
+        # Open the workbook
+        workbook = excel_app.Workbooks.Open(self.filepath)
 
-        # # Refresh all pivot tables in all sheets
-        # for sheet in workbook.Sheets:
-        #     for pivot_table in sheet.PivotTables():
-        #         pivot_table.PivotCache().Refresh()
+        # Refresh all pivot tables in all sheets
+        for sheet in workbook.Sheets:
+            for pivot_table in sheet.PivotTables():
+                pivot_table.PivotCache().Refresh()
 
-        # # Save the workbook after refreshing
-        # workbook.Save()
+        # Save the workbook after refreshing
+        workbook.Save()
 
-        # # Close the workbook and quit Excel
-        # workbook.Close(SaveChanges=True)
-        # excel_app.Quit()
+        # Close the workbook and quit Excel
+        workbook.Close(SaveChanges=True)
+        excel_app.Quit()
 
-        # print("Pivot tables refreshed successfully!")
+        print("Pivot tables refreshed successfully!")
 
         # Save the Excel file
         save_path = rf'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\IESPDaily\IESP PNI Mandates with PA and EA_{self.date}.xlsx'

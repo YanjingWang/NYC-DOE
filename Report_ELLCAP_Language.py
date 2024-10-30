@@ -2,12 +2,33 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill, colors
 from openpyxl.utils import get_column_letter
-import pyodbc
+import pyodbc, urllib
+from sqlalchemy import create_engine, text
+from datetime import datetime
 class Solution:
-    def __init__(self, datestamp='06/17/2024'):
-        self.datestamp = datestamp
-        self.lastrow = 42 #40
-        self.ProcessedDate = '06-17-2024'
+    def __init__(self):
+        # Database connection details
+        server = 'ES00VPADOSQL180,51433'
+        database = 'SEO_MART'
+        username = 'your_username'
+        password = 'your_password'
+
+        # Connection string
+        conn_str = (
+            'DRIVER=SQL Server;'
+            'SERVER=' + server + ';'
+            'DATABASE=' + database + ';'
+            # 'UID=' + username + ';'
+            # 'PWD=' + password
+        )
+        params = urllib.parse.quote_plus(conn_str)
+
+        # Create engine
+        self.engine = create_engine(f'mssql+pyodbc:///?odbc_connect={params}')
+        self.datestamp = datetime.strptime(self.get_ProcessedDate(), '%m-%d-%Y').strftime('%m/%d/%Y') # '10/28/2024'
+        self.lastrow = 45 # 42 #40
+        self.ProcessedDate = self.get_ProcessedDate() #'10-28-2024'
+        self.schoolyear = self.get_schoolyear() #'SY 24-25'
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
         return openpyxl.utils.column_index_from_string(column_letter)
@@ -36,14 +57,35 @@ class Solution:
             # ws[col + str(int(cell_number)-1)].border = border_style
             print(col + cell_number)
 
-
+    # get self.ProcessedDate from SQL Query
+    def get_ProcessedDate(self):
+        query = '''
+        SELECT TOP 1 ProcessedDate FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] WHERE ProcessedDate = (SELECT MAX (ProcessedDate) FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent])
+        '''
+        with self.engine.connect() as connection:
+            result = connection.execute(text(query)).fetchone()._mapping
+            # Store the formatted date in a new variable
+            processed_date = datetime.strptime(result['ProcessedDate'], '%Y-%m-%d').strftime('%m-%d-%Y')
+            print(f"Processed Date: {processed_date}")
+            return processed_date
+        
+    def get_schoolyear(self):
+        query ='''
+        SELECT TOP 1 SchoolYear FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent] WHERE ProcessedDate = (SELECT MAX (ProcessedDate) FROM [SEO_MART].[arch].[RPT_PSProvisioningStudent])
+        '''
+        with self.engine.connect() as connection:
+            result = connection.execute(text(query)).fetchone()._mapping
+            print(f"School Year: {result['SchoolYear']}")
+            # Format the school year from '2024-2025' to 'SY 24-25'
+            formatted_schoolyear = 'SY ' + result['SchoolYear'][2:4] + '-' + result['SchoolYear'][7:9]
+            return formatted_schoolyear
 
     # Create Excel Report Template
     def create_excel_report_template(self, title_cells, subtitle_cells, column_widths):
         # wb = openpyxl.Workbook()
         # ws = wb.active
         # ws.title = "Language"
-        wb = openpyxl.load_workbook(r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_06-17-2024.xlsx')
+        wb = openpyxl.load_workbook(rf'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_{self.ProcessedDate}.xlsx')
         ws = wb.create_sheet("Language")
 
         # # Set fill color for cells from A1 to Zn to white
@@ -141,7 +183,7 @@ class Solution:
         cursor = conn.cursor()
         params = ('CC_InitialReferralsR19_SY23')
         cursor.execute(
-        '''     
+        f'''     
         If Object_ID('tempdb..#BSEReg') is not null
         Drop Table #BSEReg 
 
@@ -225,7 +267,7 @@ class Solution:
         return cursor
     
     def fetch_data_by_Language(self,cursor):
-        query_byLanguage = '''
+        query_byLanguage = f'''
         --Language 
 
 
@@ -364,7 +406,13 @@ class Solution:
         for row_num, row_data in enumerate(data, start=start_row):  # Adjusted start_row here
             for col in ['B', 'H', 'N']:  # Columns B, H, N
                 ws[col + str(row_num)].border = black_border_right_side   # Apply the right border
-
+        
+        # update alignment for range A6:A38
+        for row in ws['A6':'A'+str(self.lastrow)]:
+            for cell in row:
+                if cell.value is not None:  # Ensure there is a value in the cell
+                    cell.alignment = Alignment(horizontal='left')  # Center align the data
+                    
         # Update alignment for range C6:N38
         for row in ws['B6':'N39']:
             for cell in row:
@@ -434,7 +482,7 @@ class Solution:
                               
     def Report_Grade(self):
         title_cells = [
-            {"cell": "A1", "value": "ELLs with IEPs and Bilingual ICT or SC IEP Program Recommendations by District for SY 23-24", "merge_cells": "A1:N1"},
+            {"cell": "A1", "value": "ELLs with IEPs and Bilingual ICT or SC IEP Program Recommendations by District for "+self.schoolyear, "merge_cells": "A1:N1"},
         ]
 
         subtitle_cells = [
@@ -475,7 +523,7 @@ class Solution:
         
 
         # Step 9: Save the combined report
-        save_path = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_06-17-2024.xlsx'
+        save_path = rf'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\ELLCAP_Bilingual_Report_{self.ProcessedDate}.xlsx'
         wb.save(save_path)
         cursor.close()
 
