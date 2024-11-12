@@ -228,48 +228,48 @@ class Automation_SY24_25:
         mylocalXLSfolder = 'C:\Template'
         RSCompliance = os.path.join(self.folderpath, 'SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d")))
 
-        self.createdir(int_pdfpath)
-        self.createdir(int_xlspath)
-        self.createdir(int_charterpdf)  
-        self.createdir(int_charterxls)  
-        self.createdir(CSD_Archive)
-        self.createdir(Charter_Archive)  # really created?
-        self.createdir(shareCharter)  # really created?
-        self.createdir(mylocalXLSfolder)
-        # self.createdir(currentdateCSDfolder)
-        # self.createdir(currentdateCharterfolder)
+        # self.createdir(int_pdfpath)
+        # self.createdir(int_xlspath)
+        # self.createdir(int_charterpdf)  
+        # self.createdir(int_charterxls)  
+        # self.createdir(CSD_Archive)
+        # self.createdir(Charter_Archive)  # really created?
+        # self.createdir(shareCharter)  # really created?
+        # self.createdir(mylocalXLSfolder)
+        # # self.createdir(currentdateCSDfolder)
+        # # self.createdir(currentdateCharterfolder)
 
-        # # 2.1): delete previous week XLS and PDF files 
-        for f in os.listdir(dst_CSD_PDF):
-            os.remove(os.path.join(dst_CSD_PDF, f))
-            print(f)
+        # # # 2.1): delete previous week XLS and PDF files 
+        # for f in os.listdir(dst_CSD_PDF):
+        #     os.remove(os.path.join(dst_CSD_PDF, f))
+        #     print(f)
 
-        for file in os.scandir(dst_CSD_XLS):
-            os.remove(file.path)
-            print(file)
+        # for file in os.scandir(dst_CSD_XLS):
+        #     os.remove(file.path)
+        #     print(file)
 
-        self.rmfilesfromdir(int_pdfpath)
-        self.rmfilesfromdir(int_xlspath)
-        self.rmfilesfromdir(int_charterpdf)  # add to run guidance
-        self.rmfilesfromdir(int_charterxls)  # add to run guidance
-        self.rmfilesfromdir(mylocalXLSfolder)
-
-
-        # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
-        self.copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_{0}\Mandate_Distribution_{0}.accdb'.format(self.schoolyear), mylocalXLSfolder)
-        os.startfile('C:\Template\Mandate_Distribution_{0}.accdb'.format(self.schoolyear))
-        # time.sleep(60)
-        now = datetime.datetime.now()
-        print('Click Run and wait for 80 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
-        time.sleep(80*60)
-        print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
+        # self.rmfilesfromdir(int_pdfpath)
+        # self.rmfilesfromdir(int_xlspath)
+        # self.rmfilesfromdir(int_charterpdf)  # add to run guidance
+        # self.rmfilesfromdir(int_charterxls)  # add to run guidance
+        # self.rmfilesfromdir(mylocalXLSfolder)
 
 
+        # # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
+        # self.copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_{0}\Mandate_Distribution_{0}.accdb'.format(self.schoolyear), mylocalXLSfolder)
+        # os.startfile('C:\Template\Mandate_Distribution_{0}.accdb'.format(self.schoolyear))
+        # # time.sleep(60)
+        # now = datetime.datetime.now()
+        # print('Click Run and wait for 80 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
+        # time.sleep(90*60)
+        # print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
 
-        #copy 1601 CSD files
-        self.copyallfiles(int_pdfpath,dst_CSD_PDF)
-        self.copyallfiles(int_pdfpath,CSD_Archive)
-        print('copy pdf CSD files complete')
+
+
+        # #copy 1601 CSD files
+        # self.copyallfiles(int_pdfpath,dst_CSD_PDF)
+        # self.copyallfiles(int_pdfpath,CSD_Archive)
+        # print('copy pdf CSD files complete')
 
         # copy 275 chater files
         self.copyallfiles(int_charterpdf,shareCharter)
@@ -321,23 +321,23 @@ class Automation_SY24_25:
 
 
 
-        # file1 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}.R'.format(self.RfileSY))
-        # os.startfile(file1)
-        # print('Click Run and it takes 45 mins')
-        # time.sleep(45*60)
+        file1 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}.R'.format(self.RfileSY))
+        os.startfile(file1)
+        print('Click Run and it takes 45 mins')
+        time.sleep(45*60)
 
         self.copyallfiles(src_CSD,dst_CSD_XLS)
         self.copyallfiles(dst_CSD_XLS,int_xlspath)  # copy PA_Distribution_XLS to archive?
         self.copyallfiles(dst_CSD_XLS,CSD_Archive)
         # # copyallfiles(RSCompliance,RSDashboardSharepoint)
 
-        # file2 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}_Charter.R'.format(self.RfileSY))
-        # os.startfile(file2)
-        # print('Click Run and it takes 10 mins')
-        # time.sleep(10*60)
-        # self.createdir(src_Charter)
-        # self.createdir(Charter_Archive)  # really created?
-        # self.createdir(shareCharter)  # really created?
+        file2 = os.path.join(mylocalXLSfolder,'RS_Reports_{0}_Charter.R'.format(self.RfileSY))
+        os.startfile(file2)
+        print('Click Run and it takes 10 mins')
+        time.sleep(10*60)
+        self.createdir(src_Charter)
+        self.createdir(Charter_Archive)  # really created?
+        self.createdir(shareCharter)  # really created?
         self.copyallfiles(src_Charter,shareCharter)
         self.copyallfiles(src_Charter,Charter_Archive)
 
@@ -548,7 +548,7 @@ class Automation_SY24_25:
         # mailItem.SendUsingAccount = olApp.Session.Accounts['PBonam@schools.nyc.gov']
         # mailItem.SentOnBehalfOfName = 'PBonam@schools.nyc.gov'
         # mailItem.From = 'PBonam@schools.nyc.gov'
-        mailItem.To = 'Crystal Davis <CDavis34@schools.nyc.gov>; Andre Harrison <AHarrison11@schools.nyc.gov>;Corleto Coty <CCorleto@schools.nyc.gov>; Libfeld Alison <ALibfeld@schools.nyc.gov>; Ulrich Katie <KUlrich@schools.nyc.gov>; Colin-patel Jenna <JColinPatel@schools.nyc.gov>; Fitzgerald Mary Beth <MFitzgerald8@schools.nyc.gov>;Ehrenberg Ira<IEhrenberg@schools.nyc.gov>; Perez Jerry <jperez42@schools.nyc.gov>; Monaco Emma <emonaco@schools.nyc.gov>; Mandel Betsy <bmandel6@schools.nyc.gov>;Krayets Alexandra <akrayets@schools.nyc.gov>; Kostel Matt <mkostel@schools.nyc.gov>; Kessler Jessica <Jkessler6@schools.nyc.gov>;Figaro Jenny <jfigaro@schools.nyc.gov>;Fenoaltea Gina <gfenoaltea@schools.nyc.gov>;Fenice Melissa <mfenice@schools.nyc.gov>;Fabel Suzanne <sfabel@schools.nyc.gov>; Campos Yesenia <ycampos3@schools.nyc.gov>; Nabie-Corbin Betty <BNabiecorbin@schools.nyc.gov>; Lambert Camille <CLambert5@schools.nyc.gov>; Felix Antoinette <AFelix19@schools.nyc.gov>;Saneddy Quezada <SQuezada@schools.nyc.gov>;Marisa Colonna <MColonna2@schools.nyc.gov>; Feliz Karina <KFeliz@schools.nyc.gov>; Chodos Carson <CChodos@schools.nyc.gov>; Bethany Sanchez <BSanchez9@schools.nyc.gov>; Rajyalakshmi Munnangi <rmunnangi@schools.nyc.gov>;Alexandre Serge <SAlexandre2@schools.nyc.gov>;Gibson Shona <SGibson4@schools.nyc.gov>; Pandey Nick <npandey@schools.nyc.gov>; Magras Yekaterina <ymagras@schools.nyc.gov>; Avila Megan <mavila2@schools.nyc.gov>; Almeida Rebecca <ralmeida2@schools.nyc.gov>; Gottlieb Mandy <MGottlieb7@schools.nyc.gov>; Vidhi Dharia <vdharia@schools.nyc.gov>; Volpe Cen <CVolpe4@schools.nyc.gov>; Dedaj Victoria <VDedaj@schools.nyc.gov>; Burnside Eric <EBurnside@schools.nyc.gov>; Odonnell Tricia (09X294) <TOdonnell2@schools.nyc.gov>; Mcfadden Melinda <MMcfadden9@schools.nyc.gov>; Rambaran Stephanie <SRambaran2@schools.nyc.gov>; Lipkowitz Michael <MLipkowitz@schools.nyc.gov>; Lewis Abbey <ALewis22@schools.nyc.gov>; Livingston Stacy <SLivingston2@schools.nyc.gov>; Bajana Sarah <SBajana@schools.nyc.gov>;Edwards Erin <EEdwards14@schools.nyc.gov>; Oppenheimer Daniella <doppenheimer3@schools.nyc.gov>; Demosthenes Aisha <ademosthenes@schools.nyc.gov>; Asaro Michelle <MAsaro3@schools.nyc.gov>;Galaise Jeffrey <JGalaise@schools.nyc.gov>; Johal Kamajit <KJohal@schools.nyc.gov>; Rivera Ivelisse <IRivera22@schools.nyc.gov>; Chasabenis Stamatis <SChasab@schools.nyc.gov>; Chan Lucilla <LChan10@schools.nyc.gov>;Lavergne Shakir <SLavergne@schools.nyc.gov>; Singleton Michelle <MSingle@schools.nyc.gov>; Sam Sasha <SSam2@schools.nyc.gov>; Miragliotta Carla <cmiragliotta@schools.nyc.gov>; Goodman Margaret <mgoodman3@schools.nyc.gov>; Richardson Muriel <MRichardson3@schools.nyc.gov>;Alcantara Fatima <FAlcantara@schools.nyc.gov>; Alexander Carmen <CAlexan2@schools.nyc.gov>; Allen Michele <MAllen5@schools.nyc.gov>; \
+        mailItem.To = 'Jerry Perez <JPerez42@schools.nyc.gov>; Crystal Davis <CDavis34@schools.nyc.gov>; Andre Harrison <AHarrison11@schools.nyc.gov>;Corleto Coty <CCorleto@schools.nyc.gov>; Libfeld Alison <ALibfeld@schools.nyc.gov>; Ulrich Katie <KUlrich@schools.nyc.gov>; Colin-patel Jenna <JColinPatel@schools.nyc.gov>; Fitzgerald Mary Beth <MFitzgerald8@schools.nyc.gov>;Ehrenberg Ira<IEhrenberg@schools.nyc.gov>; Perez Jerry <jperez42@schools.nyc.gov>; Monaco Emma <emonaco@schools.nyc.gov>; Mandel Betsy <bmandel6@schools.nyc.gov>;Krayets Alexandra <akrayets@schools.nyc.gov>; Kostel Matt <mkostel@schools.nyc.gov>; Kessler Jessica <Jkessler6@schools.nyc.gov>;Figaro Jenny <jfigaro@schools.nyc.gov>;Fenoaltea Gina <gfenoaltea@schools.nyc.gov>;Fenice Melissa <mfenice@schools.nyc.gov>;Fabel Suzanne <sfabel@schools.nyc.gov>; Campos Yesenia <ycampos3@schools.nyc.gov>; Nabie-Corbin Betty <BNabiecorbin@schools.nyc.gov>; Lambert Camille <CLambert5@schools.nyc.gov>; Felix Antoinette <AFelix19@schools.nyc.gov>;Saneddy Quezada <SQuezada@schools.nyc.gov>;Marisa Colonna <MColonna2@schools.nyc.gov>; Feliz Karina <KFeliz@schools.nyc.gov>; Chodos Carson <CChodos@schools.nyc.gov>; Bethany Sanchez <BSanchez9@schools.nyc.gov>; Rajyalakshmi Munnangi <rmunnangi@schools.nyc.gov>;Alexandre Serge <SAlexandre2@schools.nyc.gov>;Gibson Shona <SGibson4@schools.nyc.gov>; Pandey Nick <npandey@schools.nyc.gov>; Magras Yekaterina <ymagras@schools.nyc.gov>; Avila Megan <mavila2@schools.nyc.gov>; Almeida Rebecca <ralmeida2@schools.nyc.gov>; Gottlieb Mandy <MGottlieb7@schools.nyc.gov>; Vidhi Dharia <vdharia@schools.nyc.gov>; Volpe Cen <CVolpe4@schools.nyc.gov>; Dedaj Victoria <VDedaj@schools.nyc.gov>; Burnside Eric <EBurnside@schools.nyc.gov>; Odonnell Tricia (09X294) <TOdonnell2@schools.nyc.gov>; Mcfadden Melinda <MMcfadden9@schools.nyc.gov>; Rambaran Stephanie <SRambaran2@schools.nyc.gov>; Lipkowitz Michael <MLipkowitz@schools.nyc.gov>; Lewis Abbey <ALewis22@schools.nyc.gov>; Livingston Stacy <SLivingston2@schools.nyc.gov>; Bajana Sarah <SBajana@schools.nyc.gov>;Edwards Erin <EEdwards14@schools.nyc.gov>; Oppenheimer Daniella <doppenheimer3@schools.nyc.gov>; Demosthenes Aisha <ademosthenes@schools.nyc.gov>; Asaro Michelle <MAsaro3@schools.nyc.gov>;Galaise Jeffrey <JGalaise@schools.nyc.gov>; Johal Kamajit <KJohal@schools.nyc.gov>; Rivera Ivelisse <IRivera22@schools.nyc.gov>; Chasabenis Stamatis <SChasab@schools.nyc.gov>; Chan Lucilla <LChan10@schools.nyc.gov>;Lavergne Shakir <SLavergne@schools.nyc.gov>; Singleton Michelle <MSingle@schools.nyc.gov>; Sam Sasha <SSam2@schools.nyc.gov>; Miragliotta Carla <cmiragliotta@schools.nyc.gov>; Goodman Margaret <mgoodman3@schools.nyc.gov>; Richardson Muriel <MRichardson3@schools.nyc.gov>;Alcantara Fatima <FAlcantara@schools.nyc.gov>; Alexander Carmen <CAlexan2@schools.nyc.gov>; Allen Michele <MAllen5@schools.nyc.gov>; \
         Antrobus Vann Abigail <AAntrobus@schools.nyc.gov>; Anzalone Christopher <CAnzalone2@schools.nyc.gov>; Aridas Cynthia <CAridas@schools.nyc.gov>;  \
         Bascoe Tanika <TBascoe@schools.nyc.gov>; Bastien-reneliq Stacy <SBastien@schools.nyc.gov>; Battista Michael <MBattis@schools.nyc.gov>; Ben-Moshe Yael <YBen-Moshe@schools.nyc.gov>; \
         Bernstein Edward <EBernstein6@schools.nyc.gov>; Berry Raquel <RBerry2@schools.nyc.gov>; Bethea Jenel <JBethea@schools.nyc.gov>; Bishop Andrea <ABishop3@schools.nyc.gov>; \
@@ -623,9 +623,9 @@ class Automation_SY24_25:
 if __name__ == '__main__':
     processor = Automation_SY24_25()
     if datetime.datetime(2024, 8, 1) <= datetime.datetime.today() <= datetime.datetime(2025, 6, 30):
-        # processor.RelatedServices()
-        # processor.R_Process()
-        # processor.rerun_R() 
+        processor.RelatedServices()
+        processor.R_Process()
+        processor.rerun_R() 
         processor.rs_charter_send_outlook_email()
         processor.ms_send_outlook_email()
     if datetime.datetime(2024, 9, 1) <= datetime.datetime.today() <= datetime.datetime(2025, 6, 30):
