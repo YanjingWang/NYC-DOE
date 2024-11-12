@@ -228,48 +228,48 @@ class Automation_SY24_25:
         mylocalXLSfolder = 'C:\Template'
         RSCompliance = os.path.join(self.folderpath, 'SEO Analytics\Share\Related Services\{0}'.format(date.today().strftime("%Y%m%d")))
 
-        # self.createdir(int_pdfpath)
-        # self.createdir(int_xlspath)
-        # self.createdir(int_charterpdf)  
-        # self.createdir(int_charterxls)  
-        # self.createdir(CSD_Archive)
-        # self.createdir(Charter_Archive)  # really created?
-        # self.createdir(shareCharter)  # really created?
-        # self.createdir(mylocalXLSfolder)
-        # # self.createdir(currentdateCSDfolder)
-        # # self.createdir(currentdateCharterfolder)
+        self.createdir(int_pdfpath)
+        self.createdir(int_xlspath)
+        self.createdir(int_charterpdf)  
+        self.createdir(int_charterxls)  
+        self.createdir(CSD_Archive)
+        self.createdir(Charter_Archive)  # really created?
+        self.createdir(shareCharter)  # really created?
+        self.createdir(mylocalXLSfolder)
+        # self.createdir(currentdateCSDfolder)
+        # self.createdir(currentdateCharterfolder)
 
-        # # # 2.1): delete previous week XLS and PDF files 
-        # for f in os.listdir(dst_CSD_PDF):
-        #     os.remove(os.path.join(dst_CSD_PDF, f))
-        #     print(f)
+        # # 2.1): delete previous week XLS and PDF files 
+        for f in os.listdir(dst_CSD_PDF):
+            os.remove(os.path.join(dst_CSD_PDF, f))
+            print(f)
 
-        # for file in os.scandir(dst_CSD_XLS):
-        #     os.remove(file.path)
-        #     print(file)
+        for file in os.scandir(dst_CSD_XLS):
+            os.remove(file.path)
+            print(file)
 
-        # self.rmfilesfromdir(int_pdfpath)
-        # self.rmfilesfromdir(int_xlspath)
-        # self.rmfilesfromdir(int_charterpdf)  # add to run guidance
-        # self.rmfilesfromdir(int_charterxls)  # add to run guidance
-        # self.rmfilesfromdir(mylocalXLSfolder)
-
-
-        # # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
-        # self.copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_{0}\Mandate_Distribution_{0}.accdb'.format(self.schoolyear), mylocalXLSfolder)
-        # os.startfile('C:\Template\Mandate_Distribution_{0}.accdb'.format(self.schoolyear))
-        # # time.sleep(60)
-        # now = datetime.datetime.now()
-        # print('Click Run and wait for 80 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
-        # time.sleep(90*60)
-        # print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
+        self.rmfilesfromdir(int_pdfpath)
+        self.rmfilesfromdir(int_xlspath)
+        self.rmfilesfromdir(int_charterpdf)  # add to run guidance
+        self.rmfilesfromdir(int_charterxls)  # add to run guidance
+        self.rmfilesfromdir(mylocalXLSfolder)
 
 
+        # # 2.2) copy Mandate_Distribution_SY23-24 to your local C or D 
+        self.copyonefile('\\\\CENTRAL.NYCED.ORG\DoE$\SEO Analytics\Processing\Data Mart Files\Mandate_Distribution_{0}\Mandate_Distribution_{0}.accdb'.format(self.schoolyear), mylocalXLSfolder)
+        os.startfile('C:\Template\Mandate_Distribution_{0}.accdb'.format(self.schoolyear))
+        # time.sleep(60)
+        now = datetime.datetime.now()
+        print('Click Run and wait for 80 mins, now it is {0}'.format(now.strftime("%d/%B/%Y %H:%M:%S")))
+        time.sleep(90*60)
+        print('1598 files should be saved in C:\PA_Distribution_PDF and 271 files should saved in C:\PA_DISTRIBUTION_PDF_Charter.')
 
-        # #copy 1601 CSD files
-        # self.copyallfiles(int_pdfpath,dst_CSD_PDF)
-        # self.copyallfiles(int_pdfpath,CSD_Archive)
-        # print('copy pdf CSD files complete')
+
+
+        #copy 1601 CSD files
+        self.copyallfiles(int_pdfpath,dst_CSD_PDF)
+        self.copyallfiles(int_pdfpath,CSD_Archive)
+        print('copy pdf CSD files complete')
 
         # copy 275 chater files
         self.copyallfiles(int_charterpdf,shareCharter)
