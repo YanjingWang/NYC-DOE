@@ -25,7 +25,7 @@ class Solution:
 
         # Create engine
         self.engine = create_engine(f'mssql+pyodbc:///?odbc_connect={params}')
-        self.datestamp = datetime.strptime(self.get_ProcessedDate(), '%m-%d-%Y').strftime('%m/%d/%Y') # '10/28/2024'
+        self.datestamp = '10/28/2024' # datetime.strptime(self.get_ProcessedDate(), '%m-%d-%Y').strftime('%m/%d/%Y') 
         self.lastrow = 14
         self.ProcessedDate = '10-28-2024'
         self.schoolyear = 'SY 24-25'
@@ -410,7 +410,7 @@ class Solution:
                 if cell.value is not None:  # Ensure there is a value in the cell
                     cell.alignment = openpyxl.styles.Alignment(horizontal='left')
 
-        for row in ws['B6':'N13']:
+        for row in ws['B6':'N'+str(self.lastrow-1)]:
             for cell in row:
                 if cell.value is None:
                     cell.value = '-'  # Replace None with '-'

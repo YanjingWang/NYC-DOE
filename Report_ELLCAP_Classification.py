@@ -25,9 +25,9 @@ class Solution:
 
         # Create engine
         self.engine = create_engine(f'mssql+pyodbc:///?odbc_connect={params}')
-        self.datestamp = datetime.strptime(self.get_ProcessedDate(), '%m-%d-%Y').strftime('%m/%d/%Y') # '10/28/2024'
+        self.datestamp = '10/28/2024' # datetime.strptime(self.get_ProcessedDate(), '%m-%d-%Y').strftime('%m/%d/%Y')  
         self.lastrow = 20 #19
-        self.ProcessedDate = self.get_ProcessedDate() #'10-28-2024'
+        self.ProcessedDate = '10-28-2024' #self.get_ProcessedDate()
         self.schoolyear = self.get_schoolyear() #'SY 24-25'
     # Function to format headers
     def get_column_index_from_string(self, column_letter):
@@ -414,7 +414,7 @@ class Solution:
                     cell.alignment = Alignment(horizontal='left')  # Center align the data
                     
         # Update alignment for range C6:N38
-        for row in ws['B6':'N18']:
+        for row in ws['B6':'N'+str(self.lastrow-1)]:
             for cell in row:
                 if cell.value is None:
                     cell.value = '-'  # Replace None with '-'
