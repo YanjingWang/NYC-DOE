@@ -1,7 +1,7 @@
 USE [SEO_MART]
 GO
 
-/****** Object:  StoredProcedure [dbo].[USPCC_AnnaulReport13st]    Script Date: 11/12/2024 10:45:43 AM ******/
+/****** Object:  StoredProcedure [dbo].[USPCC_AnnaulReport13st]    Script Date: 11/12/2024 3:48:41 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -19,13 +19,13 @@ Program				       : Report 13 Special Transportation
 Purpose				       : 1.To Special Transportation report by disaggregations
 Project				       : City council
 Author			           : Charlotte Wang
-Programmer                 : Charlotte Wang 
+Programmer                 : Charlotte Wang
 Modifications		       : Created the SQL script using existing BIP Citywide scripts
 Modifications		       : 05/10/2024 Move Annual City Council Report Stored Procedures to SEO MART from SEO_Reporting
 Ticket                     :https://seoanalytics.atlassian.net/browse/MIS-11160 Move Annual City Council Report Stored Procedures to SEO MART
 
 Raji Munnangi			06/25/2024		Replaced TempResFlag with STHFlag to identify students in temporary housing 
-Charlotte Wang            09/06/2024      Line 114,118 [Transportation Assigned] =Curb-to-school for Sy23 and changed to curb to school for SY24 and the store proc is hardcoded to Curb-to-school So data is not pulled from  Excel to table due to value change so added a like operator  Like '+'''Curb%to%School'''
+Charlotte Wang           09/06/2024      Line 114,118 [Transportation Assigned] =Curb-to-school for Sy23 and changed to curb to school for SY24 and the store proc is hardcoded to Curb-to-school So data is not pulled from  Excel to table due to value change so added a like operator  Like '+'''Curb%to%School'''
 ************************************************************************************************************************/
 
 BEGIN 
