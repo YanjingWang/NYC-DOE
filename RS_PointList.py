@@ -12,6 +12,7 @@ class RSPointListGeneration:
     def __init__(self):
         self.today = date.today().strftime("%Y-%m-%d")
         self.todayfilesuffix = date.today().strftime("%m%d%Y")
+        self.todayRSPointList = date.today().strftime("%Y-%m-%d")
 
     def RSPointListGeneration(self):
         os.chdir(r"C:\Users\Ywang36\Downloads")
@@ -38,7 +39,7 @@ class RSPointListGeneration:
         # output_file = 'rs point list 2024 updated 08-22-23 08-28-23.xlsx'
         # remove_first_two_rows(excel_file, output_file)
         df = pd.read_excel(
-            f'rs point list 2025 updated 08-12-24 2024-11-18T13_45_04.973Z.xlsx', header=0)
+            f'rs point list 2025 updated 08-12-24 {self.todayRSPointList}T13_45_04.973Z.xlsx', header=0)
         df = pd.DataFrame(df)
         df = df.applymap(str)
         df = df[["DBN RPT", "LastName", "FirstName",
