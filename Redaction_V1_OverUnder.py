@@ -49,18 +49,31 @@ from redaction_config import REPORTS_CONFIG
 from redaction_config_SY23 import REPORTS_CONFIG_SY23
 from redaction_config_SY24 import REPORTS_CONFIG_SY24
 class Solution:
-    def copyonefile(src,dst):
-        shutil.copy(src,dst)
-        print('copying one file from {0} to {1} is compelte'.format(src,dst)) 
-    mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted'   
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx', mylocalCCfolder)
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY21\Annual Reports\Annual Special Education Data Report Unredacted SY21.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx', mylocalCCfolder)
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY22\Annual Reports\Non-Redacted Annual Special Education Data Report SY22.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx', mylocalCCfolder)
-    # copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY23\Annual Reports\Non-Redacted Annual Special Education Data Report SY23.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx', mylocalCCfolder)
-    copyonefile(r'R:\SEO Analytics\Reporting\City Council\City Council SY24\Annual Reports\Non-Redacted Annual Special Education Data Report SY24.xlsx',"C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop")
+    def __init__(self):
+        self.schoolyear = 'SY24'
+        self.folderpath = r'R:\\'
+        self.mylocalCCfolder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted' # to store the unredacted file
+        self.desktop_folder = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop' # to store the redacted file
+
+    def copyonefile(self, src, dst):
+        shutil.copy(src, dst)
+        print(f'Copying one file from {src} to {dst} is complete')
+
+    def copy_reports(self, schoolyears):
+        """
+        Copies annual reports for the given school years.
+
+        :param years: List of school years to process (e.g., ['SY21', 'SY22', 'SY23', 'SY24']).
+        """
+        for schoolyear in schoolyears:
+            src_path = os.path.join(
+                self.folderpath,
+                f'SEO Analytics\\Reporting\\City Council\\City Council {schoolyear}\\Annual Reports\\Non-Redacted Annual Special Education Data Report {schoolyear}.xlsx'
+            )
+            # Copy to the predefined folders
+            self.copyonefile(src_path, self.mylocalCCfolder)
+            self.copyonefile(src_path, self.desktop_folder)
+
     def is_percentage(self, cell):
         if isinstance(cell.value, float) and '0%' in cell.number_format:
             return True
@@ -472,7 +485,7 @@ class Solution:
 
         # Apply highlight_overredaction after redaction processing
         if 'groups' in configurations and 'ranges' in configurations:
-            unredacted_filename = r'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted\Non-Redacted Annual Special Education Data Report SY24.xlsx'
+            unredacted_filename = rf'C:\Users\Ywang36\OneDrive - NYCDOE\Desktop\CityCouncil\CCUnredacted\Non-Redacted Annual Special Education Data Report {self.schoolyear}.xlsx'
             unredacted_wb = openpyxl.load_workbook(unredacted_filename, data_only=True)
             unredacted_ws = unredacted_wb[tab_name]
             self.highlight_overredaction(ws, configurations['groups'], configurations['ranges'], unredacted_ws)
@@ -554,29 +567,31 @@ class Solution:
                 # self.yellow_cell(smallest_unmasked_cell)
                 print(ws.title,f"Underredaction: Masking cell {smallest_unmasked_cell.coordinate} with {'<=5' if smallest_unmasked_cell.value == '<=5' else '>5'}")
 
+    def process_reports(self, file_configs):
+        """
+        Processes each file and applies redaction configurations.
 
+        :param filenames: List of filenames to process.
+        :param configs: Corresponding configuration dictionary for each year.
+        """
+        for fname, config in file_configs:
+            for report, report_config in config.items():
+                self.mask_excel_file(fname, report, report_config)
 
 
 # Call the function with your filename
 if __name__ == "__main__":
     processor = Solution()
-    # ##SY21 and SY22
-    # filenames = [
-    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Annual Special Education Data Report Unredacted SY21.xlsx',
-    #     'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx'
-    # ]
+    processor.copy_reports(['SY24']) # ['SY21', 'SY22', 'SY23', 'SY24']
     
-    # for fname in filenames:
-    #     for report, config in REPORTS_CONFIG.items():
-    #         processor.mask_excel_file(fname, report, config)
+    # Define filenames and their configurations
+    file_configs = [
+        # ('C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Annual Special Education Data Report Unredacted SY21.xlsx', REPORTS_CONFIG),
+        # ('C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY22.xlsx', REPORTS_CONFIG),
+        # ('C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx', REPORTS_CONFIG_SY23),
+        ('C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx', REPORTS_CONFIG_SY24),
+    ]
 
-    # ##SY23
-    # filename_SY23 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY23.xlsx'
-    # for report, config in REPORTS_CONFIG_SY23.items():
-    #     processor.mask_excel_file(filename_SY23, report, config)
-
-    #SY24
-    filename_SY24 = 'C:\\Users\\Ywang36\\OneDrive - NYCDOE\\Desktop\\Non-Redacted Annual Special Education Data Report SY24.xlsx'
-    for report, config in REPORTS_CONFIG_SY24.items():
-        processor.mask_excel_file(filename_SY24, report, config)
+    # Process reports
+    processor.process_reports(file_configs)
     
