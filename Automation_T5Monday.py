@@ -215,35 +215,36 @@ class Solution:
 
     # Email preparation
     def prepare_and_send_email_Chris(self,issues):
-        email_subject = "T5 ZONED SCHOOL REQUEST (Pre Wave Test 4) Validation issues found"
-        email_body = f"""
+        # construct Outlook application instance
+        olApp = win32.Dispatch('Outlook.Application')
+        olNS = olApp.GetNameSpace('MAPI')
+
+        # construct the email item object
+        mailItem = olApp.CreateItem(0)
+        mailItem.Subject = "T5 ZONED SCHOOL REQUEST (Pre Wave Test 4) Validation issues found"
+        mailItem.BodyFormat = 1
+        mailItem.Body = f"""
         Hope all is well! Please see the latest LCGMS Geocoding and Zoning file request.
 
         Attached are the validation reports for the following issues:
         """
         for check in issues.keys():
-            email_body += f"\n- {check} validation found discrepancies."
+            mailItem.Body += f"\n- {check} validation found discrepancies."
             # Save discrepancy reports
             issues[check].to_excel(f"R:\\SEO Analytics\\Share\\Turning 5\\SourceFiles\\Discrepancy_{check}.xlsx", index=False)
 
-        email_body += "\n\nBest regards,\nYour Team"
+        mailItem.Body += "\n\nBest regards,\nYour Team"
 
+        # mailItem.To = 'ywang36@schools.nyc.gov'
+        # mailItem.CC = 'ywang36@schools.nyc.gov'
         # Email recipients
-        to_emails = ["CAgwu2@schools.nyc.gov"]
-        cc_emails = ["PCissthomas@schools.nyc.gov"]
+        mailItem.To = ["CAgwu2@schools.nyc.gov"]
+        mailItem.CC = ["PCissthomas@schools.nyc.gov"]
 
-        # Send email
-        msg = EmailMessage()
-        msg['Subject'] = email_subject
-        msg['From'] = "ywang36@schools.nyc.gov"
-        msg['To'] = ", ".join(to_emails)
-        msg['Cc'] = ", ".join(cc_emails)
-        msg.set_content(email_body)
+        mailItem.Display()
 
-        with smtplib.SMTP('smtp.your-email-provider.com', 587) as server:
-            server.starttls()
-            server.login("ywang36@schools.nyc.gov", "WYJiwillbe@523")
-            server.send_message(msg)
+        mailItem.Save()
+        mailItem.Send()
 
 
     # Main function
