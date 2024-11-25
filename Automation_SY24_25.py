@@ -21,6 +21,9 @@ class Automation_SY24_25:
         self.folderSY = folderSY
         self.RfileSY = RfileSY
         self.folderpath = "R:\\" 
+        self.thisweek = '2024-11-25'
+        self.lastweek = '2024-11-18'
+
     def createdir(self,path):
         # Check whether the specified path exists or not
         isExist = os.path.exists(path)
@@ -192,7 +195,7 @@ class Automation_SY24_25:
 
     # SharePoint credentials (replace with your credentials)
     USERNAME = 'YWang36@schools.nyc.gov'
-    PASSWORD = 'WYJiwillbe/518'
+    PASSWORD = 'password'
 
     # Upload the file
     # upload_to_sharepoint(RSCompliance, RSDashboardSharepoint, USERNAME, PASSWORD)
@@ -548,7 +551,7 @@ class Automation_SY24_25:
         # mailItem.SendUsingAccount = olApp.Session.Accounts['PBonam@schools.nyc.gov']
         # mailItem.SentOnBehalfOfName = 'PBonam@schools.nyc.gov'
         # mailItem.From = 'PBonam@schools.nyc.gov'
-        mailItem.To = 'Jerry Perez <JPerez42@schools.nyc.gov>; Crystal Davis <CDavis34@schools.nyc.gov>; Andre Harrison <AHarrison11@schools.nyc.gov>;Corleto Coty <CCorleto@schools.nyc.gov>; Libfeld Alison <ALibfeld@schools.nyc.gov>; Ulrich Katie <KUlrich@schools.nyc.gov>; Colin-patel Jenna <JColinPatel@schools.nyc.gov>; Fitzgerald Mary Beth <MFitzgerald8@schools.nyc.gov>;Ehrenberg Ira<IEhrenberg@schools.nyc.gov>; Perez Jerry <jperez42@schools.nyc.gov>; Monaco Emma <emonaco@schools.nyc.gov>; Mandel Betsy <bmandel6@schools.nyc.gov>;Krayets Alexandra <akrayets@schools.nyc.gov>; Kostel Matt <mkostel@schools.nyc.gov>; Kessler Jessica <Jkessler6@schools.nyc.gov>;Figaro Jenny <jfigaro@schools.nyc.gov>;Fenoaltea Gina <gfenoaltea@schools.nyc.gov>;Fenice Melissa <mfenice@schools.nyc.gov>;Fabel Suzanne <sfabel@schools.nyc.gov>; Campos Yesenia <ycampos3@schools.nyc.gov>; Nabie-Corbin Betty <BNabiecorbin@schools.nyc.gov>; Lambert Camille <CLambert5@schools.nyc.gov>; Felix Antoinette <AFelix19@schools.nyc.gov>;Saneddy Quezada <SQuezada@schools.nyc.gov>;Marisa Colonna <MColonna2@schools.nyc.gov>; Feliz Karina <KFeliz@schools.nyc.gov>; Chodos Carson <CChodos@schools.nyc.gov>; Bethany Sanchez <BSanchez9@schools.nyc.gov>; Rajyalakshmi Munnangi <rmunnangi@schools.nyc.gov>;Alexandre Serge <SAlexandre2@schools.nyc.gov>;Gibson Shona <SGibson4@schools.nyc.gov>; Pandey Nick <npandey@schools.nyc.gov>; Magras Yekaterina <ymagras@schools.nyc.gov>; Avila Megan <mavila2@schools.nyc.gov>; Almeida Rebecca <ralmeida2@schools.nyc.gov>; Gottlieb Mandy <MGottlieb7@schools.nyc.gov>; Vidhi Dharia <vdharia@schools.nyc.gov>; Volpe Cen <CVolpe4@schools.nyc.gov>; Dedaj Victoria <VDedaj@schools.nyc.gov>; Burnside Eric <EBurnside@schools.nyc.gov>; Odonnell Tricia (09X294) <TOdonnell2@schools.nyc.gov>; Mcfadden Melinda <MMcfadden9@schools.nyc.gov>; Rambaran Stephanie <SRambaran2@schools.nyc.gov>; Lipkowitz Michael <MLipkowitz@schools.nyc.gov>; Lewis Abbey <ALewis22@schools.nyc.gov>; Livingston Stacy <SLivingston2@schools.nyc.gov>; Bajana Sarah <SBajana@schools.nyc.gov>;Edwards Erin <EEdwards14@schools.nyc.gov>; Oppenheimer Daniella <doppenheimer3@schools.nyc.gov>; Demosthenes Aisha <ademosthenes@schools.nyc.gov>; Asaro Michelle <MAsaro3@schools.nyc.gov>;Galaise Jeffrey <JGalaise@schools.nyc.gov>; Johal Kamajit <KJohal@schools.nyc.gov>; Rivera Ivelisse <IRivera22@schools.nyc.gov>; Chasabenis Stamatis <SChasab@schools.nyc.gov>; Chan Lucilla <LChan10@schools.nyc.gov>;Lavergne Shakir <SLavergne@schools.nyc.gov>; Singleton Michelle <MSingle@schools.nyc.gov>; Sam Sasha <SSam2@schools.nyc.gov>; Miragliotta Carla <cmiragliotta@schools.nyc.gov>; Goodman Margaret <mgoodman3@schools.nyc.gov>; Richardson Muriel <MRichardson3@schools.nyc.gov>;Alcantara Fatima <FAlcantara@schools.nyc.gov>; Alexander Carmen <CAlexan2@schools.nyc.gov>; Allen Michele <MAllen5@schools.nyc.gov>; \
+        mailItem.To = 'Joseph Kurtz <JKurtz2@schools.nyc.gov>;Jerry Perez <JPerez42@schools.nyc.gov>; Crystal Davis <CDavis34@schools.nyc.gov>; Andre Harrison <AHarrison11@schools.nyc.gov>;Corleto Coty <CCorleto@schools.nyc.gov>; Libfeld Alison <ALibfeld@schools.nyc.gov>; Ulrich Katie <KUlrich@schools.nyc.gov>; Colin-patel Jenna <JColinPatel@schools.nyc.gov>; Fitzgerald Mary Beth <MFitzgerald8@schools.nyc.gov>;Ehrenberg Ira<IEhrenberg@schools.nyc.gov>; Perez Jerry <jperez42@schools.nyc.gov>; Monaco Emma <emonaco@schools.nyc.gov>; Mandel Betsy <bmandel6@schools.nyc.gov>;Krayets Alexandra <akrayets@schools.nyc.gov>; Kostel Matt <mkostel@schools.nyc.gov>; Kessler Jessica <Jkessler6@schools.nyc.gov>;Figaro Jenny <jfigaro@schools.nyc.gov>;Fenoaltea Gina <gfenoaltea@schools.nyc.gov>;Fenice Melissa <mfenice@schools.nyc.gov>;Fabel Suzanne <sfabel@schools.nyc.gov>; Campos Yesenia <ycampos3@schools.nyc.gov>; Nabie-Corbin Betty <BNabiecorbin@schools.nyc.gov>; Lambert Camille <CLambert5@schools.nyc.gov>; Felix Antoinette <AFelix19@schools.nyc.gov>;Saneddy Quezada <SQuezada@schools.nyc.gov>;Marisa Colonna <MColonna2@schools.nyc.gov>; Feliz Karina <KFeliz@schools.nyc.gov>; Chodos Carson <CChodos@schools.nyc.gov>; Bethany Sanchez <BSanchez9@schools.nyc.gov>; Rajyalakshmi Munnangi <rmunnangi@schools.nyc.gov>;Alexandre Serge <SAlexandre2@schools.nyc.gov>;Gibson Shona <SGibson4@schools.nyc.gov>; Pandey Nick <npandey@schools.nyc.gov>; Magras Yekaterina <ymagras@schools.nyc.gov>; Avila Megan <mavila2@schools.nyc.gov>; Almeida Rebecca <ralmeida2@schools.nyc.gov>; Gottlieb Mandy <MGottlieb7@schools.nyc.gov>; Vidhi Dharia <vdharia@schools.nyc.gov>; Volpe Cen <CVolpe4@schools.nyc.gov>; Dedaj Victoria <VDedaj@schools.nyc.gov>; Burnside Eric <EBurnside@schools.nyc.gov>; Odonnell Tricia (09X294) <TOdonnell2@schools.nyc.gov>; Mcfadden Melinda <MMcfadden9@schools.nyc.gov>; Rambaran Stephanie <SRambaran2@schools.nyc.gov>; Lipkowitz Michael <MLipkowitz@schools.nyc.gov>; Lewis Abbey <ALewis22@schools.nyc.gov>; Livingston Stacy <SLivingston2@schools.nyc.gov>; Bajana Sarah <SBajana@schools.nyc.gov>;Edwards Erin <EEdwards14@schools.nyc.gov>; Oppenheimer Daniella <doppenheimer3@schools.nyc.gov>; Demosthenes Aisha <ademosthenes@schools.nyc.gov>; Asaro Michelle <MAsaro3@schools.nyc.gov>;Galaise Jeffrey <JGalaise@schools.nyc.gov>; Johal Kamajit <KJohal@schools.nyc.gov>; Rivera Ivelisse <IRivera22@schools.nyc.gov>; Chasabenis Stamatis <SChasab@schools.nyc.gov>; Chan Lucilla <LChan10@schools.nyc.gov>;Lavergne Shakir <SLavergne@schools.nyc.gov>; Singleton Michelle <MSingle@schools.nyc.gov>; Sam Sasha <SSam2@schools.nyc.gov>; Miragliotta Carla <cmiragliotta@schools.nyc.gov>; Goodman Margaret <mgoodman3@schools.nyc.gov>; Richardson Muriel <MRichardson3@schools.nyc.gov>;Alcantara Fatima <FAlcantara@schools.nyc.gov>; Alexander Carmen <CAlexan2@schools.nyc.gov>; Allen Michele <MAllen5@schools.nyc.gov>; \
         Antrobus Vann Abigail <AAntrobus@schools.nyc.gov>; Anzalone Christopher <CAnzalone2@schools.nyc.gov>; Aridas Cynthia <CAridas@schools.nyc.gov>;  \
         Bascoe Tanika <TBascoe@schools.nyc.gov>; Bastien-reneliq Stacy <SBastien@schools.nyc.gov>; Battista Michael <MBattis@schools.nyc.gov>; Ben-Moshe Yael <YBen-Moshe@schools.nyc.gov>; \
         Bernstein Edward <EBernstein6@schools.nyc.gov>; Berry Raquel <RBerry2@schools.nyc.gov>; Bethea Jenel <JBethea@schools.nyc.gov>; Bishop Andrea <ABishop3@schools.nyc.gov>; \
@@ -604,6 +607,79 @@ class Automation_SY24_25:
         mailItem.Save()
         mailItem.Send()
 
+    def data_validation(self):
+        import pyodbc
+        # Database connection details
+        driver = 'SQL Server'
+        server = 'ES00VPADOSQL180,51433'
+        database = 'SEO_MART'
+
+        # Connect to the database
+        connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};'
+        conn = pyodbc.connect(connection_string)
+        # SQL Queries
+        with conn.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS #RPTArch")
+            cursor.execute(f"""
+            SELECT * INTO #RPTArch
+            FROM SEO_MART.arch.RPT_RSProvisioning
+            WHERE processeddate = '{self.lastweek}'
+            """)
+            
+            cursor.execute("DROP TABLE IF EXISTS #RPTDev")
+            cursor.execute(f"""
+            SELECT * INTO #RPTDev
+            FROM dbo.RPT_RSProvisioning
+            WHERE processeddate = '{self.thisweek}'
+            """)
+
+        # Fetch validation counts
+        validation_queries = {
+            f'{self.lastweek}_total': f"SELECT COUNT(*) AS [{self.lastweek}] FROM #RPTArch",
+            f'{self.lastweek}_status': f"""
+                SELECT COUNT(*) AS [{self.lastweek}], encounterStatus 
+                FROM #RPTArch
+                GROUP BY encounterStatus
+            ORDER BY encounterStatus
+        """,
+        f'{self.thisweek}_total': f"SELECT COUNT(*) AS [{self.thisweek}] FROM #RPTDev",
+        f'{self.thisweek}_status': f"""
+            SELECT COUNT(*) AS [{self.thisweek}], encounterStatus 
+            FROM #RPTDev
+            GROUP BY encounterStatus
+            ORDER BY encounterStatus
+        """
+    }
+
+        results = {}
+
+        # Execute validation queries and store the results
+        with conn.cursor() as cursor:
+            for key, query in validation_queries.items():
+                cursor.execute(query)
+                if "status" in key:  # If the query involves grouping by encounterStatus
+                    results[key] = cursor.fetchall()  # Fetch all grouped rows
+                else:
+                    results[key] = cursor.fetchone()[0]  # Fetch the single count result
+
+        # Data validation logic
+        # Extract results
+        total_lastweek = results[f'{self.lastweek}_total']
+        total_thisweek = results[f'{self.thisweek}_total']
+        encounter_lastweek = {row[1]: row[0] for row in results[f'{self.lastweek}_status']}  # Map encounterStatus to count
+        encounter_thisweek = {row[1]: row[0] for row in results[f'{self.thisweek}_status']}
+
+        # Calculate differences
+        total_diff = abs(total_thisweek - total_lastweek)
+        full_encounter_diff = encounter_thisweek.get('Full Encounter', 0) - encounter_lastweek.get('Full Encounter', 0)
+
+        # Validation checks
+        if total_diff < 10000 and full_encounter_diff >= 0:
+            print("RS encounter number is good, continue to run related services.")
+        else:
+            print("Data validation failed, further investigation needed.")
+            print(f"Total difference: {total_diff}, Full Encounter difference: {full_encounter_diff}")
+        return results
 
 
     def archive_rs_borough(self):
@@ -622,12 +698,34 @@ class Automation_SY24_25:
 
 if __name__ == '__main__':
     processor = Automation_SY24_25()
+
+    # Run the process if within the specified date range
     if datetime.datetime(2024, 8, 1) <= datetime.datetime.today() <= datetime.datetime(2025, 6, 30):
-        processor.RelatedServices()
-        processor.R_Process()
-        processor.rerun_R() 
-        processor.rs_charter_send_outlook_email()
-        processor.ms_send_outlook_email()
+        # Validate data before running further processes
+        validation_results = processor.data_validation()
+        
+        # Extract necessary validation results
+        total_diff = abs(
+            validation_results[f'{processor.thisweek}_total'] - validation_results[f'{processor.lastweek}_total']
+        )
+        full_encounter_diff = (
+            validation_results[f'{processor.thisweek}_status'][0][0] - 
+            validation_results[f'{processor.lastweek}_status'][0][0]
+        )
+        
+        # Check if validation passed
+        if total_diff < 10000 and full_encounter_diff >= 0:
+            print("Data validation passed. Running related services processing...")
+            processor.RelatedServices()
+            processor.R_Process()
+            processor.rerun_R()
+            processor.rs_charter_send_outlook_email()
+            processor.ms_send_outlook_email()
+        else:
+            print("Data validation failed. Skipping related services processing.")
+            print(f"Total difference: {total_diff}, Full Encounter difference: {full_encounter_diff}")
+    
+    # Additional condition for compliance email and archive
     if datetime.datetime(2024, 9, 1) <= datetime.datetime.today() <= datetime.datetime(2025, 6, 30):
         processor.rs_compliace_send_outlook_email()
         processor.archive_rs_borough()
