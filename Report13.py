@@ -339,7 +339,7 @@ class Solution:
         ws['B50'].alignment = Alignment(wrap_text=True)
         # make cell B1 higher to fit the text
         ws.row_dimensions[1].height = 30           
-    def Report_11_3Yr_Reevaluations(self):
+    def Report_13_3Yr_Reevaluations(self):
         title_cells = [
             {"cell": "B1", "value": "Report 13 Three-Year Reevaluations Disaggregated by:  District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level;  Temp House Status and Foster Care Status.", "merge_cells": "B1:E1"},
             
@@ -441,4 +441,4 @@ class Solution:
 
 if __name__ == "__main__":
         Tab1 = Solution()
-        Tab1.Report_11_3Yr_Reevaluations()                                                                  
+        Tab1.Report_13_3Yr_Reevaluations()                                                                  
