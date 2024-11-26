@@ -344,7 +344,7 @@ class Solution:
         # wrap text of B50 cell having 'Eligible for the Free/Reduced Price Lunch Program' to fit the cell
         ws['B50'].alignment = Alignment(wrap_text=True)
         
-    def main_Report_9_Placement(self):
+    def main_Report_11_Placement(self):
         title_cells = [
             {"cell": "B1", "value": "Report 11 Average Number of School Days from Initial IEP Meeting to Placement Notice Disaggregated by: District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level;  Temp House Status and Foster Care Status.", "merge_cells": "B1:U1"},
             
@@ -444,4 +444,4 @@ class Solution:
 
 if __name__ == "__main__":
         Tab1 = Solution()
-        Tab1.main_Report_9_Placement()                                                                  
+        Tab1.main_Report_11_Placement()                                                                  
