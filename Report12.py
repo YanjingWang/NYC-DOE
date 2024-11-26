@@ -372,7 +372,7 @@ class Solution:
         ws.row_dimensions[1].height = 30
         ws.row_dimensions[62].height = 30
         ws.row_dimensions[68].height = 30       
-    def Report_10_LRE_MRE(self):
+    def Report_12_LRE_MRE(self):
         title_cells = [
             {"cell": "B1", "value": "Report 12 LRE/MRE Disaggregated by:  District; Race/Ethnicity; Meal Status; Gender; ELL Status; Recommended Language of Instruction; Grade Level;  Temp House Status and Foster Care Status.", "merge_cells": "B1:F1"},
             
@@ -468,4 +468,4 @@ class Solution:
 
 if __name__ == "__main__":
         Tab1 = Solution()
-        Tab1.Report_10_LRE_MRE()                                                                  
+        Tab1.Report_12_LRE_MRE()                                                                  
