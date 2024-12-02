@@ -13,7 +13,7 @@ class RSPointListGeneration:
         self.today = date.today().strftime("%Y-%m-%d")
         self.todayfilesuffix = date.today().strftime("%m%d%Y")
         self.todayRSPointList = date.today().strftime("%Y-%m-%d")
-        self.todayRSfilename = 'rs point list 2025 updated 08-12-24 2024-11-25T15_27_36.218Z.xlsx'
+        self.todayRSfilename = 'rs point list 2025 updated 08-12-24 2024-12-02T13_45_04.978Z.xlsx'
 
     def RSPointListGeneration(self):
         os.chdir(r"C:\Users\Ywang36\Downloads")
