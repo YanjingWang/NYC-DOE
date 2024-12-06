@@ -49,3 +49,15 @@ This guidance outlines the steps to configure, execute, and verify the functiona
 * Modify `file_configs` to include only the desired report and configuration.
 
 1. If SY25 has same format as SY24, don't need to create `redaction_config_SY25.py`, just use `redaction_config_SY24.py`
+
+## Some Overredactions need to be manually done accordind to limitations
+
+1.same value but since Python always redacts from left to right so it picks the left one but actually the right one is optimal
+
+https://seoanalytics.atlassian.net/browse/MIS-12161?atlOrigin=eyJpIjoiMDk1NzlmNTQxMTllNDQ5OWI5N2ZlNWEyNjZlNjY0NDUiLCJwIjoiaiJ9
+
+Explanation: This one has to be manually fixed because there are two 0 and Python will always redact the first 0 it finds
+
+2.initial masking masked the smallest unredacted data in the same column when <5 accured but futhur masking masked other data
+
+https://seoanalytics.atlassian.net/browse/MIS-12159?atlOrigin=eyJpIjoiYTVmZTgwYmJjYzI0NDU5Njk1NTgzNWRhYWZkMDVmMzIiLCJwIjoiaiJ9
