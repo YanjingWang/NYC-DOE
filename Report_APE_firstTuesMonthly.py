@@ -4,6 +4,8 @@ import urllib
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 from datetime import datetime
+import win32com.client as win32
+from datetime import datetime, timedelta
 
 class DMLOfficeRport1:
     def __init__(self, schoolyear='SY 2024-2025'):
@@ -30,6 +32,10 @@ class DMLOfficeRport1:
         self.lastrow = self.get_row_count()
         self.datestamp = self.get_latest_processed_date()
         self.folderpath = fr'R:\\'
+        self.todayfilesuffix = datetime.today().strftime('%m%d%Y')
+        self.today = datetime.today().strftime('%m/%d/%Y')
+        self.yesterdayfilesuffix = (datetime.today() - timedelta(days=1)).strftime('%m%d%Y')
+        self.yestoday = (datetime.today() - timedelta(days=1)).strftime('%m/%d/%Y')
 
     def get_row_count(self):
         query = "SELECT COUNT(*) AS row_count FROM [SEO_MART].[dbo].[RPT_AdaptedPEAccessibleNeeds] WHERE EnrolledSchoolSetting = 'csd'"
@@ -114,13 +120,45 @@ class DMLOfficeRport1:
         workbook.save(output_file)
 
         print(f"Excel report with borders has been created: {output_file}")
+    
+    def rspointlist_send_outlook_email(self):
+        # construct Outlook application instance
+        olApp = win32.Dispatch('Outlook.Application')
+        olNS = olApp.GetNameSpace('MAPI')
+
+        # construct the email item object
+        mailItem = olApp.CreateItem(0)
+        mailItem.Subject = 'APE Report for {0}'.format(
+            (datetime.today() - timedelta(days=1)).strftime('%m-%d-%Y'))
+        mailItem.BodyFormat = 1
+        mailItem.Body = f"""
+        Hello Jana, \n
+        PFA, for the latest version of the APE report with data as of {self.yestoday}.\n
+        Please feel free to reach out if you have any questions!\n       
+        Thanks,\n
+        Charlotte
+        """
+        mailItem.To = 'Jana Moran <JMoran8@schools.nyc.gov>;'
+
+        mailItem.Cc = 'Alan Powers <APowers3@schools.nyc.gov>; Rajyalakshmi Munnangi <rmunnangi@schools.nyc.gov>; Nutter Grace <GNutter@schools.nyc.gov>; Ariel Hermitt <AHermitt@schools.nyc.gov>; Manasi Joshi <MJoshi5@schools.nyc.gov>; Prasanth Kumar Bonam <PBonam@schools.nyc.gov>;'
+
+        mailItem.Attachments.Add(rf"R:\\SEO Analytics\Reporting\Adapted PE Reports\Adapted_PE_AccessibleNeeds_{self.yesterdayfilesuffix}.xlsx")
+
+
+        mailItem.Display()
+
+        mailItem.Save()
+        mailItem.Send()    
 
 def is_first_tuesday():
     today = datetime.today()
     print(today.weekday() == 1 and 1 <= today.day <= 7)
 if __name__ == '__main__':
-    if is_first_tuesday():
-        report = DMLOfficeRport1()
-        report.create_excel_report()
-    else:
-        print('Not the first Tuesday of the month')
+    report = DMLOfficeRport1()
+    report.create_excel_report()
+    # if is_first_tuesday():
+    #     report = DMLOfficeRport1()
+    #     report.create_excel_report()
+    #     report.rspointlist_send_outlook_email()
+    # else:
+    #     print('Not the first Tuesday of the month')
