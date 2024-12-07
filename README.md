@@ -9,3 +9,5 @@ scripts\activate
 pip list
 
 pip install pywin32
+
+![Win32 Install](./Win32%20Install%20.png)
